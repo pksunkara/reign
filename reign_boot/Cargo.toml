@@ -1,6 +1,6 @@
 [package]
 name = "reign_boot"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
@@ -17,5 +17,6 @@ name = "reign_boot"
 path = "src/lib.rs"
 
 [dependencies]
+dotenv = "0.15.0"
 
 [dev-dependencies]
