@@ -1,4 +1,5 @@
 use dotenv;
+use env_logger;
 use std::env;
 
 fn build_env_file_heirarchy(environment: String) -> Vec<String> {
@@ -29,6 +30,11 @@ fn load_env_files() {
 
 pub fn boot() {
     load_env_files();
+
+    // TODO: Allow custom loggers by adding an option to exclude this call
+    env_logger::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format_timestamp(None)
+        .init();
 }
 
 #[cfg(test)]

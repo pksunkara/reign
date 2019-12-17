@@ -21,7 +21,8 @@ name = "reign"
 path = "src/lib.rs"
 
 [dependencies]
-reign_boot = { version = "0.1.1", path = "./reign_boot" }
+reign_boot = { path = "./reign_boot", version = "0.1.1" }
+log = "0.4.8"
 
 [dev-dependencies]
 
