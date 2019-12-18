@@ -22,11 +22,17 @@ path = "src/lib.rs"
 
 [dependencies]
 reign_boot = { path = "./reign_boot", version = "0.1.1" }
+reign_derive = { path = "./reign_derive", version = "0.1.1" }
 log = "0.4.8"
+gotham = "0.4.0"
+hyper = "0.12.32"
+askama = "0.8.0"
+mime = "0.3.14"
 
 [dev-dependencies]
 
 [workspace]
 members = [
 	"reign_boot",
+	"reign_derive",
 ]
