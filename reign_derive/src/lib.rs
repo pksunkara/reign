@@ -30,8 +30,8 @@ pub fn views(attr: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn form(_: TokenStream, input: TokenStream) -> TokenStream {
+pub fn read_form(_: TokenStream, input: TokenStream) -> TokenStream {
     let item: ItemFn = parse_macro_input!(input);
 
-    form::form_attribute(item).into()
+    form::read_form_attribute(item).into()
 }

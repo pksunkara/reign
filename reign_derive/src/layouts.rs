@@ -55,7 +55,7 @@ pub fn layouts_attribute(item: ItemMod) -> TokenStream {
     quote! {
         pub mod layouts {
             use ::askama::Template;
-            use ::reign::derives::Layout;
+            use ::reign::prelude::Layout;
 
             #(#result)*
 

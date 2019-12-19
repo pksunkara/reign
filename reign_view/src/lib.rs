@@ -13,32 +13,26 @@ pub trait Layout: Template {
 #[macro_export]
 macro_rules! render {
     ($state:ident, $template:expr, $layout:ident { $($f:ident : $e:expr),* $(,)? } $(,)?) => {
-        if let response = ::reign::view::respond(&$state, $template, crate::layouts::$layout {
+        ::reign::view::respond($state, $template, crate::layouts::$layout {
             $(
                 $f: $e,
             )*
-        }) {
-            ($state, response)
-        } else {
-            panic!("unable to call respond");
-        }
+        })
     };
     ($state:ident, $template:expr, $layout:ident $(,)?) => {
-        if let response =
-            ::reign::view::respond(&$state, $template, crate::layouts::$layout::default())
-        {
-            ($state, response)
-        } else {
-            panic!("unable to call respond");
-        }
+        ::reign::view::respond($state, $template, crate::layouts::$layout::default())
     };
     ($state:ident, $template:expr $(,)?) => {
         render!($state, $template, LayoutApplication)
     };
 }
 
-pub fn respond<T: Template, L: Layout>(state: &State, template: T, layout: L) -> Response<Body> {
-    match template.render() {
+pub fn respond<T: Template, L: Layout>(
+    state: State,
+    template: T,
+    layout: L,
+) -> (State, Response<Body>) {
+    let response = match template.render() {
         Ok(content) => match layout.content(content).render() {
             Ok(content) => create_response(
                 &state,
@@ -49,5 +43,7 @@ pub fn respond<T: Template, L: Layout>(state: &State, template: T, layout: L) ->
             Err(_) => create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR),
         },
         Err(_) => create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR),
-    }
+    };
+
+    (state, response)
 }

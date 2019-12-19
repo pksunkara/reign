@@ -2,12 +2,13 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::ItemFn;
 
-pub fn form_attribute(item: ItemFn) -> TokenStream {
+pub fn read_form_attribute(item: ItemFn) -> TokenStream {
     let ItemFn {
         attrs, sig, block, ..
     } = item;
     let stmts = (*block).stmts;
 
+    // TODO: No need for return type
     quote! {
         use ::gotham::{handler::IntoHandlerError, state::FromState};
         use ::url::form_urlencoded;
@@ -19,8 +20,8 @@ pub fn form_attribute(item: ItemFn) -> TokenStream {
                 .concat2()
                 .then(|full_body| match full_body {
                     Ok(valid_body) => {
-                        let body_content = valid_body.into_bytes();
-                        let form_data = form_urlencoded::parse(&body_content).into_owned();
+                        let body = valid_body.into_bytes();
+                        let form_data = form_urlencoded::parse(&body).into_owned();
 
                         future::ok({
                             #(#stmts)*

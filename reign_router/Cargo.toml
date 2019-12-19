@@ -1,0 +1,21 @@
+[package]
+name = "reign_router"
+version = "0.1.1"
+authors = [
+	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
+]
+edition = "2018"
+description = "Isomorphic Web Framework in Rust"
+repository = "https://github.com/pksunkara/reign"
+keywords = ["isomorphic", "web", "framework", "reign"]
+categories = []
+license = "MIT"
+readme = "README.md"
+
+[lib]
+name = "reign_router"
+path = "src/lib.rs"
+
+[dependencies]
+gotham = "0.4.0"
+hyper = "0.12.32"
