@@ -8,6 +8,7 @@ pub trait Layout: Template {
     fn content(self, content: String) -> Self;
 }
 
+// TODO: Convert to macro 2.0
 // TODO: Capture local variables unhygienically and send them to templates
 #[macro_export]
 macro_rules! render {
