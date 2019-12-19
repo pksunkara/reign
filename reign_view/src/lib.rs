@@ -8,6 +8,7 @@ pub trait Layout: Template {
     fn content(self, content: String) -> Self;
 }
 
+// TODO: Capture local variables unhygienically and send them to templates
 #[macro_export]
 macro_rules! render {
     ($state:ident, $template:expr, $layout:ident { $($f:ident : $e:expr),* $(,)? } $(,)?) => {

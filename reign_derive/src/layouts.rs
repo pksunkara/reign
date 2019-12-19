@@ -5,7 +5,7 @@ use regex::Regex;
 use std::{env, path::PathBuf};
 use syn::{DeriveInput, Ident, Item, ItemMod};
 
-static LAYOUT_PANIC: &str = "'layouts' attribute macro is allowed only on 'pub mod layouts'";
+static LAYOUTS_MACRO_PANIC: &str = "'layouts' attribute macro is allowed only on 'pub mod layouts'";
 
 pub fn layouts_attribute(item: Item) -> TokenStream {
     match item {
@@ -16,7 +16,7 @@ pub fn layouts_attribute(item: Item) -> TokenStream {
             };
 
             if ident != "layouts" {
-                panic!(LAYOUT_PANIC);
+                panic!(LAYOUTS_MACRO_PANIC);
             }
 
             let mut layouts = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
@@ -41,6 +41,7 @@ pub fn layouts_attribute(item: Item) -> TokenStream {
                     let ident = Ident::new(&format!("Layout{}", cased), Span::call_site());
                     let file_name_str = format!("layouts/{}", file_name);
 
+                    // TODO: Read template and auto declare needed fields in struct
                     result.push(quote! {
                         #[derive(Debug, Default, Layout, Template)]
                         #[template(path = #file_name_str)]
@@ -62,7 +63,7 @@ pub fn layouts_attribute(item: Item) -> TokenStream {
                 }
             }
         }
-        _ => panic!(LAYOUT_PANIC),
+        _ => panic!(LAYOUTS_MACRO_PANIC),
     }
 }
 
