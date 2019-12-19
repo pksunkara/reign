@@ -12,7 +12,7 @@ pub trait Layout: Template {
 macro_rules! render {
     ($state:ident, $template:expr, $layout:ident) => {
         if let response =
-            reign::views::respond(&$state, $template, crate::views::$layout::default())
+            ::reign::view::respond(&$state, $template, crate::layouts::$layout::default())
         {
             ($state, response)
         } else {
