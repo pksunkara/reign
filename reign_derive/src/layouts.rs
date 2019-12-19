@@ -1,11 +1,11 @@
-use proc_macro2::TokenStream;
+use heck::CamelCase;
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use regex::Regex;
 use std::{env, path::PathBuf};
-use syn::{DeriveInput, Item, ItemMod};
+use syn::{DeriveInput, Ident, Item, ItemMod};
 
-static LAYOUT_PANIC: &'static str =
-    "'layouts' attribute macro is allowed only on 'pub mod layouts'";
+static LAYOUT_PANIC: &str = "'layouts' attribute macro is allowed only on 'pub mod layouts'";
 
 pub fn layouts_attribute(item: Item) -> TokenStream {
     match item {
@@ -20,22 +20,31 @@ pub fn layouts_attribute(item: Item) -> TokenStream {
             }
 
             let mut layouts = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-            let html = Regex::new(r"([a-zA-Z][a-zA-Z0-9_])*\.html$").unwrap();
+            let html_regex = Regex::new(r"^([a-zA-Z][a-zA-Z0-9_]*)\.html$").unwrap();
+            let replacer_regex = Regex::new(r"\.html$").unwrap();
             let mut result = vec![];
 
             layouts.push("src");
             layouts.push("views");
             layouts.push("layouts");
 
-            for entry in layouts.read_dir().expect("Reading layouts dir failed") {
+            for entry in layouts.read_dir().expect("reading layouts dir failed") {
                 if let Ok(entry) = entry {
-                    let file_name = entry.file_name();
-                    let file_name_str = format!("layouts/{}", file_name.to_str().unwrap());
+                    let file_name_os_str = entry.file_name();
+                    let file_name = file_name_os_str.to_str().unwrap();
+
+                    if !html_regex.is_match(file_name) {
+                        continue;
+                    }
+
+                    let cased = replacer_regex.replace(file_name, "").to_camel_case();
+                    let ident = Ident::new(&format!("Layout{}", cased), Span::call_site());
+                    let file_name_str = format!("layouts/{}", file_name);
 
                     result.push(quote! {
                         #[derive(Debug, Default, Layout, Template)]
                         #[template(path = #file_name_str)]
-                        pub struct LayoutApplication {
+                        pub struct #ident {
                             content: String,
                         }
                     });

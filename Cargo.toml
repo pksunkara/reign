@@ -34,3 +34,7 @@ members = [
 	"reign_derive",
 	"reign_view",
 ]
+
+[[example]]
+name = "layouts_default"
+path = "examples/layouts/default/src/main.rs"

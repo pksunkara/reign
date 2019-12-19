@@ -10,7 +10,18 @@ pub trait Layout: Template {
 
 #[macro_export]
 macro_rules! render {
-    ($state:ident, $template:expr, $layout:ident) => {
+    ($state:ident, $template:expr, $layout:ident { $($f:ident : $e:expr),* $(,)? } $(,)?) => {
+        if let response = ::reign::view::respond(&$state, $template, crate::layouts::$layout {
+            $(
+                $f: $e,
+            )*
+        }) {
+            ($state, response)
+        } else {
+            panic!("unable to call respond");
+        }
+    };
+    ($state:ident, $template:expr, $layout:ident $(,)?) => {
         if let response =
             ::reign::view::respond(&$state, $template, crate::layouts::$layout::default())
         {
@@ -19,7 +30,7 @@ macro_rules! render {
             panic!("unable to call respond");
         }
     };
-    ($state:ident, $template:expr) => {
+    ($state:ident, $template:expr $(,)?) => {
         render!($state, $template, LayoutApplication)
     };
 }
