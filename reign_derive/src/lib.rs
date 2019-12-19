@@ -7,6 +7,30 @@ mod form;
 mod layouts;
 mod views;
 
+/// Auto load the layouts (askama templates) from `src/views/layouts` directory
+///
+/// # Examples
+///
+/// ```
+/// use reign::prelude::layouts;
+///
+/// #[layouts]
+/// pub mod layouts {}
+/// ```
+///
+/// ```
+/// use reign::prelude::layouts;
+///
+/// #[layouts]
+/// pub mod layouts {
+///     #[derive(Debug, Layout, Template)]
+///     #[template(path = "layouts/_plain.html")]
+///     pub struct LayoutPlain {
+///         pub content: String,
+///         pub title: String,
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn layouts(_: TokenStream, input: TokenStream) -> TokenStream {
     let item: ItemMod = parse_macro_input!(input);

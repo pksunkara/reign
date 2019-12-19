@@ -19,3 +19,6 @@ path = "src/lib.rs"
 [dependencies]
 gotham = "0.4.0"
 hyper = "0.12.32"
+
+[dev-dependencies]
+reign = { path = "../" }
