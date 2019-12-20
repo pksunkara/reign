@@ -8,7 +8,7 @@ pub fn read_form_attribute(item: ItemFn) -> TokenStream {
     } = item;
     let stmts = (*block).stmts;
 
-    // TODO: No need for return type
+    // TODO: No need for return type in sig
     quote! {
         use ::gotham::{handler::IntoHandlerError, state::FromState};
         use ::url::form_urlencoded;

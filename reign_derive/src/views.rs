@@ -3,21 +3,25 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use regex::Regex;
 use std::{env, path::PathBuf};
-use syn::{Ident, ItemMod};
+use syn::{
+    parse::{Parse, ParseStream, Result},
+    Ident,
+};
 
-static VIEWS_MACRO_PANIC: &str = "'views' attribute macro is allowed only on 'mod views'";
+pub(super) struct Views {
+    folder: Ident,
+}
 
-pub fn views_attribute(attr: &str, item: ItemMod) -> TokenStream {
-    let ItemMod { ident, content, .. } = item;
+impl Parse for Views {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let folder: Ident = input.parse()?;
 
-    let content_items = match content {
-        Some((_, items)) => items,
-        None => vec![],
-    };
-
-    if ident != "views" {
-        panic!(VIEWS_MACRO_PANIC);
+        Ok(Views { folder })
     }
+}
+
+pub(super) fn views(input: Views) -> TokenStream {
+    let folder = input.folder.to_string();
 
     let mut dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let html_regex = Regex::new(r"^([a-zA-Z][a-zA-Z0-9_]*)\.html$").unwrap();
@@ -26,7 +30,7 @@ pub fn views_attribute(attr: &str, item: ItemMod) -> TokenStream {
 
     dir.push("src");
     dir.push("views");
-    dir.push(attr);
+    dir.push(&folder);
 
     for entry in dir.read_dir().expect("reading views dir failed") {
         if let Ok(entry) = entry {
@@ -39,24 +43,20 @@ pub fn views_attribute(attr: &str, item: ItemMod) -> TokenStream {
 
             let cased = replacer_regex.replace(file_name, "").to_camel_case();
             let ident = Ident::new(&format!("View{}", cased), Span::call_site());
-            let file_name_str = format!("{}/{}", attr, file_name);
+            let file_name_str = format!("{}/{}", &folder, file_name);
 
             // TODO: Read template and auto declare needed fields in struct
             result.push(quote! {
                 #[derive(Debug, Template)]
                 #[template(path = #file_name_str)]
-                pub(super) struct #ident {}
+                struct #ident {}
             });
         }
     }
 
     quote! {
-        mod views {
-            use ::askama::Template;
+        use ::askama::Template;
 
-            #(#result)*
-
-            #(#content_items)*
-        }
+        #(#result)*
     }
 }

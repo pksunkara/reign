@@ -3,22 +3,9 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use regex::Regex;
 use std::{env, path::PathBuf};
-use syn::{DeriveInput, Ident, ItemMod};
+use syn::{DeriveInput, Ident};
 
-static LAYOUTS_MACRO_PANIC: &str = "'layouts' attribute macro is allowed only on 'pub mod layouts'";
-
-pub fn layouts_attribute(item: ItemMod) -> TokenStream {
-    let ItemMod { ident, content, .. } = item;
-
-    let content_items = match content {
-        Some((_, items)) => items,
-        None => vec![],
-    };
-
-    if ident != "layouts" {
-        panic!(LAYOUTS_MACRO_PANIC);
-    }
-
+pub(super) fn layouts() -> TokenStream {
     let mut layouts = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let html_regex = Regex::new(r"^([a-zA-Z][a-zA-Z0-9_]*)\.html$").unwrap();
     let replacer_regex = Regex::new(r"\.html$").unwrap();
@@ -26,7 +13,7 @@ pub fn layouts_attribute(item: ItemMod) -> TokenStream {
 
     layouts.push("src");
     layouts.push("views");
-    layouts.push("layouts");
+    layouts.push("_layouts");
 
     for entry in layouts.read_dir().expect("reading layouts dir failed") {
         if let Ok(entry) = entry {
@@ -38,8 +25,8 @@ pub fn layouts_attribute(item: ItemMod) -> TokenStream {
             }
 
             let cased = replacer_regex.replace(file_name, "").to_camel_case();
-            let ident = Ident::new(&format!("Layout{}", cased), Span::call_site());
-            let file_name_str = format!("layouts/{}", file_name);
+            let ident = Ident::new(&cased, Span::call_site());
+            let file_name_str = format!("_layouts/{}", file_name);
 
             // TODO: Read template and auto declare needed fields in struct
             result.push(quote! {
@@ -53,18 +40,14 @@ pub fn layouts_attribute(item: ItemMod) -> TokenStream {
     }
 
     quote! {
-        pub mod layouts {
-            use ::askama::Template;
-            use ::reign::prelude::Layout;
+        use ::askama::Template;
+        use ::reign::prelude::Layout;
 
-            #(#result)*
-
-            #(#content_items)*
-        }
+        #(#result)*
     }
 }
 
-pub fn layout_derive(input: DeriveInput) -> TokenStream {
+pub(super) fn layout_derive(input: DeriveInput) -> TokenStream {
     let ident = &input.ident;
 
     quote! {
