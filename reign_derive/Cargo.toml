@@ -1,6 +1,6 @@
 [package]
 name = "reign_derive"
-version = "0.1.1"
+version = "0.1.2"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]

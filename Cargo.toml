@@ -1,6 +1,6 @@
 [package]
 name = "reign"
-version = "0.1.1"
+version = "0.1.2"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
@@ -21,10 +21,10 @@ name = "reign"
 path = "src/lib.rs"
 
 [dependencies]
-reign_boot = { path = "./reign_boot", version = "0.1.1" }
-reign_derive = { path = "./reign_derive", version = "0.1.1" }
-reign_router = { path = "./reign_router", version = "0.1.1" }
-reign_view = { path = "./reign_view", version = "0.1.1" }
+reign_boot = { path = "./reign_boot", version = "0.1.2" }
+reign_derive = { path = "./reign_derive", version = "0.1.2" }
+reign_router = { path = "./reign_router", version = "0.1.2" }
+reign_view = { path = "./reign_view", version = "0.1.2" }
 log = "0.4.8"
 
 [dev-dependencies]
