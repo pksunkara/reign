@@ -14,9 +14,9 @@ pub(super) struct Views {
 
 impl Parse for Views {
     fn parse(input: ParseStream) -> Result<Self> {
-        let folder: Ident = input.parse()?;
-
-        Ok(Views { folder })
+        Ok(Views {
+            folder: input.parse()?,
+        })
     }
 }
 

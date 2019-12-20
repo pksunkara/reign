@@ -8,65 +8,6 @@ pub trait Layout: Template {
     fn content(self, content: String) -> Self;
 }
 
-// TODO: Convert to macro 2.0
-// TODO: Capture local variables unhygienically and send them to templates
-/// Shorthand notation for rendering a template in a controller action.
-///
-/// # Examples
-///
-/// Render the given template using the default application layout (`src/views/layouts/application.html`)
-///
-/// ```
-/// use reign::view::render;
-///
-/// pub fn handler(mut state: State) -> (State, Response<Body>) {
-///     render!(state, ViewIndex {})
-/// }
-/// ```
-///
-/// Render the given template using a different layout (`src/views/layouts/different.html`)
-///
-/// ```
-/// use reign::view::render;
-///
-/// pub fn handler(mut state: State) -> (State, Response<Body>) {
-///     render!(state, ViewIndex {}, LayoutDifferent)
-/// }
-/// ```
-///
-/// Render the given template using a non-standard layout
-///
-/// ```
-/// use reign::view::render;
-///
-/// pub fn handler(mut state: State) -> (State, Response<Body>) {
-///     render!(
-///         state,
-///         ViewIndex {},
-///         LayoutDifferent {
-///             title: "Application".to_string(),
-///             content: "".to_string(),
-///         },
-///     )
-/// }
-/// ```
-#[macro_export]
-macro_rules! render {
-    ($state:ident, $template:expr, $layout:ident { $($f:ident : $e:expr),* $(,)? } $(,)?) => {
-        ::reign::view::render($state, $template, crate::layouts::$layout {
-            $(
-                $f: $e,
-            )*
-        })
-    };
-    ($state:ident, $template:expr, $layout:ident $(,)?) => {
-        ::reign::view::render($state, $template, crate::layouts::$layout::default())
-    };
-    ($state:ident, $template:expr $(,)?) => {
-        render!($state, $template, LayoutApplication)
-    };
-}
-
 /// Renders an askama template with layout for gotham handler.
 ///
 /// # Examples
@@ -82,7 +23,7 @@ macro_rules! render {
 ///         },
 ///         Layout {
 ///             title: "Application".to_string(),
-///             content: "".to_string(),
+///             content: "".to_string(), // Should always be empty
 ///         },
 ///     )
 /// }

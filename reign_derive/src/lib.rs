@@ -69,3 +69,33 @@ pub fn read_form(_: TokenStream, input: TokenStream) -> TokenStream {
 
     form::read_form_attribute(item).into()
 }
+
+/// Shorthand notation for rendering a template in a controller action.
+///
+/// # Examples
+///
+/// Render the given template using the default application layout (`src/views/_layouts/application.html`)
+///
+/// ```
+/// use reign::view::render;
+///
+/// pub fn handler(mut state: State) -> (State, Response<Body>) {
+///     render!(ViewIndex {})
+/// }
+/// ```
+///
+/// Render the given template using a different layout (`src/views/_layouts/different.html`)
+///
+/// ```
+/// use reign::view::render;
+///
+/// pub fn handler(mut state: State) -> (State, Response<Body>) {
+///     render!(ViewIndex {}, Different)
+/// }
+/// ```
+#[proc_macro]
+pub fn render(input: TokenStream) -> TokenStream {
+    let input: render::Render = parse_macro_input!(input);
+
+    render::render(input).into()
+}

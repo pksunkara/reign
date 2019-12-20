@@ -1,9 +1,10 @@
 use gotham::helpers::http::response::*;
 use gotham::state::State;
-use hyper::{Body, Response};
+use hyper::{header, Body, Response, StatusCode};
+use std::borrow::Cow;
 
 // TODO: Allow non-string locations like route names etc..
-/// Creates a gotham response tuple that is a temporary redirect.
+/// Creates a gotham response tuple that is a redirect with status code 303.
 ///
 /// # Examples
 ///
@@ -14,8 +15,15 @@ use hyper::{Body, Response};
 ///     redirect(state, "/redirect")
 /// }
 /// ```
-pub fn redirect(state: State, location: &'static str) -> (State, Response<Body>) {
-    let response = create_temporary_redirect(&state, location);
+
+pub fn redirect<L: Into<Cow<'static, str>>>(state: State, location: L) -> (State, Response<Body>) {
+    let mut response = create_empty_response(&state, StatusCode::SEE_OTHER);
+
+    response.headers_mut().insert(
+        header::LOCATION,
+        location.into().to_string().parse().unwrap(),
+    );
+
     (state, response)
 }
 
@@ -44,7 +52,7 @@ mod tests {
 
         let headers = response.headers();
 
-        assert_eq!(response.status(), StatusCode::TEMPORARY_REDIRECT);
+        assert_eq!(response.status(), StatusCode::SEE_OTHER);
         assert_eq!(headers.contains_key(LOCATION), true);
         assert_eq!(headers[LOCATION], "/target");
     }
