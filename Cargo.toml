@@ -35,4 +35,6 @@ members = [
 	"reign_derive",
 	"reign_router",
 	"reign_view",
+
+	"examples/basic",
 ]

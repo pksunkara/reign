@@ -11,7 +11,7 @@ use std::borrow::Cow;
 /// ```
 /// use reign::router::redirect;
 ///
-/// pub fn handler(mut state: state) -> (State, Response<Body>) {
+/// pub fn handler(mut state: State) -> (State, Response<Body>) {
 ///     redirect(state, "/redirect")
 /// }
 /// ```

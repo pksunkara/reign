@@ -6,16 +6,16 @@ use std::{env, path::PathBuf};
 use syn::{DeriveInput, Ident};
 
 pub(super) fn layouts() -> TokenStream {
-    let mut layouts = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let mut dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let html_regex = Regex::new(r"^([a-zA-Z][a-zA-Z0-9_]*)\.html$").unwrap();
     let replacer_regex = Regex::new(r"\.html$").unwrap();
     let mut result = vec![];
 
-    layouts.push("src");
-    layouts.push("views");
-    layouts.push("_layouts");
+    dir.push("src");
+    dir.push("views");
+    dir.push("_layouts");
 
-    for entry in layouts.read_dir().expect("reading layouts dir failed") {
+    for entry in dir.read_dir().expect("reading layouts dir failed") {
         if let Ok(entry) = entry {
             let file_name_os_str = entry.file_name();
             let file_name = file_name_os_str.to_str().unwrap();

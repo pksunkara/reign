@@ -1,12 +1,17 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, ItemFn};
+use syn::{parse_macro_input, DeriveInput};
 
-// mod form;
 mod layouts;
 mod render;
+mod templates;
 mod views;
+
+#[proc_macro]
+pub fn templates(_: TokenStream) -> TokenStream {
+    templates::templates().into()
+}
 
 /// Auto load the layouts (askama templates) from `src/views/_layouts` directory.
 ///
@@ -65,13 +70,6 @@ pub fn views(input: TokenStream) -> TokenStream {
     views::views(input).into()
 }
 
-// #[proc_macro]
-// pub fn read_form(input: TokenStream) -> TokenStream {
-//     let item: util::Stmts = parse_macro_input!(input);
-
-//     form::read_form(item).into()
-// }
-
 /// Shorthand notation for rendering a template in a controller action.
 ///
 /// # Examples
@@ -79,7 +77,7 @@ pub fn views(input: TokenStream) -> TokenStream {
 /// Render the given template using the default application layout (`src/views/_layouts/application.html`)
 ///
 /// ```
-/// use reign::view::render;
+/// use reign::prelude::*;
 ///
 /// pub fn handler(mut state: State) -> (State, Response<Body>) {
 ///     render!(ViewIndex {})
@@ -89,7 +87,7 @@ pub fn views(input: TokenStream) -> TokenStream {
 /// Render the given template using a different layout (`src/views/_layouts/different.html`)
 ///
 /// ```
-/// use reign::view::render;
+/// use reign::prelude::*;
 ///
 /// pub fn handler(mut state: State) -> (State, Response<Body>) {
 ///     render!(ViewIndex {}, Different)

@@ -8,7 +8,7 @@ fn build_env_file_heirarchy(environment: String) -> Vec<String> {
 
     for i in 0..length {
         for j in i + 1..length {
-            heirarchy[i] = format!("{}.{}", heirarchy[i], heirarchy[j]);
+            heirarchy[i] = format!("{}.{}", heirarchy[j], heirarchy[i]);
         }
     }
 
@@ -45,7 +45,7 @@ mod tests {
     fn test_build_env_file_heirarchy() {
         assert_eq!(
             build_env_file_heirarchy(String::from("joe.qa.staging")),
-            ["staging", "qa.staging", "joe.qa.staging"]
+            ["staging", "staging.qa", "staging.qa.joe"]
         );
     }
 }
