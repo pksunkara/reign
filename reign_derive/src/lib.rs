@@ -3,7 +3,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput, ItemFn};
 
-mod form;
+// mod form;
 mod layouts;
 mod render;
 mod views;
@@ -49,6 +49,8 @@ pub fn derive_layout(input: TokenStream) -> TokenStream {
 
 /// Auto load the views (askama templates) from `src/views/[input]` directory.
 ///
+/// Ignores the files whose name do not start with an alphabet.
+///
 /// # Examples
 ///
 /// ```
@@ -63,12 +65,12 @@ pub fn views(input: TokenStream) -> TokenStream {
     views::views(input).into()
 }
 
-#[proc_macro_attribute]
-pub fn read_form(_: TokenStream, input: TokenStream) -> TokenStream {
-    let item: ItemFn = parse_macro_input!(input);
+// #[proc_macro]
+// pub fn read_form(input: TokenStream) -> TokenStream {
+//     let item: util::Stmts = parse_macro_input!(input);
 
-    form::read_form_attribute(item).into()
-}
+//     form::read_form(item).into()
+// }
 
 /// Shorthand notation for rendering a template in a controller action.
 ///

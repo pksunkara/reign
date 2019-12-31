@@ -23,7 +23,7 @@ pub trait Layout: Template {
 ///         },
 ///         Layout {
 ///             title: "Application".to_string(),
-///             content: "".to_string(), // Should always be empty
+///             content: "".to_string(), // Will be overridden by template
 ///         },
 ///     )
 /// }
