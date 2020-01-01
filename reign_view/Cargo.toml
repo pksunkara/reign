@@ -21,6 +21,10 @@ gotham = "0.4.0"
 hyper = "0.12.32"
 askama = "0.8.0"
 mime = "0.3.14"
+syn = { version = "1", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+regex = "1.3.1"
 
 [dev-dependencies]
 reign = { path = "../" }

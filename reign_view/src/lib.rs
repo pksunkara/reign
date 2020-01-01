@@ -4,6 +4,8 @@ use gotham::state::State;
 use hyper::{Body, Response, StatusCode};
 use mime;
 
+pub mod parse;
+
 pub trait Layout: Template {
     fn content(self, content: String) -> Self;
 }

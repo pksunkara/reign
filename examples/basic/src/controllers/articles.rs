@@ -7,9 +7,7 @@ use reign::prelude::*;
 views!(articles);
 
 pub fn list(state: State) -> (State, Response<Body>) {
-    let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Article List");
-
-    (state, response)
+    render!(ViewList {})
 }
 
 pub fn create(state: State) -> (State, Response<Body>) {

@@ -3,7 +3,8 @@ use quote::quote;
 
 use syn::{
     parse::{Parse, ParseStream, Result},
-    ExprStruct, Ident, Token,
+    token::Comma,
+    ExprStruct, Ident,
 };
 
 pub(super) struct Render {
@@ -14,7 +15,7 @@ pub(super) struct Render {
 impl Parse for Render {
     fn parse(input: ParseStream) -> Result<Self> {
         let template: ExprStruct = input.parse()?;
-        let comma: Option<Token![,]> = input.parse()?;
+        let comma: Option<Comma> = input.parse()?;
 
         let layout: Option<Ident> = if comma.is_some() {
             input.parse()?

@@ -9,8 +9,10 @@ mod templates;
 mod views;
 
 #[proc_macro]
-pub fn templates(_: TokenStream) -> TokenStream {
-    templates::templates().into()
+pub fn templates(input: TokenStream) -> TokenStream {
+    let input: templates::Templates = parse_macro_input!(input);
+
+    templates::templates(input).into()
 }
 
 /// Auto load the layouts (askama templates) from `src/views/_layouts` directory.
