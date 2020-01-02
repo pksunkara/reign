@@ -44,3 +44,17 @@ fn test_attributes() {
         })
     );
 }
+
+#[test]
+fn test_basic() {
+    let element = common::fixture("basic");
+
+    assert_eq!(
+        element,
+        Element::Tag(Tag {
+            name: "div".to_string(),
+            attrs: vec![],
+            children: vec![],
+        })
+    );
+}

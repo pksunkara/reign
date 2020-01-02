@@ -65,7 +65,7 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
 
                 impl #ident {
                     fn render() {
-                        include_bytes!(#tmp)
+                        include_bytes!(#tmp);
                     }
                 }
             });

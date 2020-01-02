@@ -13,6 +13,8 @@ pub mod layouts {
     reign::prelude::layouts!();
 }
 
+reign::prelude::templates!("src", "views");
+
 pub type Repo = gotham_middleware_diesel::Repo<diesel::sqlite::SqliteConnection>;
 
 fn main() {
