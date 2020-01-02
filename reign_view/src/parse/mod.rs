@@ -9,11 +9,14 @@ const VOID_ELEMENTS: [&str; 14] = [
     "track", "wbr",
 ];
 
-const TAG_REGEX: &str = "<([[:alpha:]][a-zA-Z0-9\\-]*)";
-const ATTRIBUTE_NAME_REGEX: &str = "[^\\s\"\'>/=]+";
-const ATTRIBUTE_VALUE_DOUBLE_QUOTED_REGEX: &str = "\"([^\"]*)\"";
-const ATTRIBUTE_VALUE_SINGLE_QUOTED_REGEX: &str = "'([^']*)'";
-const ATTRIBUTE_VALUE_UNQUOTED_REGEX: &str = "[^\\s\"'=<>`]+";
+const TAG_REGEX: &str = "<([[:alpha:]][a-zA-Z0-9\\-]*[[:alnum:]]|[[:alpha:]])";
+const ATTR_NAME: &str = "[^\\s\"\'>/=]+";
+const ATTR_SYMBOL: &str = ":";
+const DY_ATTR_NAME_PART: &str = "[^\\[\\]\\s\"\'>/=]*";
+const DY_ATTR_EXPR: &str = "\\[([^=]+)\\]";
+const ATTR_VALUE_DOUBLE_QUOTED: &str = "\"([^\"]*)\"";
+const ATTR_VALUE_SINGLE_QUOTED: &str = "'([^']*)'";
+const ATTR_VALUE_UNQUOTED: &str = "[^\\s\"'=<>`]+";
 
 pub trait Parse: Sized {
     fn parse(input: &mut ParseStream) -> Result<Self, Error>;
@@ -35,15 +38,21 @@ impl Parse for Comment {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Attribute {
-    pub name: String,
+pub struct DynamicAttribute {
+    pub symbol: String,
+    pub prefix: String,
+    pub expr: String,
+    pub suffix: String,
     pub value: String,
 }
 
-impl Parse for Attribute {
+impl Parse for DynamicAttribute {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
-        Ok(Attribute {
-            name: input.matched(ATTRIBUTE_NAME_REGEX)?,
+        Ok(DynamicAttribute {
+            symbol: input.step(":")?,
+            prefix: input.matched(DY_ATTR_NAME_PART)?,
+            expr: input.capture(DY_ATTR_EXPR, 1)?,
+            suffix: input.matched(DY_ATTR_NAME_PART)?,
             value: {
                 input.skip_spaces()?;
 
@@ -52,11 +61,11 @@ impl Parse for Attribute {
                     input.skip_spaces()?;
 
                     if input.peek("\"") {
-                        input.capture(ATTRIBUTE_VALUE_DOUBLE_QUOTED_REGEX, 1)?
+                        input.capture(ATTR_VALUE_DOUBLE_QUOTED, 1)?
                     } else if input.peek("'") {
-                        input.capture(ATTRIBUTE_VALUE_SINGLE_QUOTED_REGEX, 1)?
+                        input.capture(ATTR_VALUE_SINGLE_QUOTED, 1)?
                     } else {
-                        input.matched(ATTRIBUTE_VALUE_UNQUOTED_REGEX)?
+                        input.matched(ATTR_VALUE_UNQUOTED)?
                     }
                 } else {
                     "".to_string()
@@ -67,18 +76,74 @@ impl Parse for Attribute {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Tag {
+pub struct NormalAttribute {
     pub name: String,
-    pub attrs: Vec<Attribute>,
-    pub children: Vec<Element>,
+    pub value: String,
 }
 
-impl Parse for Tag {
+impl Parse for NormalAttribute {
+    fn parse(input: &mut ParseStream) -> Result<Self, Error> {
+        Ok(NormalAttribute {
+            name: input.matched(ATTR_NAME)?,
+            value: {
+                input.skip_spaces()?;
+
+                if input.peek("=") {
+                    input.step("=")?;
+                    input.skip_spaces()?;
+
+                    if input.peek("\"") {
+                        input.capture(ATTR_VALUE_DOUBLE_QUOTED, 1)?
+                    } else if input.peek("'") {
+                        input.capture(ATTR_VALUE_SINGLE_QUOTED, 1)?
+                    } else {
+                        input.matched(ATTR_VALUE_UNQUOTED)?
+                    }
+                } else {
+                    "".to_string()
+                }
+            },
+        })
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Attribute {
+    Normal(NormalAttribute),
+    Dynamic(DynamicAttribute),
+}
+
+impl Parse for Attribute {
+    fn parse(input: &mut ParseStream) -> Result<Self, Error> {
+        let dy_attr_regex = format!(
+            "{}{part}{}{part}",
+            ATTR_SYMBOL,
+            DY_ATTR_EXPR,
+            part = DY_ATTR_NAME_PART
+        );
+
+        if input.is_match(dy_attr_regex.as_str()) {
+            Ok(Attribute::Dynamic(input.parse()?))
+        } else if input.is_match(ATTR_NAME) {
+            Ok(Attribute::Normal(input.parse()?))
+        } else {
+            Err(input.error("unable to parse attribute"))
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Element {
+    pub name: String,
+    pub attrs: Vec<Attribute>,
+    pub children: Vec<Node>,
+}
+
+impl Parse for Element {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
         let name = input.capture(TAG_REGEX, 1)?;
-        println!("name: {}", name);
 
-        Ok(Tag {
+        Ok(Element {
             name: name.clone(),
             attrs: {
                 let mut attrs = vec![];
@@ -102,12 +167,9 @@ impl Parse for Tag {
 
                     if !VOID_ELEMENTS.contains(&name.as_str()) {
                         let closing_tag = format!("</{}", name);
-                        println!("closing: {}", closing_tag);
 
                         while !input.peek(&closing_tag) {
                             let child = input.parse()?;
-                            println!("child: {:#?}", child);
-                            println!("content: {}", input.content.get(input.cursor..).unwrap());
                             children.push(child);
                         }
 
@@ -137,22 +199,22 @@ impl Parse for Text {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum Element {
-    Tag(Tag),
+pub enum Node {
+    Element(Element),
     Comment(Comment),
     Text(Text),
 }
 
-impl Parse for Element {
+impl Parse for Node {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
         if input.cursor == 0 {
             input.skip_spaces()?;
         }
 
         if input.peek("<!--") {
-            Ok(Element::Comment(input.parse()?))
+            Ok(Node::Comment(input.parse()?))
         } else if input.is_match(TAG_REGEX) {
-            Ok(Element::Tag(input.parse()?))
+            Ok(Node::Element(input.parse()?))
         } else {
             let text: Text = input.parse()?;
 
@@ -160,11 +222,11 @@ impl Parse for Element {
                 return Err(input.error("unable to continue parsing"));
             }
 
-            Ok(Element::Text(text))
+            Ok(Node::Text(text))
         }
     }
 }
 
-pub fn parse(data: String) -> Element {
-    ParseStream::new(data).parse::<Element>().unwrap()
+pub fn parse(data: String) -> Node {
+    ParseStream::new(data).parse::<Node>().unwrap()
 }

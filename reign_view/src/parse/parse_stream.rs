@@ -1,7 +1,7 @@
 use crate::parse::{Error, Parse};
 use regex::Regex;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ParseStream {
     pub content: String,
     pub cursor: usize,
@@ -14,7 +14,8 @@ impl ParseStream {
 
     pub fn error(&self, msg: &str) -> Error {
         Error {
-            ps: self.clone(),
+            content: self.content.clone(),
+            cursor: self.cursor,
             message: msg.to_string(),
         }
     }
@@ -81,7 +82,7 @@ impl ParseStream {
         sub_string.unwrap() == sub
     }
 
-    pub fn step(&mut self, sub: &str) -> Result<(), Error> {
+    pub fn step(&mut self, sub: &str) -> Result<String, Error> {
         let sub_end = self.cursor + sub.len();
         let sub_string = self.content.get(self.cursor..sub_end);
 
@@ -94,7 +95,7 @@ impl ParseStream {
         }
 
         self.cursor = sub_end;
-        Ok(())
+        Ok(sub_string.unwrap().to_string())
     }
 
     pub fn seek(&self, sub: &str) -> Result<usize, Error> {
@@ -164,7 +165,7 @@ mod test {
         let err = ps.matched("[A-Z]+").unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(err.message, "unable to match `[A-Z]+`".to_string());
     }
 
@@ -191,7 +192,7 @@ mod test {
         let err = ps.capture("[A-Z]+", 1).unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(err.message, "unable to match `[A-Z]+`".to_string());
     }
 
@@ -205,7 +206,7 @@ mod test {
         let err = ps.capture("([a-z])([a-z])", 3).unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(
             err.message,
             "unable to get capture group 3 in `([a-z])([a-z])`".to_string()
@@ -230,9 +231,10 @@ mod test {
             cursor: 1,
         };
 
-        ps.step("el").unwrap();
+        let val = ps.step("el").unwrap();
 
         assert_eq!(ps.cursor, 3);
+        assert_eq!(val, "el");
     }
 
     #[test]
@@ -245,7 +247,7 @@ mod test {
         let err = ps.step("Hel").unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(err.message, "expected `Hel`".to_string())
     }
 
@@ -259,7 +261,7 @@ mod test {
         let err = ps.step("Hello").unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(
             err.message,
             "out of bounds when trying to find `Hello`".to_string(),
@@ -289,7 +291,7 @@ mod test {
         let err = ps.seek("H").unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(err.message, "expected `H`".to_string())
     }
 
@@ -329,7 +331,7 @@ mod test {
         let err = ps.until("H", true).unwrap_err();
 
         assert_eq!(ps.cursor, 1);
-        assert_eq!(err.ps.cursor, 1);
+        assert_eq!(err.cursor, 1);
         assert_eq!(err.message, "expected `H`".to_string())
     }
 }

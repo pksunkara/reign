@@ -1,9 +1,9 @@
-use reign_view::parse::{parse, Element};
+use reign_view::parse::{parse, Node};
 use std::env;
 use std::fs::read_to_string;
 use std::path::PathBuf;
 
-pub fn fixture(file_name: &str) -> Element {
+pub fn fixture(file_name: &str) -> Node {
     let mut dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
     dir.push("tests");

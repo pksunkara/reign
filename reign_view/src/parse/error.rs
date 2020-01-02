@@ -1,15 +1,15 @@
-use crate::parse::ParseStream;
 use std::fmt;
 
 pub struct Error {
-    pub ps: ParseStream,
+    pub content: String,
+    pub cursor: usize,
     pub message: String,
 }
 
 impl Error {
     fn get_line(&self) -> (usize, usize, String) {
-        let lines: Vec<&str> = self.ps.content.split('\n').collect();
-        let mut cursor = self.ps.cursor;
+        let lines: Vec<&str> = self.content.split('\n').collect();
+        let mut cursor = self.cursor;
         let mut line_number = 0;
         let column_number;
         let mut iter = lines.iter();
@@ -20,8 +20,8 @@ impl Error {
             if line_option.is_none() {
                 panic!(
                     "error occurred at cursor {} which is over the content length {}",
-                    self.ps.cursor,
-                    self.ps.content.len()
+                    self.cursor,
+                    self.content.len()
                 );
             }
 
@@ -80,7 +80,7 @@ impl fmt::Debug for Error {
 
 #[cfg(test)]
 mod test {
-    use super::ParseStream;
+    use crate::parse::ParseStream;
 
     #[test]
     fn test_fmt_start() {
