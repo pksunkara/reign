@@ -1,4 +1,4 @@
-use crate::templates::html_regex;
+use crate::templates::file_regex;
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
@@ -35,7 +35,7 @@ pub(super) fn views(input: Views) -> TokenStream {
             let file_name_os_str = entry.file_name();
             let file_name = file_name_os_str.to_str().unwrap();
 
-            if !html_regex().is_match(file_name) {
+            if !file_regex().is_match(file_name) {
                 continue;
             }
 

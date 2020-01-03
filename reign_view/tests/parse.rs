@@ -4,19 +4,19 @@ mod common;
 
 #[test]
 fn test_comment() {
-    let element = common::fixture("comment");
+    let element = common::parse_pass("comment");
 
     assert_eq!(
         element,
         Node::Comment(Comment {
             content: " This is\n  a comment ".to_string(),
-        })
+        }),
     );
 }
 
 #[test]
 fn test_attributes() {
-    let element = common::fixture("attributes");
+    let element = common::parse_pass("attributes");
 
     assert_eq!(
         element,
@@ -41,13 +41,13 @@ fn test_attributes() {
                 }),
             ],
             children: vec![],
-        })
+        }),
     );
 }
 
 #[test]
 fn test_dynamic_attribute() {
-    let element = common::fixture("dynamic_attribute");
+    let element = common::parse_pass("dynamic_attribute");
 
     assert_eq!(
         element,
@@ -61,13 +61,13 @@ fn test_dynamic_attribute() {
                 value: "format!(\"{}_concat\", ident)".to_string(),
             })],
             children: vec![],
-        })
+        }),
     );
 }
 
 #[test]
 fn test_basic() {
-    let element = common::fixture("basic");
+    let element = common::parse_pass("basic");
 
     assert_eq!(
         element,
@@ -76,37 +76,78 @@ fn test_basic() {
             attrs: vec![],
             children: vec![
                 Node::Text(Text {
-                    content: "\n  ".to_string()
+                    content: "\n  ".to_string(),
+                }),
+                Node::Element(Element {
+                    name: "hr".to_string(),
+                    attrs: vec![],
+                    children: vec![],
+                }),
+                Node::Text(Text {
+                    content: "\n  ".to_string(),
                 }),
                 Node::Element(Element {
                     name: "h1".to_string(),
                     attrs: vec![],
                     children: vec![Node::Text(Text {
-                        content: "Hello".to_string()
-                    })]
+                        content: "Hello".to_string(),
+                    })],
                 }),
                 Node::Text(Text {
-                    content: "\n  ".to_string()
+                    content: "\n  ".to_string(),
                 }),
                 Node::Element(Element {
                     name: "br".to_string(),
                     attrs: vec![],
-                    children: vec![]
+                    children: vec![],
                 }),
                 Node::Text(Text {
-                    content: "\n  ".to_string()
+                    content: "\n  ".to_string(),
                 }),
                 Node::Element(Element {
                     name: "p".to_string(),
                     attrs: vec![],
                     children: vec![Node::Text(Text {
                         content: "Lorem Ipsum".to_string()
-                    })]
+                    })],
                 }),
                 Node::Text(Text {
-                    content: "\n".to_string()
-                })
+                    content: "\n".to_string(),
+                }),
             ],
-        })
+        }),
     );
+}
+
+#[test]
+fn test_attribute_good() {
+    let element = common::parse_pass("attribute_good");
+
+    assert_eq!(
+        element,
+        Node::Element(Element {
+            name: "div".to_string(),
+            attrs: vec![
+                Attribute::Normal(NormalAttribute {
+                    name: "@s".to_string(),
+                    value: "1".to_string(),
+                }),
+                Attribute::Normal(NormalAttribute {
+                    name: "<s".to_string(),
+                    value: "1".to_string(),
+                }),
+            ],
+            children: vec![],
+        }),
+    )
+}
+
+#[test]
+fn test_multi_roots() {
+    common::parse_fail("multi_roots");
+}
+
+#[test]
+fn test_attribute_bad() {
+    common::parse_fail("attribute_bad");
 }

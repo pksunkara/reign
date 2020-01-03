@@ -1,8 +1,10 @@
-use inflector::cases::pascalcase::to_pascal_case;
+use inflector::cases::snakecase::to_snake_case;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use regex::Regex;
+use reign_view::parse::parse;
 use std::env;
+use std::fs::read_to_string;
 use std::path::PathBuf;
 
 use syn::{
@@ -24,8 +26,12 @@ impl Parse for Templates {
     }
 }
 
-pub(crate) fn html_regex() -> Regex {
-    Regex::new(r"^([[:alpha:]][[:word:]]*[[:alnum:]])\.html$").unwrap()
+pub(crate) fn file_regex() -> Regex {
+    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)\.html$").unwrap()
+}
+
+pub(crate) fn folder_regex() -> Regex {
+    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)").unwrap()
 }
 
 fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
@@ -38,6 +44,10 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
             let file_name = file_name_os_str.to_str().unwrap();
 
             if new_path.is_dir() {
+                if !folder_regex().is_match(file_name) {
+                    continue;
+                }
+
                 let ident = Ident::new(file_name, Span::call_site());
                 let sub_views = recurse(&new_path);
 
@@ -50,23 +60,18 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
                 continue;
             }
 
-            if !html_regex().is_match(file_name) {
+            if !file_regex().is_match(file_name) {
                 continue;
             }
 
-            let cased = to_pascal_case(file_name.trim_end_matches(".html"));
+            let cased = to_snake_case(file_name.trim_end_matches(".html"));
             let ident = Ident::new(&cased, Span::call_site());
-            let tmp = new_path.to_str().unwrap();
+
+            let node = parse(read_to_string(new_path).unwrap()).unwrap();
 
             views.push(quote! {
-                pub struct #ident {
-
-                }
-
-                impl #ident {
-                    fn render() {
-                        include_bytes!(#tmp);
-                    }
+                pub fn #ident() -> String {
+                    String::from("")
                 }
             });
         }

@@ -1,0 +1,7 @@
+
+  |
+2 | <div>B</div>
+  | -^^^^^^^^^^^^
+  | |
+  | only one top-level node is allowed
+  |

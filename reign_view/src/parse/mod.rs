@@ -1,22 +1,18 @@
+mod consts;
 mod error;
 mod parse_stream;
 
+pub use consts::*;
 pub use error::Error;
 pub use parse_stream::ParseStream;
 
-const VOID_ELEMENTS: [&str; 14] = [
-    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source",
-    "track", "wbr",
-];
+fn tag_name_regex() -> String {
+    format!("<({0}(:?:{0})*)", TAG_NAME)
+}
 
-const TAG_REGEX: &str = "<([[:alpha:]][a-zA-Z0-9\\-]*[[:alnum:]]|[[:alpha:]])";
-const ATTR_NAME: &str = "[^\\s\"\'>/=]+";
-const ATTR_SYMBOL: &str = ":";
-const DY_ATTR_NAME_PART: &str = "[^\\[\\]\\s\"\'>/=]*";
-const DY_ATTR_EXPR: &str = "\\[([^=]+)\\]";
-const ATTR_VALUE_DOUBLE_QUOTED: &str = "\"([^\"]*)\"";
-const ATTR_VALUE_SINGLE_QUOTED: &str = "'([^']*)'";
-const ATTR_VALUE_UNQUOTED: &str = "[^\\s\"'=<>`]+";
+fn dy_attr_regex() -> String {
+    format!("{}{2}{}{2}", ATTR_SYMBOL, DY_ATTR_EXPR, DY_ATTR_NAME_PART)
+}
 
 pub trait Parse: Sized {
     fn parse(input: &mut ParseStream) -> Result<Self, Error>;
@@ -115,14 +111,7 @@ pub enum Attribute {
 
 impl Parse for Attribute {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
-        let dy_attr_regex = format!(
-            "{}{part}{}{part}",
-            ATTR_SYMBOL,
-            DY_ATTR_EXPR,
-            part = DY_ATTR_NAME_PART
-        );
-
-        if input.is_match(dy_attr_regex.as_str()) {
+        if input.is_match(&dy_attr_regex()) {
             Ok(Attribute::Dynamic(input.parse()?))
         } else if input.is_match(ATTR_NAME) {
             Ok(Attribute::Normal(input.parse()?))
@@ -141,10 +130,11 @@ pub struct Element {
 
 impl Parse for Element {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
-        let name = input.capture(TAG_REGEX, 1)?;
+        let name = input.capture(&tag_name_regex(), 1)?;
+        // FIXME: Check reserved by { split(":"); len() == 1 & in (HTML_TAGS or SVG_TAGS) }
 
         Ok(Element {
-            name: name.clone(),
+            name: name.to_lowercase(),
             attrs: {
                 let mut attrs = vec![];
                 input.skip_spaces()?;
@@ -165,7 +155,9 @@ impl Parse for Element {
                     // input.peek(">") is true here
                     input.step(">")?;
 
-                    if !VOID_ELEMENTS.contains(&name.as_str()) {
+                    // TODO: Tags that can be left open according to HTML spec
+
+                    if !VOID_TAGS.contains(&name.as_str()) {
                         let closing_tag = format!("</{}", name);
 
                         while !input.peek(&closing_tag) {
@@ -213,7 +205,7 @@ impl Parse for Node {
 
         if input.peek("<!--") {
             Ok(Node::Comment(input.parse()?))
-        } else if input.is_match(TAG_REGEX) {
+        } else if input.is_match(&tag_name_regex()) {
             Ok(Node::Element(input.parse()?))
         } else {
             let text: Text = input.parse()?;
@@ -227,6 +219,15 @@ impl Parse for Node {
     }
 }
 
-pub fn parse(data: String) -> Node {
-    ParseStream::new(data).parse::<Node>().unwrap()
+pub fn parse(data: String) -> Result<Node, Error> {
+    let mut ps = ParseStream::new(data);
+    let node: Node = ps.parse()?;
+
+    ps.skip_spaces()?;
+
+    if ps.content.len() != ps.cursor {
+        Err(ps.error("only one top-level node is allowed"))
+    } else {
+        Ok(node)
+    }
 }
