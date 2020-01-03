@@ -1,8 +1,8 @@
-use inflector::cases::snakecase::to_snake_case;
+use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use regex::Regex;
-use reign_view::parse::parse;
+use reign_view::parse::{parse, Tokenize};
 use std::env;
 use std::fs::read_to_string;
 use std::path::PathBuf;
@@ -14,6 +14,7 @@ use syn::{
     Ident, LitStr,
 };
 
+// TODO: Options after the paths
 pub(super) struct Templates {
     paths: Punctuated<LitStr, Comma>,
 }
@@ -64,14 +65,26 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
                 continue;
             }
 
-            let cased = to_snake_case(file_name.trim_end_matches(".html"));
+            let cased = to_pascal_case(file_name.trim_end_matches(".html"));
             let ident = Ident::new(&cased, Span::call_site());
 
-            let node = parse(read_to_string(new_path).unwrap()).unwrap();
+            let strings = parse(read_to_string(new_path).unwrap()).unwrap().tokenize();
 
             views.push(quote! {
-                pub fn #ident() -> String {
-                    String::from("")
+                pub struct #ident {
+
+                }
+
+                impl #ident {
+                    fn render(&self, f: &mut ::std::fmt::Write) -> ::std::fmt::Result {
+                        #strings
+                    }
+                }
+
+                impl ::std::fmt::Display for #ident {
+                    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                        self.render(f)
+                    }
                 }
             });
         }

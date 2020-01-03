@@ -1,5 +1,6 @@
 use pretty_assertions;
-use reign_view::parse::{parse, Node};
+use proc_macro2::TokenStream;
+use reign_view::parse::{parse, Tokenize};
 use std::env;
 use std::fs::read_to_string;
 use std::path::PathBuf;
@@ -15,7 +16,7 @@ impl<'a> std::fmt::Debug for PrettyString<'a> {
     }
 }
 
-macro_rules! assert_eq {
+macro_rules! eq {
     ($left:expr, $right:expr) => {
         pretty_assertions::assert_eq!(PrettyString($left), PrettyString($right));
     };
@@ -29,13 +30,22 @@ fn dir() -> PathBuf {
     dir
 }
 
-pub fn parse_pass(file_name: &str) -> Node {
-    let mut dir = dir();
-    dir.push(&format!("{}.html", file_name));
+pub fn parse_pass(file_name: &str) {
+    let mut fixture = dir();
+    let mut output = dir();
 
-    let contents = read_to_string(dir).unwrap();
+    fixture.push(&format!("{}.html", file_name));
+    output.push(&format!("{}.rs", file_name));
 
-    parse(contents).unwrap()
+    let f = read_to_string(fixture).unwrap();
+    let o = read_to_string(output).unwrap();
+    let t: TokenStream = o.parse().unwrap();
+
+    let node = parse(f).unwrap();
+
+    // FIXME: Tokenstream should be converted to pretty formatted rust
+    eq!(&t.to_string(), &node.tokenize().to_string());
+    // eq!(&o.trim_end(), &node.tokenize().to_string());
 }
 
 pub fn parse_fail(file_name: &str) {
@@ -48,5 +58,5 @@ pub fn parse_fail(file_name: &str) {
     let f = read_to_string(fixture).unwrap();
     let e = read_to_string(errlog).unwrap();
 
-    assert_eq!(&e, &format!("{:?}", parse(f).unwrap_err()));
+    eq!(&e, &format!("{:?}", parse(f).unwrap_err()));
 }

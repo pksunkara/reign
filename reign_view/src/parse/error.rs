@@ -80,7 +80,7 @@ impl fmt::Debug for Error {
 
 #[cfg(test)]
 mod test {
-    use crate::parse::ParseStream;
+    use super::super::ParseStream;
 
     #[test]
     fn test_fmt_start() {
