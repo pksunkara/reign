@@ -72,11 +72,11 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
 
             views.push(quote! {
                 pub struct #ident {
-
+                    _slots: ::reign::view::Slots,
                 }
 
-                impl #ident {
-                    fn render(&self, f: &mut ::std::fmt::Write) -> ::std::fmt::Result {
+                impl ::reign::view::View for #ident {
+                    fn render(&self, f: &mut dyn ::std::fmt::Write) -> ::std::fmt::Result {
                         #strings
                     }
                 }

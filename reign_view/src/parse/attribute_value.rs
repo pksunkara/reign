@@ -12,6 +12,21 @@ pub enum AttributeValue {
     NoValue,
 }
 
+impl AttributeValue {
+    pub fn value(&self) -> &str {
+        match self {
+            AttributeValue::SingleQuoted(s) => s,
+            AttributeValue::DoubleQuoted(d) => d,
+            AttributeValue::Unquoted(u) => u,
+            _ => "",
+        }
+    }
+
+    pub fn for_expr(&self) -> TokenStream {
+        quote! {}
+    }
+}
+
 impl Parse for AttributeValue {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
         input.skip_spaces()?;
@@ -60,11 +75,5 @@ impl Tokenize for AttributeValue {
         quote! {
             write!(f, #value);
         }
-    }
-}
-
-impl AttributeValue {
-    pub fn for_expr(&self) -> TokenStream {
-        quote! {}
     }
 }

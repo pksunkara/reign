@@ -3,11 +3,19 @@ use gotham::helpers::http::response::{create_empty_response, create_response};
 use gotham::state::State;
 use hyper::{Body, Response, StatusCode};
 use mime;
+use std::fmt::{Display, Result, Write};
 
 pub mod parse;
+mod slots;
+
+pub use slots::{SlotRender, Slots};
 
 pub trait Layout: Template {
     fn content(self, content: String) -> Self;
+}
+
+pub trait View: Display {
+    fn render(&self, f: &mut dyn Write) -> Result;
 }
 
 /// Renders an askama template with layout for gotham handler.

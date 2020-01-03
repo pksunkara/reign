@@ -13,16 +13,16 @@ mod text;
 use consts::*;
 use proc_macro2::TokenStream;
 
-pub use attribute::Attribute;
-pub use attribute_value::AttributeValue;
-pub use comment::Comment;
-pub use dynamic_attribute::DynamicAttribute;
-pub use element::Element;
-pub use error::Error;
-pub use node::Node;
-pub use normal_attribute::NormalAttribute;
-pub use parse_stream::ParseStream;
-pub use text::Text;
+use attribute::Attribute;
+use attribute_value::AttributeValue;
+use comment::Comment;
+use dynamic_attribute::DynamicAttribute;
+use element::Element;
+use error::Error;
+use node::Node;
+use normal_attribute::NormalAttribute;
+use parse_stream::ParseStream;
+use text::Text;
 
 fn tag_name_regex() -> String {
     format!("<({0}(:?:{0})*)", TAG_NAME)

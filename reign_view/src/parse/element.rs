@@ -16,7 +16,7 @@ pub struct Element {
 
 impl Element {
     fn attr(&self, name: &str) -> Option<&NormalAttribute> {
-        for (_, attr) in self.attrs.iter().enumerate() {
+        for attr in &self.attrs {
             if let Attribute::Normal(normal) = attr {
                 if normal.name == name {
                     return Some(normal);
@@ -25,6 +25,45 @@ impl Element {
         }
 
         None
+    }
+
+    fn slot_name(&self) -> &str {
+        if let Some(attr) = self.attr("name") {
+            return attr.value.value();
+        }
+
+        "default"
+    }
+
+    fn component_children(&self) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
+        let mut names = vec![];
+        let mut templates = vec![];
+        let mut other = vec![];
+
+        for child in &self.children {
+            let ts = child.tokenize();
+
+            if let Node::Element(e) = child {
+                if e.name == "template" {
+                    for attr in &e.attrs {
+                        if let Attribute::Normal(n) = attr {
+                            if n.name.starts_with('#') {
+                                names
+                                    .push(LitStr::new(n.name.get(1..).unwrap(), Span::call_site()));
+                                templates.push(ts);
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    other.push(ts);
+                }
+            } else {
+                other.push(ts);
+            }
+        }
+
+        (names, templates, other)
     }
 }
 
@@ -78,14 +117,12 @@ impl Parse for Element {
 
 impl Tokenize for Element {
     fn tokenize(&self) -> TokenStream {
-        type VT = Vec<TokenStream>;
-
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
 
         let tokens = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
             let start_tag = LitStr::new(&format!("<{}", &self.name), Span::call_site());
-            let attrs: VT = self.attrs.iter().map(|x| x.tokenize()).collect();
-            let children: VT = self.children.iter().map(|x| x.tokenize()).collect();
+            let attrs: Vec<TokenStream> = self.attrs.iter().map(|x| x.tokenize()).collect();
+            let children: Vec<TokenStream> = self.children.iter().map(|x| x.tokenize()).collect();
 
             let end_tokens = if !VOID_TAGS.contains(&self.name.as_str()) {
                 let end_tag = LitStr::new(&format!("</{}>", &self.name), Span::call_site());
@@ -104,13 +141,30 @@ impl Tokenize for Element {
                 #(#children)*
                 #end_tokens
             }
-        } else {
-            let path = convert_tag_name(tag_pieces);
-
-            // TODO: attrs, slots
+        } else if self.name == "slot" {
+            let name = LitStr::new(self.slot_name(), Span::call_site());
 
             quote! {
-                write!(f, "{}", crate::views::#(#path)::* {});
+                self._slots.render(f, #name);
+            }
+        } else {
+            let path = convert_tag_name(tag_pieces);
+            let (names, templates, children) = self.component_children();
+
+            // TODO: attrs,
+            quote! {
+                write!(f, "{}", crate::views::#(#path)::* {
+                    _slots: ::reign::view::Slots {
+                        templates: [
+                            #(#names, Box::new(|f| {
+                                #templates
+                            })),*
+                        ].into_iter().collect(),
+                        children: Box::new(|f| {
+                            #(#children)*
+                        }),
+                    },
+                });
             }
         };
 

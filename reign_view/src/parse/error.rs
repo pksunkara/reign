@@ -8,24 +8,21 @@ pub struct Error {
 
 impl Error {
     fn get_line(&self) -> (usize, usize, String) {
+        if self.cursor > self.content.len() {
+            panic!(
+                "error occurred at cursor {} which is over the content length {}",
+                self.cursor,
+                self.content.len()
+            );
+        }
+
         let lines: Vec<&str> = self.content.split('\n').collect();
         let mut cursor = self.cursor;
         let mut line_number = 0;
-        let column_number;
-        let mut iter = lines.iter();
+        let mut column_number = 0;
 
-        loop {
-            let line_option = iter.next();
-
-            if line_option.is_none() {
-                panic!(
-                    "error occurred at cursor {} which is over the content length {}",
-                    self.cursor,
-                    self.content.len()
-                );
-            }
-
-            let line_length = line_option.unwrap().len() + 1;
+        for line in &lines {
+            let line_length = line.len() + 1;
 
             if cursor >= line_length {
                 cursor -= line_length;

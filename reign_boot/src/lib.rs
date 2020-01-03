@@ -22,7 +22,7 @@ fn load_env_files() {
     dotenv::from_filename(".env").ok();
     dotenv::from_filename(".env.local").ok();
 
-    for item in build_env_file_heirarchy(environment).iter() {
+    for item in build_env_file_heirarchy(environment) {
         dotenv::from_filename(&format!(".env.{}", item)).ok();
         dotenv::from_filename(&format!(".env.{}.local", item)).ok();
     }
