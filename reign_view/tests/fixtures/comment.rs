@@ -1,1 +1,1 @@
-write!(f, "<!-- This is\n  a comment -->")? ;
+write!(f, "{}", "<!-- This is\n  a comment -->")? ;

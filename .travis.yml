@@ -10,18 +10,19 @@ script:
   - cargo test --all --tests
 matrix:
   allow_failures:
-    - rust: nightly
+    - rust: stable
+    - rust: beta
   fast_finish: true
   include:
     - rust: stable
     - rust: beta
     - rust: nightly
     # Run Clippy in its own shard.
-    - rust: stable
+    - rust: nightly
       env:
         - SHARD=clippy
       before_script:
-        - rustup component add --toolchain stable clippy
+        - rustup component add --toolchain nightly clippy
       script:
         - echo "Checking codebase with Clippy release `cargo clippy --version`."
         - cargo clippy --all --profile test

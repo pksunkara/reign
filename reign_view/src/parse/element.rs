@@ -127,14 +127,14 @@ impl Tokenize for Element {
                 let end_tag = LitStr::new(&format!("</{}>", &self.name), Span::call_site());
 
                 quote! {
-                    write!(f, #end_tag)?;
+                    write!(f, "{}", #end_tag)?;
                 }
             } else {
                 quote! {}
             };
 
             quote! {
-                write!(f, #start_tag)?;
+                write!(f, "{}", #start_tag)?;
                 #(#attrs)*
                 write!(f, ">")?;
                 #(#children)*

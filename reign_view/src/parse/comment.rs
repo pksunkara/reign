@@ -24,7 +24,7 @@ impl Tokenize for Comment {
         let comment_str = LitStr::new(&content, Span::call_site());
 
         quote! {
-            write!(f, #comment_str)?;
+            write!(f, "{}", #comment_str)?;
         }
     }
 }

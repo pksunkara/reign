@@ -34,3 +34,13 @@ fn test_multi_roots() {
 fn test_attribute_bad() {
     common::parse_fail("attribute_bad");
 }
+
+#[test]
+fn test_doctype() {
+    common::parse_pass("doctype");
+}
+
+#[test]
+fn test_interpolation() {
+    common::parse_pass("interpolation");
+}

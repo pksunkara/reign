@@ -31,7 +31,7 @@ impl Tokenize for NormalAttribute {
         let value = self.value.tokenize();
 
         quote! {
-            write!(f, #name)?;
+            write!(f, "{}", #name)?;
             #value
         }
     }

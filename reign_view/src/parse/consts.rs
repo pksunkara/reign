@@ -1,3 +1,4 @@
+pub const DOCTYPE: &str = "(?i)<!DOCTYPE [^>]+>";
 pub const TAG_NAME: &str = "[[:alpha:]](:?[a-zA-Z0-9\\-]*[[:alnum:]])?";
 pub const ATTR_NAME: &str = "[^\\s\"\'>/=]+";
 pub const ATTR_SYMBOL: &str = ":";

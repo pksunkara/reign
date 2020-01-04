@@ -73,7 +73,7 @@ impl Tokenize for AttributeValue {
         let value = LitStr::new(&string, Span::call_site());
 
         quote! {
-            write!(f, #value)?;
+            write!(f, "{}", #value)?;
         }
     }
 }
