@@ -3,11 +3,12 @@ use gotham::state::State;
 use hyper::{Body, Response, StatusCode};
 use mime;
 use reign::prelude::*;
-
-views!(articles);
+use reign::view::Slots;
 
 pub fn list(state: State) -> (State, Response<Body>) {
-    render!(ViewList {})
+    render!(articles::List {
+        _slots: Slots::default(),
+    })
 }
 
 pub fn create(state: State) -> (State, Response<Body>) {

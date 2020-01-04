@@ -32,11 +32,11 @@ fn dy_attr_regex() -> String {
     format!("{}{2}{}{2}", ATTR_SYMBOL, DY_ATTR_EXPR, DY_ATTR_NAME_PART)
 }
 
-pub trait Parse: Sized {
+trait Parse: Sized {
     fn parse(input: &mut ParseStream) -> Result<Self, Error>;
 }
 
-pub trait Tokenize {
+trait Tokenize {
     fn tokenize(&self) -> TokenStream;
 }
 
@@ -51,4 +51,8 @@ pub fn parse(data: String) -> Result<Node, Error> {
     } else {
         Ok(node)
     }
+}
+
+pub fn tokenize(node: Node) -> TokenStream {
+    node.tokenize()
 }

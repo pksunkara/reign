@@ -1,3 +1,3 @@
-write!(f, "<div");
-write!(f, ">");
-write!(f, "</div>");
+write!(f, "<div")? ;
+write!(f, ">")? ;
+write!(f, "</div>")? ;

@@ -9,11 +9,7 @@ pub mod models;
 mod routes;
 mod schema;
 
-pub mod layouts {
-    reign::prelude::layouts!();
-}
-
-reign::prelude::templates!("src", "views");
+reign::prelude::views!("src", "views");
 
 pub type Repo = gotham_middleware_diesel::Repo<diesel::sqlite::SqliteConnection>;
 

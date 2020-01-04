@@ -22,7 +22,7 @@ impl Tokenize for Text {
         let text_str = LitStr::new(&self.content, Span::call_site());
 
         quote! {
-            write!(f, #text_str);
+            write!(f, #text_str)?;
         }
     }
 }

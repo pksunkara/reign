@@ -1,58 +1,48 @@
-use askama::Template;
 use gotham::helpers::http::response::{create_empty_response, create_response};
 use gotham::state::State;
 use hyper::{Body, Response, StatusCode};
 use mime;
-use std::fmt::{Display, Result, Write};
+use std::fmt::{write, Display, Result, Write};
 
 pub mod parse;
 mod slots;
 
 pub use slots::{SlotRender, Slots};
 
-pub trait Layout: Template {
-    fn content(self, content: String) -> Self;
-}
-
 pub trait View: Display {
     fn render(&self, f: &mut dyn Write) -> Result;
 }
 
-/// Renders an askama template with layout for gotham handler.
+/// Renders a view for gotham handler.
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::view::render;
+/// use reign::view::{render, View};
+/// use std::fmt::{Formatter, Result, Display}
+///
+/// struct CustomView {}
+///
+/// impl Display for CustomView {
+///     fn fmt(&self, f: &mut Formatter) -> Result {
+///         write!(f, "custom view")
+///     }
+/// }
 ///
 /// pub fn handler(mut state: State) -> (State, Response<Body>) {
-///     render(
-///         state,
-///         View {
-///             name: "world".to_string()
-///         },
-///         Layout {
-///             title: "Application".to_string(),
-///             content: "".to_string(), // Will be overridden by template
-///         },
-///     )
+///     render(state, CustomView {})
 /// }
 /// ```
-pub fn render<T: Template, L: Layout>(
-    state: State,
-    template: T,
-    layout: L,
-) -> (State, Response<Body>) {
-    let response = match template.render() {
-        Ok(content) => match layout.content(content).render() {
-            Ok(content) => create_response(
-                &state,
-                StatusCode::OK,
-                mime::TEXT_HTML_UTF_8,
-                content.into_bytes(),
-            ),
-            Err(_) => create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR),
-        },
+pub fn render<D: Display>(state: State, view: D) -> (State, Response<Body>) {
+    let mut content = String::new();
+
+    let response = match write(&mut content, format_args!("{}", view)) {
+        Ok(()) => create_response(
+            &state,
+            StatusCode::OK,
+            mime::TEXT_HTML_UTF_8,
+            content.into_bytes(),
+        ),
         Err(_) => create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR),
     };
 

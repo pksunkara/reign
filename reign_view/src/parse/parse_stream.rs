@@ -2,17 +2,17 @@ use super::{Error, Parse};
 use regex::Regex;
 
 #[derive(Debug)]
-pub struct ParseStream {
+pub(super) struct ParseStream {
     pub content: String,
     pub cursor: usize,
 }
 
 impl ParseStream {
-    pub fn new(content: String) -> Self {
+    pub(super) fn new(content: String) -> Self {
         ParseStream { content, cursor: 0 }
     }
 
-    pub fn error(&self, msg: &str) -> Error {
+    pub(super) fn error(&self, msg: &str) -> Error {
         Error {
             content: self.content.clone(),
             cursor: self.cursor,
@@ -20,20 +20,20 @@ impl ParseStream {
         }
     }
 
-    pub fn parse<T>(&mut self) -> Result<T, Error>
+    pub(super) fn parse<T>(&mut self) -> Result<T, Error>
     where
         T: Parse,
     {
         T::parse(self)
     }
 
-    pub fn is_match(&self, r: &str) -> bool {
+    pub(super) fn is_match(&self, r: &str) -> bool {
         Regex::new(&format!("^{}", r))
             .unwrap()
             .is_match(self.content.get(self.cursor..).unwrap())
     }
 
-    pub fn matched(&mut self, r: &str) -> Result<String, Error> {
+    pub(super) fn matched(&mut self, r: &str) -> Result<String, Error> {
         let reg = Regex::new(&format!("^{}", r)).unwrap();
         let mat = reg.find(self.content.get(self.cursor..).unwrap());
 
@@ -52,7 +52,7 @@ impl ParseStream {
         Ok(sub_string.unwrap().to_string())
     }
 
-    pub fn capture(&mut self, r: &str, index: usize) -> Result<String, Error> {
+    pub(super) fn capture(&mut self, r: &str, index: usize) -> Result<String, Error> {
         let reg = Regex::new(&format!("^{}", r)).unwrap();
         let cap = reg.captures(self.content.get(self.cursor..).unwrap());
 
@@ -71,7 +71,7 @@ impl ParseStream {
         Ok(val.unwrap().as_str().to_string())
     }
 
-    pub fn peek(&self, sub: &str) -> bool {
+    pub(super) fn peek(&self, sub: &str) -> bool {
         let sub_end = self.cursor + sub.len();
         let sub_string = self.content.get(self.cursor..sub_end);
 
@@ -82,7 +82,7 @@ impl ParseStream {
         sub_string.unwrap() == sub
     }
 
-    pub fn step(&mut self, sub: &str) -> Result<String, Error> {
+    pub(super) fn step(&mut self, sub: &str) -> Result<String, Error> {
         let sub_end = self.cursor + sub.len();
         let sub_string = self.content.get(self.cursor..sub_end);
 
@@ -98,7 +98,7 @@ impl ParseStream {
         Ok(sub_string.unwrap().to_string())
     }
 
-    pub fn seek(&self, sub: &str) -> Result<usize, Error> {
+    pub(super) fn seek(&self, sub: &str) -> Result<usize, Error> {
         let index = self.content.get(self.cursor..).unwrap().find(sub);
 
         if index.is_none() {
@@ -108,7 +108,7 @@ impl ParseStream {
         Ok(self.cursor + index.unwrap())
     }
 
-    pub fn until(&mut self, sub: &str, consume: bool) -> Result<String, Error> {
+    pub(super) fn until(&mut self, sub: &str, consume: bool) -> Result<String, Error> {
         let index = self.seek(sub)?;
         let sub_string = self.content.get(self.cursor..index);
 
@@ -121,7 +121,7 @@ impl ParseStream {
         Ok(sub_string.unwrap().to_string())
     }
 
-    pub fn skip_spaces(&mut self) -> Result<(), Error> {
+    pub(super) fn skip_spaces(&mut self) -> Result<(), Error> {
         self.matched("\\s*")?;
         Ok(())
     }

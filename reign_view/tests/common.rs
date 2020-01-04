@@ -1,6 +1,6 @@
 use pretty_assertions;
 use proc_macro2::TokenStream;
-use reign_view::parse::{parse, Tokenize};
+use reign_view::parse::{parse, tokenize};
 use std::env;
 use std::fs::read_to_string;
 use std::path::PathBuf;
@@ -44,8 +44,8 @@ pub fn parse_pass(file_name: &str) {
     let node = parse(f).unwrap();
 
     // FIXME: Tokenstream should be converted to pretty formatted rust
-    eq!(&t.to_string(), &node.tokenize().to_string());
-    // eq!(&o.trim_end(), &node.tokenize().to_string());
+    eq!(&t.to_string(), &tokenize(node).to_string());
+    // eq!(&o.trim_end(), &tokenize(node).to_string());
 }
 
 pub fn parse_fail(file_name: &str) {

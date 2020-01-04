@@ -58,7 +58,7 @@ impl Tokenize for AttributeValue {
     fn tokenize(&self) -> TokenStream {
         if let AttributeValue::NoValue = self {
             return quote! {
-                write!(f, "\"\"");
+                write!(f, "\"\"")?;
             };
         }
 
@@ -73,7 +73,7 @@ impl Tokenize for AttributeValue {
         let value = LitStr::new(&string, Span::call_site());
 
         quote! {
-            write!(f, #value);
+            write!(f, #value)?;
         }
     }
 }

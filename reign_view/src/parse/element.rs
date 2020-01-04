@@ -94,7 +94,6 @@ impl Parse for Element {
                     input.step(">")?;
 
                     // TODO: Tags that can be left open according to HTML spec
-
                     if !VOID_TAGS.contains(&name.as_str()) {
                         let closing_tag = format!("</{}", name);
 
@@ -128,16 +127,16 @@ impl Tokenize for Element {
                 let end_tag = LitStr::new(&format!("</{}>", &self.name), Span::call_site());
 
                 quote! {
-                    write!(f, #end_tag);
+                    write!(f, #end_tag)?;
                 }
             } else {
                 quote! {}
             };
 
             quote! {
-                write!(f, #start_tag);
+                write!(f, #start_tag)?;
                 #(#attrs)*
-                write!(f, ">");
+                write!(f, ">")?;
                 #(#children)*
                 #end_tokens
             }
@@ -145,7 +144,7 @@ impl Tokenize for Element {
             let name = LitStr::new(self.slot_name(), Span::call_site());
 
             quote! {
-                self._slots.render(f, #name);
+                self._slots.render(f, #name)?;
             }
         } else {
             let path = convert_tag_name(tag_pieces);
@@ -155,16 +154,18 @@ impl Tokenize for Element {
             quote! {
                 write!(f, "{}", crate::views::#(#path)::* {
                     _slots: ::reign::view::Slots {
-                        templates: [
-                            #(#names, Box::new(|f| {
+                        templates: ::maplit::hashmap!{
+                            #(#names => Box::new(|f| {
                                 #templates
+                                Ok(())
                             })),*
-                        ].into_iter().collect(),
+                        },
                         children: Box::new(|f| {
                             #(#children)*
+                            Ok(())
                         }),
                     },
-                });
+                })?;
             }
         };
 
