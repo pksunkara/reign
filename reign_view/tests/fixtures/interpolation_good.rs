@@ -13,7 +13,7 @@ write!(f, "{}", "</span>")? ;
 write!(f, "{}", "\n  ")? ;
 write!(f, "{}", "<span")? ;
 write!(f, ">")? ;
-write!(f, "{}{}{}", "With &gt; and &lt; inside ", "", " ")? ;
+write!(f, "{}{}", "With &gt; and &lt; inside ", "")? ;
 write!(f, "{}", "</span>")? ;
 write!(f, "{}", "\n")? ;
 write!(f, "{}", "</div>")? ;

@@ -45,8 +45,8 @@ fn test_interpolation_good() {
     common::parse_pass("interpolation_good");
 }
 
+// TODO: More tests (this,slots,component,expr)
 #[test]
 fn test_interpolation_bad() {
-    // TODO:
     // common::parse_fail("interpolation_bad");
 }

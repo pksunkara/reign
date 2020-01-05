@@ -1,8 +1,4 @@
 language: rust
-rust:
-  - stable
-  - beta
-  - nightly
 cache: cargo
 env:
   - PATH=$HOME/.cargo/bin:$PATH
@@ -12,10 +8,13 @@ matrix:
   allow_failures:
     - rust: stable
     - rust: beta
+    - env:
+        - SHARD=clippy
   fast_finish: true
   include:
-    - rust: stable
-    - rust: beta
+    # TODO #![feature(proc_macro_hygiene)]
+    # - rust: stable
+    # - rust: beta
     - rust: nightly
     # Run Clippy in its own shard.
     - rust: nightly
