@@ -41,6 +41,12 @@ fn test_doctype() {
 }
 
 #[test]
-fn test_interpolation() {
-    common::parse_pass("interpolation");
+fn test_interpolation_good() {
+    common::parse_pass("interpolation_good");
+}
+
+#[test]
+fn test_interpolation_bad() {
+    // TODO:
+    // common::parse_fail("interpolation_bad");
 }

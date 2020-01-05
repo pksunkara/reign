@@ -4,26 +4,52 @@ use quote::quote;
 use syn::LitStr;
 
 #[derive(Debug, PartialEq)]
+pub enum TextPart {
+    Normal(String),
+    Expr(String),
+}
+
+impl Tokenize for TextPart {
+    fn tokenize(&self) -> TokenStream {
+        match self {
+            TextPart::Normal(n) => {
+                let lit = LitStr::new(&n, Span::call_site());
+                quote! {
+                        #lit
+                }
+            }
+            TextPart::Expr(_) => {
+                // TODO:
+                let lit = LitStr::new("", Span::call_site());
+                quote! {
+                    #lit
+                }
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Text {
-    pub content: String,
+    pub content: Vec<TextPart>,
 }
 
 impl Parse for Text {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
         Ok(Text {
-            // FIXME: Ignore < inside {{  }}
-            content: input.until("<", false)?,
+            content: input.parse_text()?,
         })
     }
 }
 
 impl Tokenize for Text {
     fn tokenize(&self) -> TokenStream {
-        // TODO: {{ var }} in text
-        let text_str = LitStr::new(&self.content, Span::call_site());
+        let format_arg_str = "{}".repeat(self.content.len());
+        let format_arg_lit = LitStr::new(&format_arg_str, Span::call_site());
+        let tokens: Vec<TokenStream> = self.content.iter().map(|x| x.tokenize()).collect();
 
         quote! {
-            write!(f, "{}", #text_str)?;
+            write!(f, #format_arg_lit, #(#tokens),*)?;
         }
     }
 }

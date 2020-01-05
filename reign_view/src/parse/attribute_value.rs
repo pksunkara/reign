@@ -4,7 +4,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::LitStr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum AttributeValue {
     SingleQuoted(String),
     DoubleQuoted(String),

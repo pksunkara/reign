@@ -1,5 +1,6 @@
 use std::fmt;
 
+// TODO: Filename for error
 pub struct Error {
     pub content: String,
     pub cursor: usize,

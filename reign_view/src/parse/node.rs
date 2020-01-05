@@ -2,7 +2,7 @@ use super::consts::DOCTYPE;
 use super::{tag_name_regex, Comment, Doctype, Element, Error, Parse, ParseStream, Text, Tokenize};
 use proc_macro2::TokenStream;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum Node {
     Element(Element),
     Comment(Comment),

@@ -1,4 +1,4 @@
-use super::{Error, Parse};
+use super::{Error, Parse, TextPart};
 use regex::Regex;
 
 #[derive(Debug)]
@@ -7,6 +7,11 @@ pub(super) struct ParseStream {
     pub cursor: usize,
 }
 
+// FIXME: This is not really efficient since getting to the
+// start point specified in String::get is not a constant
+// time operation because the String is UTF8.
+//
+// What we can do is consume the string as we keep parsing.
 impl ParseStream {
     pub(super) fn new(content: String) -> Self {
         ParseStream { content, cursor: 0 }
@@ -125,11 +130,146 @@ impl ParseStream {
         self.matched("\\s*")?;
         Ok(())
     }
+
+    // FIXME: Move this to Text by making self a RefCell
+    pub(super) fn parse_text(&mut self) -> Result<Vec<TextPart>, Error> {
+        let mut parts = vec![];
+        let start_regex = Regex::new(r"\\\{\{|\{\{|<").unwrap();
+        let end_regex = Regex::new("}}").unwrap();
+
+        loop {
+            let remaining = self.content.get(self.cursor..).unwrap();
+
+            if remaining.is_empty() {
+                break;
+            }
+
+            let matches = start_regex.find(remaining);
+
+            if matches.is_none() {
+                parts.push(TextPart::Normal(remaining.to_string()));
+                self.cursor += remaining.len();
+                break;
+            }
+
+            let until = self.cursor + matches.unwrap().start();
+            let sub_string = self.content.get(self.cursor..until).unwrap();
+
+            if !sub_string.is_empty() {
+                parts.push(TextPart::Normal(sub_string.to_string()));
+                self.cursor = until;
+            }
+
+            match self.content.get(self.cursor..=self.cursor).unwrap() {
+                "\\" => {
+                    parts.push(TextPart::Normal("\\{{".to_string()));
+                    self.cursor += 3;
+                }
+                "<" => {
+                    break;
+                }
+                "{" => {
+                    self.cursor += 2;
+                    let end_remaining = self.content.get(self.cursor..).unwrap();
+                    let end_matches = end_regex.find(end_remaining);
+
+                    if end_matches.is_none() {
+                        return Err(self.error("expression incomplete"));
+                    }
+
+                    let expr_until = self.cursor + end_matches.unwrap().start();
+                    let expr_string = self.content.get(self.cursor..expr_until).unwrap();
+
+                    parts.push(TextPart::Expr(expr_string.to_string()));
+                    self.cursor = expr_until + 2;
+                }
+                _ => unreachable!(),
+            }
+        }
+
+        Ok(parts)
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use super::ParseStream;
+    use super::{ParseStream, TextPart};
+
+    #[test]
+    fn test_parse_text_in_the_middle() {
+        let mut ps = ParseStream {
+            content: "<b>Hello</b>".to_string(),
+            cursor: 3,
+        };
+
+        let parts = ps.parse_text().unwrap();
+
+        assert_eq!(ps.cursor, 8);
+        assert_eq!(parts, vec![TextPart::Normal("Hello".to_string())]);
+    }
+
+    #[test]
+    fn test_parse_text_at_end() {
+        let mut ps = ParseStream::new("text".to_string());
+
+        let parts = ps.parse_text().unwrap();
+
+        assert_eq!(ps.cursor, 4);
+        assert_eq!(parts, vec![TextPart::Normal("text".to_string())]);
+    }
+
+    #[test]
+    fn test_parse_text_escaped_curly_braces() {
+        let mut ps = ParseStream::new("\\{{ text }}".to_string());
+
+        let parts = ps.parse_text().unwrap();
+
+        assert_eq!(ps.cursor, 11);
+        assert_eq!(
+            parts,
+            vec![
+                TextPart::Normal("\\{{".to_string()),
+                TextPart::Normal(" text }}".to_string()),
+            ],
+        );
+    }
+
+    #[test]
+    fn test_parse_text_expr() {
+        let mut ps = ParseStream::new("{{ text}}{{u}}".to_string());
+
+        let parts = ps.parse_text().unwrap();
+
+        assert_eq!(ps.cursor, 14);
+        assert_eq!(
+            parts,
+            vec![
+                TextPart::Expr(" text".to_string()),
+                TextPart::Expr("u".to_string()),
+            ],
+        );
+    }
+
+    #[test]
+    fn test_parse_text_empty_string() {
+        let mut ps = ParseStream::new("".to_string());
+
+        let parts = ps.parse_text().unwrap();
+
+        assert_eq!(ps.cursor, 0);
+        assert_eq!(parts, vec![]);
+    }
+
+    #[test]
+    fn test_parse_text_incomplete_expr() {
+        let mut ps = ParseStream::new("{{ text ".to_string());
+
+        let err = ps.parse_text().unwrap_err();
+
+        assert_eq!(ps.cursor, 2);
+        assert_eq!(err.cursor, 2);
+        assert_eq!(err.message, "expression incomplete".to_string())
+    }
 
     #[test]
     fn test_is_match() {
@@ -332,6 +472,6 @@ mod test {
 
         assert_eq!(ps.cursor, 1);
         assert_eq!(err.cursor, 1);
-        assert_eq!(err.message, "expected `H`".to_string())
+        assert_eq!(err.message, "expected `H`".to_string());
     }
 }

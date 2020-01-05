@@ -4,7 +4,7 @@ use super::{
 };
 use proc_macro2::TokenStream;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum Attribute {
     Normal(NormalAttribute),
     Dynamic(DynamicAttribute),

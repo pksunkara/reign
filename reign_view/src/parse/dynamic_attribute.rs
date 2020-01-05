@@ -4,7 +4,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::LitStr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct DynamicAttribute {
     pub symbol: String,
     pub prefix: String,

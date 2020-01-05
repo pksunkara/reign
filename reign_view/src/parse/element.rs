@@ -7,7 +7,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{Ident, LitStr};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct Element {
     pub name: String,
     pub attrs: Vec<Attribute>,

@@ -6,6 +6,7 @@ mod doctype;
 mod dynamic_attribute;
 mod element;
 mod error;
+mod expr;
 mod node;
 mod normal_attribute;
 mod parse_stream;
@@ -24,7 +25,7 @@ use error::Error;
 use node::Node;
 use normal_attribute::NormalAttribute;
 use parse_stream::ParseStream;
-use text::Text;
+use text::{Text, TextPart};
 
 fn tag_name_regex() -> String {
     format!("<({0}(:?:{0})*)", TAG_NAME)

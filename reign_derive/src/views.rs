@@ -78,14 +78,14 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
                 }
 
                 impl ::reign::view::View for #ident {
-                    fn render(&self, f: &mut dyn ::std::fmt::Write) -> ::std::fmt::Result {
+                    fn render(&self, f: &mut dyn std::fmt::Write) -> std::fmt::Result {
                         #strings
                         Ok(())
                     }
                 }
 
-                impl ::std::fmt::Display for #ident {
-                    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                impl std::fmt::Display for #ident {
+                    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                         self.render(f)
                     }
                 }
