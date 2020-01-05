@@ -170,7 +170,7 @@ impl Tokenize for Element {
         };
 
         // For loop
-        if let Some(r_for) = self.attr("r-for") {
+        if let Some(r_for) = self.attr("!for") {
             let for_expr = r_for.value.for_expr();
 
             return quote! {
@@ -181,13 +181,35 @@ impl Tokenize for Element {
         }
 
         // If condition
-        if let Some(r_if) = self.attr("r-if") {
+        if let Some(r_if) = self.attr("!if") {
+            let if_expr = r_if.value.if_expr();
+
             return quote! {
-                #tokens
+                if #if_expr {
+                    #tokens
+                }
             };
         }
 
-        // TODO: r-else-if, r-else
+        // Else If condition
+        if let Some(r_else_if) = self.attr("!else-if") {
+            let if_expr = r_else_if.value.if_expr();
+
+            return quote! {
+                else if #if_expr {
+                    #tokens
+                }
+            };
+        }
+
+        // Else condition
+        if self.attr("!else").is_some() {
+            return quote! {
+                else {
+                    #tokens
+                }
+            };
+        }
 
         tokens
     }

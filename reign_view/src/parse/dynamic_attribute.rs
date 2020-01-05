@@ -1,8 +1,7 @@
 use super::consts::*;
 use super::{AttributeValue, Error, Parse, ParseStream, Tokenize};
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::LitStr;
 
 #[derive(Debug)]
 pub struct DynamicAttribute {

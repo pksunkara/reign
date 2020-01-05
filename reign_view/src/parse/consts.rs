@@ -8,7 +8,7 @@ pub const ATTR_VALUE_DOUBLE_QUOTED: &str = "\"([^\"]*)\"";
 pub const ATTR_VALUE_SINGLE_QUOTED: &str = "'([^']*)'";
 pub const ATTR_VALUE_UNQUOTED: &str = "[^\\s\"'=<>`]+";
 
-pub const REIGN_ATTR_NAMES: [&str; 4] = ["r-if", "r-else-if", "r-else", "r-for"];
+pub const REIGN_ATTR_NAMES: [&str; 4] = ["!if", "!else-if", "!else", "!for"];
 
 pub const HTML_TAGS: [&str; 116] = [
     "html",

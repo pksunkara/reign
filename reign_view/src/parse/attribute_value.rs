@@ -23,7 +23,15 @@ impl AttributeValue {
     }
 
     pub fn for_expr(&self) -> TokenStream {
-        quote! {}
+        quote! {
+            i in 0..10 // TODO: for_expr
+        }
+    }
+
+    pub fn if_expr(&self) -> TokenStream {
+        quote! {
+            true // TODO: if_expr
+        }
     }
 }
 
