@@ -47,7 +47,7 @@ use tuple::ExprTuple;
 use type_::ExprType;
 use unary::ExprUnary;
 
-// TODO: ExprCall, ExprIf
+// TODO:(view:expr) ExprIf
 #[derive(Debug)]
 pub enum Expr {
     Array(ExprArray),
@@ -66,7 +66,8 @@ pub enum Expr {
     Tuple(ExprTuple),
     Type(ExprType),
     Unary(ExprUnary),
-    Macro(ExprMacro), // TODO: Only allow select macros?
+    // TODO:(view:expr) Only allow select macros?
+    Macro(ExprMacro),
     Lit(Lit),
 }
 

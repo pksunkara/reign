@@ -1,6 +1,6 @@
 use std::fmt;
 
-// TODO: Filename for error
+// TODO:(view:err) Filename for error
 pub struct Error {
     pub content: String,
     pub cursor: usize,
@@ -42,7 +42,7 @@ impl Error {
     }
 
     fn print(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO: Make this colorful and prettier
+        // TODO:(view:err) Make this colorful and prettier
         let info = self.get_line();
         let line_number = format!("{}", info.1);
         let start = format!("{:>1$}", "|", line_number.len() + 2);

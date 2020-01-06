@@ -55,8 +55,14 @@ fn test_if() {
     common::parse_pass("if");
 }
 
+// #[test]
+// fn test_else_without_if() {
+//     common::parse_fail("else_without_if");
+// }
+
+// #[test]
+// fn test_interpolation_bad() {
+//     common::parse_fail("interpolation_bad");
+// }
+
 // TODO: More tests (this,slots,component,expr)
-#[test]
-fn test_interpolation_bad() {
-    // common::parse_fail("interpolation_bad");
-}

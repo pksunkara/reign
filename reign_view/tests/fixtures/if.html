@@ -1,5 +1,9 @@
 <div>
-  <div !if='a == "true" || a'>True</div>
-  <div !else-if='a == "false" || !a'>False</div>
+  <div !if="true">First True</div>
+  <div !if='a == "true" || a'>(Else) True</div>
+  <div !else-if='a == "false" || !a'>(Else) False</div>
   <div !else>Unknown</div>
+  <div !if="a">(ElseIf) True</div>
+  <div !else-if="!a">(ElseIf) False</div>
+  <div !if="true">Last True</div>
 </div>

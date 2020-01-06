@@ -8,7 +8,6 @@ use syn::{
     Error, Path,
 };
 
-// TODO: FieldValue
 #[derive(Debug)]
 pub struct ExprStruct {
     path: Path,

@@ -65,6 +65,73 @@ impl Element {
 
         (names, templates, other)
     }
+
+    fn children_tokens(&self) -> Vec<TokenStream> {
+        let mut tokens = vec![];
+        let mut iter = self.children.iter();
+        let mut child_option = iter.next();
+
+        while child_option.is_some() {
+            let child = child_option.unwrap();
+
+            if let Node::Element(e) = child {
+                if e.attr("!if").is_some() {
+                    let mut after_if = vec![child];
+                    let mut next = iter.next();
+                    let (mut has_else, mut has_else_if) = (false, false);
+
+                    while next.is_some() {
+                        let sibling = next.unwrap();
+
+                        if let Node::Element(e) = sibling {
+                            // If element has `else`, Mark the children to be cleaned
+                            if e.attr("!else").is_some() {
+                                after_if.push(sibling);
+                                has_else = true;
+                                child_option = iter.next();
+                                break;
+                            }
+
+                            // If element has `else-if`, mark the children to be cleaned even though we have no `else`
+                            if e.attr("!else-if").is_some() {
+                                has_else_if = true;
+                            } else {
+                                // Otherwise go to the main loop
+                                child_option = next;
+                                break;
+                            }
+                        }
+
+                        after_if.push(sibling);
+                        next = iter.next();
+                    }
+
+                    after_if = clean_if_else_group(after_if, has_else, has_else_if);
+
+                    for i in after_if {
+                        tokens.push(i.tokenize());
+                    }
+
+                    // If at the end, break out
+                    if next.is_none() {
+                        break;
+                    }
+
+                    continue;
+                }
+
+                if e.attr("!else").is_some() || e.attr("!else-if").is_some() {
+                    // TODO:(view:err) Show the error position
+                    // panic!("expected `!if` element before `!else` or `!else-if`");
+                }
+            }
+
+            tokens.push(child.tokenize());
+            child_option = iter.next();
+        }
+
+        tokens
+    }
 }
 
 impl Parse for Element {
@@ -93,7 +160,7 @@ impl Parse for Element {
                     // input.peek(">") is true here
                     input.step(">")?;
 
-                    // TODO: Tags that can be left open according to HTML spec
+                    // TODO:(view:html) Tags that can be left open according to HTML spec
                     if !VOID_TAGS.contains(&name.as_str()) {
                         let closing_tag = format!("</{}", name);
 
@@ -121,7 +188,7 @@ impl Tokenize for Element {
         let tokens = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
             let start_tag = LitStr::new(&format!("<{}", &self.name), Span::call_site());
             let attrs: Vec<TokenStream> = self.attrs.iter().map(|x| x.tokenize()).collect();
-            let children: Vec<TokenStream> = self.children.iter().map(|x| x.tokenize()).collect();
+            let children = self.children_tokens();
 
             let end_tokens = if !VOID_TAGS.contains(&self.name.as_str()) {
                 let end_tag = LitStr::new(&format!("</{}>", &self.name), Span::call_site());
@@ -150,7 +217,7 @@ impl Tokenize for Element {
             let path = convert_tag_name(tag_pieces);
             let (names, templates, children) = self.component_children();
 
-            // TODO: attrs,
+            // TODO:(attrs) For component
             quote! {
                 write!(f, "{}", crate::views::#(#path)::* {
                     _slots: ::reign::view::Slots {
@@ -212,6 +279,56 @@ impl Tokenize for Element {
         }
 
         tokens
+    }
+}
+
+fn clean_if_else_group(group: Vec<&Node>, has_else: bool, has_else_if: bool) -> Vec<&Node> {
+    if has_else {
+        // Clean completely
+        group
+            .into_iter()
+            .filter(|x| {
+                if let Node::Element(_) = x {
+                    true
+                } else {
+                    false
+                }
+            })
+            .collect()
+    } else if has_else_if {
+        // Clean only between if and else_if
+        let mut last_element = group
+            .iter()
+            .rev()
+            .position(|x| {
+                if let Node::Element(_) = x {
+                    true
+                } else {
+                    false
+                }
+            })
+            .unwrap();
+
+        last_element = group.len() - last_element - 1;
+
+        group
+            .into_iter()
+            .enumerate()
+            .filter(|(i, x)| {
+                if *i > last_element {
+                    return true;
+                }
+
+                if let Node::Element(_) = x {
+                    true
+                } else {
+                    false
+                }
+            })
+            .map(|(_, x)| x)
+            .collect()
+    } else {
+        group
     }
 }
 

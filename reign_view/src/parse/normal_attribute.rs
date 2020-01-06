@@ -25,7 +25,7 @@ impl Tokenize for NormalAttribute {
             return quote! {};
         }
 
-        // TODO: If name has `:` at the beginning, wrap value in `{{  }}`
+        // TODO:(expr-attr) If name has `:` at the beginning, wrap value in `{{  }}`
 
         let name = LitStr::new(&format!(" {}=", &self.name), Span::call_site());
         let value = self.value.tokenize();

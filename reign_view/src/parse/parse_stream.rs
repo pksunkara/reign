@@ -135,7 +135,6 @@ impl ParseStream {
     pub(super) fn parse_text(&mut self) -> Result<Vec<TextPart>, Error> {
         let mut parts = vec![];
         let start_regex = Regex::new(r"\\\{\{|\{\{|<").unwrap();
-        let end_regex = Regex::new("}}").unwrap();
 
         loop {
             let remaining = self.content.get(self.cursor..).unwrap();
@@ -171,13 +170,13 @@ impl ParseStream {
                 "{" => {
                     self.cursor += 2;
                     let end_remaining = self.content.get(self.cursor..).unwrap();
-                    let end_matches = end_regex.find(end_remaining);
+                    let end_matches = end_remaining.find("}}");
 
                     if end_matches.is_none() {
                         return Err(self.error("expression incomplete"));
                     }
 
-                    let expr_until = self.cursor + end_matches.unwrap().start();
+                    let expr_until = self.cursor + end_matches.unwrap();
                     let expr_string = self.content.get(self.cursor..expr_until).unwrap();
 
                     parts.push(TextPart::Expr(expr_string.to_string()));

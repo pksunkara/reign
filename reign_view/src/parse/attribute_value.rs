@@ -24,13 +24,14 @@ impl AttributeValue {
 
     pub fn for_expr(&self) -> TokenStream {
         quote! {
-            i in 0..10 // TODO: for_expr
+            // TODO:(pat) in expr
+            i in 0..10 // TODO:(expr) for_expr
         }
     }
 
     pub fn if_expr(&self) -> TokenStream {
         quote! {
-            true // TODO: if_expr
+            true // TODO:(expr) if_expr
         }
     }
 }
@@ -77,7 +78,7 @@ impl Tokenize for AttributeValue {
             _ => unreachable!(),
         };
 
-        // TODO: {{ var }} in value
+        // TODO:(expr-attr) {{ var }} in value
         let value = LitStr::new(&string, Span::call_site());
 
         quote! {
