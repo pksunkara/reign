@@ -4,7 +4,7 @@ use super::{
 };
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Span, TokenStream};
-use quote::quote;
+use quote::{quote, TokenStreamExt};
 use syn::{Ident, LitStr};
 
 #[derive(Debug)]
@@ -35,13 +35,18 @@ impl Element {
         "default"
     }
 
-    fn component_children(&self) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
+    fn component_children(
+        &self,
+        idents: &mut Vec<Ident>,
+    ) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
         let mut names = vec![];
         let mut templates = vec![];
         let mut other = vec![];
 
         for child in &self.children {
-            let ts = child.tokenize();
+            let mut ts = TokenStream::new();
+
+            child.tokenize(&mut ts, idents);
 
             if let Node::Element(e) = child {
                 if e.name == "template" {
@@ -66,7 +71,19 @@ impl Element {
         (names, templates, other)
     }
 
-    fn children_tokens(&self) -> Vec<TokenStream> {
+    fn end_tokens(&self) -> TokenStream {
+        if !VOID_TAGS.contains(&self.name.as_str()) {
+            let end_tag = LitStr::new(&format!("</{}>", &self.name), Span::call_site());
+
+            quote! {
+                write!(f, "{}", #end_tag)?;
+            }
+        } else {
+            quote! {}
+        }
+    }
+
+    fn children_tokens(&self, idents: &mut Vec<Ident>) -> Vec<TokenStream> {
         let mut tokens = vec![];
         let mut iter = self.children.iter();
         let mut child_option = iter.next();
@@ -109,7 +126,10 @@ impl Element {
                     after_if = clean_if_else_group(after_if, has_else, has_else_if);
 
                     for i in after_if {
-                        tokens.push(i.tokenize());
+                        let mut ts = TokenStream::new();
+
+                        i.tokenize(&mut ts, idents);
+                        tokens.push(ts);
                     }
 
                     // If at the end, break out
@@ -126,7 +146,10 @@ impl Element {
                 }
             }
 
-            tokens.push(child.tokenize());
+            let mut ts = TokenStream::new();
+
+            child.tokenize(&mut ts, idents);
+            tokens.push(ts);
             child_option = iter.next();
         }
 
@@ -182,23 +205,23 @@ impl Parse for Element {
 }
 
 impl Tokenize for Element {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
 
-        let tokens = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
+        let mut elem = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
             let start_tag = LitStr::new(&format!("<{}", &self.name), Span::call_site());
-            let attrs: Vec<TokenStream> = self.attrs.iter().map(|x| x.tokenize()).collect();
-            let children = self.children_tokens();
+            let attrs: Vec<TokenStream> = self
+                .attrs
+                .iter()
+                .map(|x| {
+                    let mut ts = TokenStream::new();
 
-            let end_tokens = if !VOID_TAGS.contains(&self.name.as_str()) {
-                let end_tag = LitStr::new(&format!("</{}>", &self.name), Span::call_site());
-
-                quote! {
-                    write!(f, "{}", #end_tag)?;
-                }
-            } else {
-                quote! {}
-            };
+                    x.tokenize(&mut ts, idents);
+                    ts
+                })
+                .collect();
+            let children = self.children_tokens(idents);
+            let end_tokens = self.end_tokens();
 
             quote! {
                 write!(f, "{}", #start_tag)?;
@@ -215,7 +238,7 @@ impl Tokenize for Element {
             }
         } else {
             let path = convert_tag_name(tag_pieces);
-            let (names, templates, children) = self.component_children();
+            let (names, templates, children) = self.component_children(idents);
 
             // TODO:(attrs) For component
             quote! {
@@ -236,49 +259,48 @@ impl Tokenize for Element {
             }
         };
 
-        // For loop
-        if let Some(r_for) = self.attr("!for") {
-            let for_expr = r_for.value.for_expr();
+        elem = if let Some(r_for) = self.attr("!for") {
+            // For loop
+            let mut for_expr = TokenStream::new();
+            r_for.value.for_expr(&mut for_expr, idents);
 
-            return quote! {
+            quote! {
                 for #for_expr {
-                    #tokens
+                    #elem
                 }
-            };
-        }
+            }
+        } else if let Some(r_if) = self.attr("!if") {
+            // If condition
+            let mut if_expr = TokenStream::new();
+            r_if.value.if_expr(&mut if_expr, idents);
 
-        // If condition
-        if let Some(r_if) = self.attr("!if") {
-            let if_expr = r_if.value.if_expr();
-
-            return quote! {
+            quote! {
                 if #if_expr {
-                    #tokens
+                    #elem
                 }
-            };
-        }
+            }
+        } else if let Some(r_else_if) = self.attr("!else-if") {
+            // Else If condition
+            let mut if_expr = TokenStream::new();
+            r_else_if.value.if_expr(&mut if_expr, idents);
 
-        // Else If condition
-        if let Some(r_else_if) = self.attr("!else-if") {
-            let if_expr = r_else_if.value.if_expr();
-
-            return quote! {
+            quote! {
                 else if #if_expr {
-                    #tokens
+                    #elem
                 }
-            };
-        }
-
-        // Else condition
-        if self.attr("!else").is_some() {
-            return quote! {
+            }
+        } else if self.attr("!else").is_some() {
+            // Else condition
+            quote! {
                 else {
-                    #tokens
+                    #elem
                 }
-            };
-        }
+            }
+        } else {
+            elem
+        };
 
-        tokens
+        tokens.append_all(elem);
     }
 }
 

@@ -1,10 +1,10 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Colon,
-    Error, Type,
+    Error, Ident, Type,
 };
 
 pub struct ExprType {
@@ -21,8 +21,8 @@ impl Parse for ExprType {
                 Expr::Type(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
                 _ => {
-                    return Err(Error::new_spanned(
-                        expr,
+                    return Err(Error::new(
+                        Span::call_site(),
                         "expected type ascription expression",
                     ))
                 }
@@ -31,9 +31,9 @@ impl Parse for ExprType {
     }
 }
 
-impl ToTokens for ExprType {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.expr.to_tokens(tokens);
+impl Tokenize for ExprType {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.expr.tokenize(tokens, idents);
         self.colon_token.to_tokens(tokens);
         self.ty.to_tokens(tokens);
     }

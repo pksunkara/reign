@@ -1,10 +1,10 @@
-use super::{expr::expr_no_struct, Expr};
+use super::{expr::expr_no_struct, Expr, Tokenize};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::In,
-    Pat,
+    Ident, Pat,
 };
 
 pub struct For {
@@ -23,10 +23,10 @@ impl Parse for For {
     }
 }
 
-impl ToTokens for For {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for For {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.pat.to_tokens(tokens);
         self.in_token.to_tokens(tokens);
-        self.expr.to_tokens(tokens);
+        self.expr.tokenize(tokens, idents);
     }
 }

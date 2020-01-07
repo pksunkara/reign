@@ -1,3 +1,4 @@
+use super::Tokenize;
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
@@ -5,7 +6,7 @@ use syn::{
     group::parse_group,
     parenthesized,
     parse::{discouraged::Speculative, Parse, ParseStream, Result},
-    punctuated::Punctuated,
+    punctuated::{Pair, Punctuated},
     token::{self, Brace, Bracket, Paren},
     BinOp, ExprMacro, ExprPath, GenericMethodArgument, Ident, Lit, Macro, MacroDelimiter, Member,
     MethodTurbofish, Path, PathArguments, RangeLimits, Token, Type,
@@ -141,20 +142,21 @@ impl Parse for Expr {
     }
 }
 
-impl ToTokens for Expr {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for Expr {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         match self {
-            Expr::Array(e) => e.to_tokens(tokens),
-            Expr::Binary(e) => e.to_tokens(tokens),
-            Expr::Call(e) => e.to_tokens(tokens),
-            Expr::Cast(e) => e.to_tokens(tokens),
-            Expr::Field(e) => e.to_tokens(tokens),
-            Expr::Group(e) => e.to_tokens(tokens),
-            Expr::Index(e) => e.to_tokens(tokens),
-            Expr::MethodCall(e) => e.to_tokens(tokens),
-            Expr::Paren(e) => e.to_tokens(tokens),
+            Expr::Array(e) => e.tokenize(tokens, idents),
+            Expr::Binary(e) => e.tokenize(tokens, idents),
+            Expr::Call(e) => e.tokenize(tokens, idents),
+            Expr::Cast(e) => e.tokenize(tokens, idents),
+            Expr::Field(e) => e.tokenize(tokens, idents),
+            Expr::Group(e) => e.tokenize(tokens, idents),
+            Expr::Index(e) => e.tokenize(tokens, idents),
+            Expr::MethodCall(e) => e.tokenize(tokens, idents),
+            Expr::Paren(e) => e.tokenize(tokens, idents),
             Expr::Path(path) => {
                 if let Some(ident) = path.path.get_ident() {
+                    idents.push(ident.clone());
                     tokens.append_all(quote! {
                         self.#ident
                     });
@@ -162,14 +164,51 @@ impl ToTokens for Expr {
                     path.to_tokens(tokens);
                 }
             }
-            Expr::Range(e) => e.to_tokens(tokens),
-            Expr::Repeat(e) => e.to_tokens(tokens),
-            Expr::Struct(e) => e.to_tokens(tokens),
-            Expr::Tuple(e) => e.to_tokens(tokens),
-            Expr::Type(e) => e.to_tokens(tokens),
-            Expr::Unary(e) => e.to_tokens(tokens),
+            Expr::Range(e) => e.tokenize(tokens, idents),
+            Expr::Repeat(e) => e.tokenize(tokens, idents),
+            Expr::Struct(e) => e.tokenize(tokens, idents),
+            Expr::Tuple(e) => e.tokenize(tokens, idents),
+            Expr::Type(e) => e.tokenize(tokens, idents),
+            Expr::Unary(e) => e.tokenize(tokens, idents),
             Expr::Macro(e) => e.to_tokens(tokens),
             Expr::Lit(e) => e.to_tokens(tokens),
+        };
+    }
+}
+
+impl<T, P> Tokenize for Punctuated<T, P>
+where
+    T: Tokenize,
+    P: ToTokens,
+{
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        let mut iter = self.pairs();
+
+        loop {
+            let item = iter.next();
+
+            if item.is_none() {
+                break;
+            }
+
+            match item.unwrap() {
+                Pair::Punctuated(t, p) => {
+                    t.tokenize(tokens, idents);
+                    p.to_tokens(tokens);
+                }
+                Pair::End(t) => t.tokenize(tokens, idents),
+            }
+        }
+    }
+}
+
+impl<T> Tokenize for Option<Box<T>>
+where
+    T: Tokenize,
+{
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        if self.is_some() {
+            self.as_ref().unwrap().tokenize(tokens, idents);
         }
     }
 }

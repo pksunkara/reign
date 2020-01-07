@@ -1,6 +1,7 @@
 use super::consts::DOCTYPE;
 use super::{tag_name_regex, Comment, Doctype, Element, Error, Parse, ParseStream, Text, Tokenize};
 use proc_macro2::TokenStream;
+use syn::Ident;
 
 #[derive(Debug)]
 pub enum Node {
@@ -35,12 +36,12 @@ impl Parse for Node {
 }
 
 impl Tokenize for Node {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         match self {
-            Node::Element(e) => e.tokenize(),
-            Node::Comment(c) => c.tokenize(),
-            Node::Text(t) => t.tokenize(),
-            Node::Doctype(d) => d.tokenize(),
-        }
+            Node::Element(e) => e.tokenize(tokens, idents),
+            Node::Comment(c) => c.tokenize(tokens, idents),
+            Node::Text(t) => t.tokenize(tokens, idents),
+            Node::Doctype(d) => d.tokenize(tokens, idents),
+        };
     }
 }

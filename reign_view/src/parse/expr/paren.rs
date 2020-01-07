@@ -1,10 +1,9 @@
-use super::Expr;
-use proc_macro2::TokenStream;
-use quote::ToTokens;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Paren,
-    Error,
+    Error, Ident,
 };
 
 pub struct ExprParen {
@@ -20,8 +19,8 @@ impl Parse for ExprParen {
                 Expr::Paren(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
                 _ => {
-                    return Err(Error::new_spanned(
-                        expr,
+                    return Err(Error::new(
+                        Span::call_site(),
                         "expected parenthesized expression",
                     ))
                 }
@@ -30,10 +29,10 @@ impl Parse for ExprParen {
     }
 }
 
-impl ToTokens for ExprParen {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprParen {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.paren_token.surround(tokens, |tokens| {
-            self.expr.to_tokens(tokens);
+            self.expr.tokenize(tokens, idents);
         });
     }
 }

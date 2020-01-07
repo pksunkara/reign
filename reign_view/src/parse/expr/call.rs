@@ -1,11 +1,10 @@
-use super::Expr;
-use proc_macro2::TokenStream;
-use quote::ToTokens;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Comma, Paren},
-    Error,
+    Error, Ident,
 };
 
 pub struct ExprCall {
@@ -22,8 +21,8 @@ impl Parse for ExprCall {
                 Expr::Call(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
                 _ => {
-                    return Err(Error::new_spanned(
-                        expr,
+                    return Err(Error::new(
+                        Span::call_site(),
                         "expected function call expression",
                     ))
                 }
@@ -32,11 +31,11 @@ impl Parse for ExprCall {
     }
 }
 
-impl ToTokens for ExprCall {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.func.to_tokens(tokens);
+impl Tokenize for ExprCall {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.func.tokenize(tokens, idents);
         self.paren_token.surround(tokens, |tokens| {
-            self.args.to_tokens(tokens);
+            self.args.tokenize(tokens, idents);
         })
     }
 }

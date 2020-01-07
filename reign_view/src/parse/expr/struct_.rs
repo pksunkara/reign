@@ -1,11 +1,11 @@
-use super::{Expr, FieldValue};
-use proc_macro2::TokenStream;
+use super::{Expr, FieldValue, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Brace, Comma, Dot2},
-    Error, Path,
+    Error, Ident, Path,
 };
 
 pub struct ExprStruct {
@@ -24,8 +24,8 @@ impl Parse for ExprStruct {
                 Expr::Struct(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
                 _ => {
-                    return Err(Error::new_spanned(
-                        expr,
+                    return Err(Error::new(
+                        Span::call_site(),
                         "expected struct literal expression",
                     ))
                 }
@@ -34,12 +34,12 @@ impl Parse for ExprStruct {
     }
 }
 
-impl ToTokens for ExprStruct {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprStruct {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.path.to_tokens(tokens);
 
         self.brace_token.surround(tokens, |tokens| {
-            self.fields.to_tokens(tokens);
+            self.fields.tokenize(tokens, idents);
 
             if self.rest.is_some() {
                 match self.dot2_token {
@@ -47,7 +47,7 @@ impl ToTokens for ExprStruct {
                     None => Dot2::default().to_tokens(tokens),
                 }
 
-                self.rest.to_tokens(tokens);
+                self.rest.tokenize(tokens, idents);
             }
         })
     }

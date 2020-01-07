@@ -13,6 +13,8 @@ pub trait View: Display {
     fn render(&self, f: &mut dyn Write) -> Result;
 }
 
+// TODO: Can I do impl Display for View
+
 /// Renders a view for gotham handler.
 ///
 /// # Examples

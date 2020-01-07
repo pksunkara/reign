@@ -1,10 +1,9 @@
-use super::Expr;
-use proc_macro2::TokenStream;
-use quote::ToTokens;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Bracket,
-    Error,
+    Error, Ident,
 };
 
 pub struct ExprIndex {
@@ -20,18 +19,23 @@ impl Parse for ExprIndex {
             match expr {
                 Expr::Index(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected indexing expression")),
+                _ => {
+                    return Err(Error::new(
+                        Span::call_site(),
+                        "expected indexing expression",
+                    ))
+                }
             }
         }
     }
 }
 
-impl ToTokens for ExprIndex {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.expr.to_tokens(tokens);
+impl Tokenize for ExprIndex {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.expr.tokenize(tokens, idents);
 
         self.bracket_token.surround(tokens, |tokens| {
-            self.index.to_tokens(tokens);
+            self.index.tokenize(tokens, idents);
         });
     }
 }

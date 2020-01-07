@@ -1,10 +1,10 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::{Bracket, Semi},
-    Error,
+    Error, Ident,
 };
 
 pub struct ExprRepeat {
@@ -22,8 +22,8 @@ impl Parse for ExprRepeat {
                 Expr::Repeat(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
                 _ => {
-                    return Err(Error::new_spanned(
-                        expr,
+                    return Err(Error::new(
+                        Span::call_site(),
                         "expected array literal constructed from one repeated element",
                     ))
                 }
@@ -32,12 +32,12 @@ impl Parse for ExprRepeat {
     }
 }
 
-impl ToTokens for ExprRepeat {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprRepeat {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.bracket_token.surround(tokens, |tokens| {
-            self.expr.to_tokens(tokens);
+            self.expr.tokenize(tokens, idents);
             self.semi_token.to_tokens(tokens);
-            self.len.to_tokens(tokens);
+            self.len.tokenize(tokens, idents);
         });
     }
 }

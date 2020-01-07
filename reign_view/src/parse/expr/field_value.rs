@@ -1,10 +1,10 @@
-use super::Expr;
+use super::{Expr, Tokenize};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Colon,
-    ExprPath, Member, Path, Token,
+    ExprPath, Ident, Member, Path, Token,
 };
 
 pub struct FieldValue {
@@ -42,15 +42,16 @@ impl Parse for FieldValue {
     }
 }
 
-impl ToTokens for FieldValue {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for FieldValue {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         if let Some(colon_token) = &self.colon_token {
             self.member.to_tokens(tokens);
             colon_token.to_tokens(tokens);
-            self.expr.to_tokens(tokens);
+            self.expr.tokenize(tokens, idents);
         } else {
             // Member is always named
             if let Member::Named(ident) = &self.member {
+                idents.push(ident.clone());
                 tokens.append_all(quote! {
                     #ident: self.#ident
                 });

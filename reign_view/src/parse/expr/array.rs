@@ -1,11 +1,10 @@
-use super::Expr;
-use proc_macro2::TokenStream;
-use quote::ToTokens;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Bracket, Comma},
-    Error,
+    Error, Ident,
 };
 
 pub struct ExprArray {
@@ -21,8 +20,8 @@ impl Parse for ExprArray {
                 Expr::Array(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
                 _ => {
-                    return Err(Error::new_spanned(
-                        expr,
+                    return Err(Error::new(
+                        Span::call_site(),
                         "expected slice literal expression",
                     ))
                 }
@@ -31,10 +30,10 @@ impl Parse for ExprArray {
     }
 }
 
-impl ToTokens for ExprArray {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprArray {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.bracket_token.surround(tokens, |tokens| {
-            self.elems.to_tokens(tokens);
+            self.elems.tokenize(tokens, idents);
         })
     }
 }

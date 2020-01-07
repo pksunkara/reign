@@ -1,9 +1,9 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    BinOp, Error,
+    BinOp, Error, Ident,
 };
 
 pub struct ExprBinary {
@@ -19,16 +19,16 @@ impl Parse for ExprBinary {
             match expr {
                 Expr::Binary(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected binary operation")),
+                _ => return Err(Error::new(Span::call_site(), "expected binary operation")),
             }
         }
     }
 }
 
-impl ToTokens for ExprBinary {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.left.to_tokens(tokens);
+impl Tokenize for ExprBinary {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.left.tokenize(tokens, idents);
         self.op.to_tokens(tokens);
-        self.right.to_tokens(tokens);
+        self.right.tokenize(tokens, idents);
     }
 }

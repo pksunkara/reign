@@ -1,7 +1,7 @@
 use super::{parse_expr, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
-use quote::quote;
-use syn::LitStr;
+use quote::{quote, ToTokens, TokenStreamExt};
+use syn::{Ident, LitStr};
 
 #[derive(Debug, PartialEq)]
 pub enum TextPart {
@@ -10,20 +10,15 @@ pub enum TextPart {
 }
 
 impl Tokenize for TextPart {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         match self {
             TextPart::Normal(n) => {
                 let lit = LitStr::new(&n, Span::call_site());
-                quote! {
-                        #lit
-                }
+                lit.to_tokens(tokens);
             }
             TextPart::Expr(e) => {
                 let expr = parse_expr(&e).unwrap();
-
-                quote! {
-                    #expr
-                }
+                expr.tokenize(tokens, idents);
             }
         }
     }
@@ -43,13 +38,23 @@ impl Parse for Text {
 }
 
 impl Tokenize for Text {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         let format_arg_str = "{}".repeat(self.content.len());
         let format_arg_lit = LitStr::new(&format_arg_str, Span::call_site());
-        let tokens: Vec<TokenStream> = self.content.iter().map(|x| x.tokenize()).collect();
 
-        quote! {
-            write!(f, #format_arg_lit, #(#tokens),*)?;
-        }
+        let content: Vec<TokenStream> = self
+            .content
+            .iter()
+            .map(|x| {
+                let mut ts = TokenStream::new();
+
+                x.tokenize(&mut ts, idents);
+                ts
+            })
+            .collect();
+
+        tokens.append_all(quote! {
+            write!(f, #format_arg_lit, #(#content),*)?;
+        });
     }
 }

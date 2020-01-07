@@ -1,10 +1,10 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Dot,
-    Error, Member,
+    Error, Ident, Member,
 };
 
 pub struct ExprField {
@@ -20,15 +20,20 @@ impl Parse for ExprField {
             match expr {
                 Expr::Field(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected struct field access")),
+                _ => {
+                    return Err(Error::new(
+                        Span::call_site(),
+                        "expected struct field access",
+                    ))
+                }
             }
         }
     }
 }
 
-impl ToTokens for ExprField {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.base.to_tokens(tokens);
+impl Tokenize for ExprField {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.base.tokenize(tokens, idents);
         self.dot_token.to_tokens(tokens);
         self.member.to_tokens(tokens);
     }

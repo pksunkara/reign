@@ -1,9 +1,9 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    Error, UnOp,
+    Error, Ident, UnOp,
 };
 
 pub struct ExprUnary {
@@ -18,15 +18,15 @@ impl Parse for ExprUnary {
             match expr {
                 Expr::Unary(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected unary operation")),
+                _ => return Err(Error::new(Span::call_site(), "expected unary operation")),
             }
         }
     }
 }
 
-impl ToTokens for ExprUnary {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprUnary {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.op.to_tokens(tokens);
-        self.expr.to_tokens(tokens);
+        self.expr.tokenize(tokens, idents);
     }
 }

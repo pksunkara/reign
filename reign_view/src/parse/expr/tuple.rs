@@ -1,11 +1,11 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Comma, Paren},
-    Error,
+    Error, Ident,
 };
 
 pub struct ExprTuple {
@@ -20,16 +20,16 @@ impl Parse for ExprTuple {
             match expr {
                 Expr::Tuple(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected tuple expression")),
+                _ => return Err(Error::new(Span::call_site(), "expected tuple expression")),
             }
         }
     }
 }
 
-impl ToTokens for ExprTuple {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprTuple {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.paren_token.surround(tokens, |tokens| {
-            self.elems.to_tokens(tokens);
+            self.elems.tokenize(tokens, idents);
 
             // If we only have one argument, we need a trailing comma to
             // distinguish ExprTuple from ExprParen.

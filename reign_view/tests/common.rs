@@ -44,7 +44,7 @@ pub fn parse_pass(file_name: &str) {
     let node = parse(f).unwrap();
 
     // FIXME: Tokenstream should be converted to pretty formatted rust
-    eq!(&t.to_string(), &tokenize(node).to_string());
+    eq!(&t.to_string(), &tokenize(node).0.to_string());
     // eq!(&o.trim_end(), &tokenize(node).to_string());
 }
 

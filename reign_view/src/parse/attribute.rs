@@ -3,6 +3,7 @@ use super::{
     dy_attr_regex, DynamicAttribute, Error, NormalAttribute, Parse, ParseStream, Tokenize,
 };
 use proc_macro2::TokenStream;
+use syn::Ident;
 
 #[derive(Debug)]
 pub enum Attribute {
@@ -23,10 +24,10 @@ impl Parse for Attribute {
 }
 
 impl Tokenize for Attribute {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         match self {
-            Attribute::Normal(n) => n.tokenize(),
-            Attribute::Dynamic(d) => d.tokenize(),
-        }
+            Attribute::Normal(n) => n.tokenize(tokens, idents),
+            Attribute::Dynamic(d) => d.tokenize(tokens, idents),
+        };
     }
 }

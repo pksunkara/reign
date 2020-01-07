@@ -1,8 +1,8 @@
 use super::consts::*;
 use super::{parse_expr, parse_for, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
-use quote::quote;
-use syn::LitStr;
+use quote::{quote, TokenStreamExt};
+use syn::{Ident, LitStr};
 
 #[derive(Debug)]
 pub enum AttributeValue {
@@ -22,21 +22,15 @@ impl AttributeValue {
         }
     }
 
-    pub fn for_expr(&self) -> TokenStream {
+    pub fn for_expr(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         let for_ = parse_for(self.value()).unwrap();
 
-        quote! {
-            // TODO:(pat) in expr
-            #for_
-        }
+        // TODO:(pat) in expr
+        for_.tokenize(tokens, idents);
     }
 
-    pub fn if_expr(&self) -> TokenStream {
-        let expr = parse_expr(self.value()).unwrap();
-
-        quote! {
-            #expr
-        }
+    pub fn if_expr(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        parse_expr(self.value()).unwrap().tokenize(tokens, idents);
     }
 }
 
@@ -68,11 +62,12 @@ impl Parse for AttributeValue {
 }
 
 impl Tokenize for AttributeValue {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         if let AttributeValue::NoValue = self {
-            return quote! {
+            tokens.append_all(quote! {
                 write!(f, "\"\"")?;
-            };
+            });
+            return;
         }
 
         let string = match self {
@@ -85,8 +80,8 @@ impl Tokenize for AttributeValue {
         // TODO:(expr-attr) {{ var }} in value
         let value = LitStr::new(&string, Span::call_site());
 
-        quote! {
+        tokens.append_all(quote! {
             write!(f, "{}", #value)?;
-        }
+        });
     }
 }

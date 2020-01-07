@@ -1,5 +1,5 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
@@ -24,21 +24,26 @@ impl Parse for ExprMethodCall {
             match expr {
                 Expr::MethodCall(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected method call expression")),
+                _ => {
+                    return Err(Error::new(
+                        Span::call_site(),
+                        "expected method call expression",
+                    ))
+                }
             }
         }
     }
 }
 
-impl ToTokens for ExprMethodCall {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.receiver.to_tokens(tokens);
+impl Tokenize for ExprMethodCall {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.receiver.tokenize(tokens, idents);
         self.dot_token.to_tokens(tokens);
         self.method.to_tokens(tokens);
         self.turbofish.to_tokens(tokens);
 
         self.paren_token.surround(tokens, |tokens| {
-            self.args.to_tokens(tokens);
+            self.args.tokenize(tokens, idents);
         });
     }
 }

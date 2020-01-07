@@ -1,9 +1,9 @@
-use super::Expr;
-use proc_macro2::TokenStream;
+use super::{Expr, Tokenize};
+use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    Error, RangeLimits,
+    Error, Ident, RangeLimits,
 };
 
 pub struct ExprRange {
@@ -19,21 +19,21 @@ impl Parse for ExprRange {
             match expr {
                 Expr::Range(inner) => return Ok(inner),
                 Expr::Group(next) => expr = *next.expr,
-                _ => return Err(Error::new_spanned(expr, "expected range expression")),
+                _ => return Err(Error::new(Span::call_site(), "expected range expression")),
             }
         }
     }
 }
 
-impl ToTokens for ExprRange {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.from.to_tokens(tokens);
+impl Tokenize for ExprRange {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+        self.from.tokenize(tokens, idents);
 
         match &self.limits {
             RangeLimits::HalfOpen(t) => t.to_tokens(tokens),
             RangeLimits::Closed(t) => t.to_tokens(tokens),
         }
 
-        self.to.to_tokens(tokens);
+        self.to.tokenize(tokens, idents);
     }
 }

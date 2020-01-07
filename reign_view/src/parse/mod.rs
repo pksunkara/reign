@@ -15,7 +15,7 @@ mod text;
 
 use consts::*;
 use proc_macro2::TokenStream;
-use syn::parse_str;
+use syn::{parse_str, Ident};
 
 use attribute::Attribute;
 use attribute_value::AttributeValue;
@@ -43,9 +43,8 @@ trait Parse: Sized {
     fn parse(input: &mut ParseStream) -> Result<Self, Error>;
 }
 
-// TODO:(view:to_tokens) Use `quote::ToTokens` and remove this
 trait Tokenize {
-    fn tokenize(&self) -> TokenStream;
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>);
 }
 
 pub fn parse(data: String) -> Result<Node, Error> {
@@ -83,6 +82,11 @@ pub fn parse_for(data: &str) -> Result<For, Error> {
     }
 }
 
-pub fn tokenize(node: Node) -> TokenStream {
-    node.tokenize()
+pub fn tokenize(node: Node) -> (TokenStream, Vec<Ident>) {
+    let mut tokens = TokenStream::new();
+    let mut idents = vec![];
+
+    node.tokenize(&mut tokens, &mut idents);
+
+    (tokens, idents)
 }

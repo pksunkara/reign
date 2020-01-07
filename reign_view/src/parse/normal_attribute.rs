@@ -1,8 +1,8 @@
 use super::consts::*;
 use super::{AttributeValue, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
-use quote::quote;
-use syn::LitStr;
+use quote::{quote, TokenStreamExt};
+use syn::{Ident, LitStr};
 
 #[derive(Debug)]
 pub struct NormalAttribute {
@@ -20,19 +20,18 @@ impl Parse for NormalAttribute {
 }
 
 impl Tokenize for NormalAttribute {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         if REIGN_ATTR_NAMES.contains(&&self.name.as_str()) {
-            return quote! {};
+            return;
         }
 
         // TODO:(expr-attr) If name has `:` at the beginning, wrap value in `{{  }}`
 
         let name = LitStr::new(&format!(" {}=", &self.name), Span::call_site());
-        let value = self.value.tokenize();
 
-        quote! {
+        tokens.append_all(quote! {
             write!(f, "{}", #name)?;
-            #value
-        }
+        });
+        self.value.tokenize(tokens, idents);
     }
 }

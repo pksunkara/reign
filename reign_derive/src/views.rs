@@ -70,7 +70,7 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
             let cased = to_pascal_case(file_name.trim_end_matches(".html"));
             let ident = Ident::new(&cased, Span::call_site());
 
-            let strings = tokenize(parse(read_to_string(new_path).unwrap()).unwrap());
+            let (tokens, _) = tokenize(parse(read_to_string(new_path).unwrap()).unwrap());
 
             views.push(quote! {
                 pub struct #ident {
@@ -79,7 +79,7 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
 
                 impl ::reign::view::View for #ident {
                     fn render(&self, f: &mut dyn std::fmt::Write) -> std::fmt::Result {
-                        #strings
+                        #tokens
                         Ok(())
                     }
                 }

@@ -1,7 +1,7 @@
 use super::{Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
-use quote::quote;
-use syn::LitStr;
+use quote::{quote, TokenStreamExt};
+use syn::{Ident, LitStr};
 
 #[derive(Debug)]
 pub struct Comment {
@@ -19,12 +19,12 @@ impl Parse for Comment {
 }
 
 impl Tokenize for Comment {
-    fn tokenize(&self) -> TokenStream {
+    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>) {
         let content = format!("<!--{}-->", self.content);
         let comment_str = LitStr::new(&content, Span::call_site());
 
-        quote! {
+        tokens.append_all(quote! {
             write!(f, "{}", #comment_str)?;
-        }
+        });
     }
 }

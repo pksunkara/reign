@@ -1,17 +1,16 @@
-use super::Expr;
+use super::{Expr, Tokenize};
 use proc_macro2::TokenStream;
-use quote::ToTokens;
-use syn::token::Group;
+use syn::{token::Group, Ident};
 
 pub struct ExprGroup {
     pub group_token: Group,
     pub expr: Box<Expr>,
 }
 
-impl ToTokens for ExprGroup {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
+impl Tokenize for ExprGroup {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
         self.group_token.surround(tokens, |tokens| {
-            self.expr.to_tokens(tokens);
+            self.expr.tokenize(tokens, idents);
         });
     }
 }
