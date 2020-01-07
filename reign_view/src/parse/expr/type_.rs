@@ -7,11 +7,10 @@ use syn::{
     Error, Type,
 };
 
-#[derive(Debug)]
 pub struct ExprType {
-    expr: Box<Expr>,
-    colon_token: Colon,
-    ty: Box<Type>,
+    pub expr: Box<Expr>,
+    pub colon_token: Colon,
+    pub ty: Box<Type>,
 }
 
 impl Parse for ExprType {

@@ -8,10 +8,9 @@ use syn::{
     Error,
 };
 
-#[derive(Debug)]
 pub struct ExprTuple {
-    paren_token: Paren,
-    elems: Punctuated<Expr, Comma>,
+    pub paren_token: Paren,
+    pub elems: Punctuated<Expr, Comma>,
 }
 
 impl Parse for ExprTuple {

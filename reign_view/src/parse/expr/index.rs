@@ -7,11 +7,10 @@ use syn::{
     Error,
 };
 
-#[derive(Debug)]
 pub struct ExprIndex {
-    expr: Box<Expr>,
-    bracket_token: Bracket,
-    index: Box<Expr>,
+    pub expr: Box<Expr>,
+    pub bracket_token: Bracket,
+    pub index: Box<Expr>,
 }
 
 impl Parse for ExprIndex {

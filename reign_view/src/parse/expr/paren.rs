@@ -7,10 +7,9 @@ use syn::{
     Error,
 };
 
-#[derive(Debug)]
 pub struct ExprParen {
-    paren_token: Paren,
-    expr: Box<Expr>,
+    pub paren_token: Paren,
+    pub expr: Box<Expr>,
 }
 
 impl Parse for ExprParen {

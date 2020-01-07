@@ -8,14 +8,13 @@ use syn::{
     Error, Ident, MethodTurbofish,
 };
 
-#[derive(Debug)]
 pub struct ExprMethodCall {
-    receiver: Box<Expr>,
-    dot_token: Dot,
-    method: Ident,
-    turbofish: Option<MethodTurbofish>,
-    paren_token: Paren,
-    args: Punctuated<Expr, Comma>,
+    pub receiver: Box<Expr>,
+    pub dot_token: Dot,
+    pub method: Ident,
+    pub turbofish: Option<MethodTurbofish>,
+    pub paren_token: Paren,
+    pub args: Punctuated<Expr, Comma>,
 }
 
 impl Parse for ExprMethodCall {

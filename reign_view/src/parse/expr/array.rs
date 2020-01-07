@@ -8,10 +8,9 @@ use syn::{
     Error,
 };
 
-#[derive(Debug)]
 pub struct ExprArray {
-    bracket_token: Bracket,
-    elems: Punctuated<Expr, Comma>,
+    pub bracket_token: Bracket,
+    pub elems: Punctuated<Expr, Comma>,
 }
 
 impl Parse for ExprArray {

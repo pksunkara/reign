@@ -8,13 +8,12 @@ use syn::{
     Error, Path,
 };
 
-#[derive(Debug)]
 pub struct ExprStruct {
-    path: Path,
-    brace_token: Brace,
-    fields: Punctuated<FieldValue, Comma>,
-    dot2_token: Option<Dot2>,
-    rest: Option<Box<Expr>>,
+    pub path: Path,
+    pub brace_token: Brace,
+    pub fields: Punctuated<FieldValue, Comma>,
+    pub dot2_token: Option<Dot2>,
+    pub rest: Option<Box<Expr>>,
 }
 
 impl Parse for ExprStruct {

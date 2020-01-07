@@ -6,11 +6,10 @@ use syn::{
     Error, RangeLimits,
 };
 
-#[derive(Debug)]
 pub struct ExprRange {
-    from: Option<Box<Expr>>,
-    limits: RangeLimits,
-    to: Option<Box<Expr>>,
+    pub from: Option<Box<Expr>>,
+    pub limits: RangeLimits,
+    pub to: Option<Box<Expr>>,
 }
 
 impl Parse for ExprRange {

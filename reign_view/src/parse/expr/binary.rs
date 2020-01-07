@@ -6,11 +6,10 @@ use syn::{
     BinOp, Error,
 };
 
-#[derive(Debug)]
 pub struct ExprBinary {
-    left: Box<Expr>,
-    op: BinOp,
-    right: Box<Expr>,
+    pub left: Box<Expr>,
+    pub op: BinOp,
+    pub right: Box<Expr>,
 }
 
 impl Parse for ExprBinary {

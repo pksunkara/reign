@@ -20,7 +20,7 @@ path = "src/lib.rs"
 gotham = "0.4.0"
 hyper = "0.12.32"
 mime = "0.3.14"
-syn = { version = "1", features = ["full"] }
+syn = { git = "https://github.com/pksunkara/syn", branch = "patch-1", version = "1", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
 regex = "1.3.1"

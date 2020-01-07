@@ -6,10 +6,9 @@ use syn::{
     Error, UnOp,
 };
 
-#[derive(Debug)]
 pub struct ExprUnary {
-    op: UnOp,
-    expr: Box<Expr>,
+    pub op: UnOp,
+    pub expr: Box<Expr>,
 }
 
 impl Parse for ExprUnary {

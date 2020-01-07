@@ -1,12 +1,10 @@
-use super::{Error, Tokenize};
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
-use quote::{quote, ToTokens};
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
     braced, bracketed,
     group::parse_group,
     parenthesized,
     parse::{discouraged::Speculative, Parse, ParseStream},
-    parse_str,
     punctuated::Punctuated,
     token::{self, Brace, Bracket, Paren},
     BinOp, ExprMacro, ExprPath, GenericMethodArgument, Ident, Lit, Macro, MacroDelimiter, Member,
@@ -48,7 +46,6 @@ use type_::ExprType;
 use unary::ExprUnary;
 
 // TODO:(view:expr) ExprIf
-#[derive(Debug)]
 pub enum Expr {
     Array(ExprArray),
     Binary(ExprBinary),
@@ -69,20 +66,6 @@ pub enum Expr {
     // TODO:(view:expr) Only allow select macros?
     Macro(ExprMacro),
     Lit(Lit),
-}
-
-impl super::Parse for Expr {
-    fn parse(input: &mut super::ParseStream) -> Result<Self, Error> {
-        Err(input.error("what"))
-    }
-}
-
-impl Tokenize for Expr {
-    fn tokenize(&self) -> TokenStream {
-        quote! {
-            #self
-        }
-    }
 }
 
 // The following code is copied and modified from syn
@@ -166,10 +149,19 @@ impl ToTokens for Expr {
             Expr::Call(e) => e.to_tokens(tokens),
             Expr::Cast(e) => e.to_tokens(tokens),
             Expr::Field(e) => e.to_tokens(tokens),
+            Expr::Group(e) => e.to_tokens(tokens),
             Expr::Index(e) => e.to_tokens(tokens),
             Expr::MethodCall(e) => e.to_tokens(tokens),
             Expr::Paren(e) => e.to_tokens(tokens),
-            Expr::Path(e) => e.to_tokens(tokens),
+            Expr::Path(path) => {
+                if let Some(ident) = path.path.get_ident() {
+                    tokens.append_all(quote! {
+                        self.#ident
+                    });
+                } else {
+                    path.to_tokens(tokens);
+                }
+            }
             Expr::Range(e) => e.to_tokens(tokens),
             Expr::Repeat(e) => e.to_tokens(tokens),
             Expr::Struct(e) => e.to_tokens(tokens),
@@ -177,7 +169,7 @@ impl ToTokens for Expr {
             Expr::Type(e) => e.to_tokens(tokens),
             Expr::Unary(e) => e.to_tokens(tokens),
             Expr::Macro(e) => e.to_tokens(tokens),
-            Expr::Lit(lit) => lit.to_tokens(tokens),
+            Expr::Lit(e) => e.to_tokens(tokens),
         }
     }
 }
@@ -312,16 +304,7 @@ fn trailer_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Re
     }
 
     let atom = atom_expr(input, allow_struct)?;
-    let mut e = trailer_helper(input, atom)?;
-
-    Ok(e)
-}
-
-fn is_member_named(member: &Member) -> bool {
-    match member {
-        Member::Named(_) => true,
-        Member::Unnamed(_) => false,
-    }
+    trailer_helper(input, atom)
 }
 
 fn generic_method_argument(input: ParseStream) -> syn::parse::Result<GenericMethodArgument> {
@@ -341,7 +324,7 @@ fn trailer_helper(input: ParseStream, mut e: Expr) -> syn::parse::Result<Expr> {
             let dot_token: Token![.] = input.parse()?;
             let member: Member = input.parse()?;
 
-            let turbofish = if is_member_named(&member) && input.peek(Token![::]) {
+            let turbofish = if member.is_named() && input.peek(Token![::]) {
                 Some(MethodTurbofish {
                     colon2_token: input.parse()?,
                     lt_token: input.parse()?,

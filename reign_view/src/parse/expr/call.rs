@@ -8,11 +8,10 @@ use syn::{
     Error,
 };
 
-#[derive(Debug)]
 pub struct ExprCall {
-    func: Box<Expr>,
-    paren_token: Paren,
-    args: Punctuated<Expr, Comma>,
+    pub func: Box<Expr>,
+    pub paren_token: Paren,
+    pub args: Punctuated<Expr, Comma>,
 }
 
 impl Parse for ExprCall {

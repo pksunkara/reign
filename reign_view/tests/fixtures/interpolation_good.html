@@ -1,5 +1,19 @@
 <div>
-  <span>Substituted {{ title }} and {{ "user" }}</span>
+  <span>Ident {{ title }} and {{ "user" }}{{ b"user" }}{{ b'u' }}{{ 'u' }}{{ 10 }}</span>
   <span>Escaped \{{ title }}</span>
-  <span>With &gt; and &lt; inside {{ format!("{}div{}", "<", ">") }}</span>
+  <span>With &gt; and &lt; inside {{ "<" }}{{ ">" }}</span>
+  <span>Array {{ [a, b] }}</span>
+  <span>Binary {{ a + b }}</span>
+  <span>Call {{ a(b, c) }}</span>
+  <span>Cast {{ a as i32 }}</span>
+  <span>Field {{ a.b }}{{ a.0 }}{{ a.b.c }}</span>
+  <span>Index {{ a[b] }}</span>
+  <span>Method Call {{ x.y::<T>(a, b) }}</span>
+  <span>Paren {{ (a + b) }}</span>
+  <span>Range {{ a..b }}</span>
+  <span>Repeat {{ [a; b] }}</span>
+  <span>Struct {{ A { a, b: b, ..c } }}</span>
+  <span>Tuple {{ (a, b) }}</span>
+  <span>Type {{ a: i32 }}</span>
+  <span>Unary {{ !a }}</span>
 </div>

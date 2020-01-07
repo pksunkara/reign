@@ -7,12 +7,11 @@ use syn::{
     Error,
 };
 
-#[derive(Debug)]
 pub struct ExprRepeat {
-    bracket_token: Bracket,
-    expr: Box<Expr>,
-    semi_token: Semi,
-    len: Box<Expr>,
+    pub bracket_token: Bracket,
+    pub expr: Box<Expr>,
+    pub semi_token: Semi,
+    pub len: Box<Expr>,
 }
 
 impl Parse for ExprRepeat {

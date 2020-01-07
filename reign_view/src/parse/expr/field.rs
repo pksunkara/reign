@@ -7,11 +7,10 @@ use syn::{
     Error, Member,
 };
 
-#[derive(Debug)]
 pub struct ExprField {
-    base: Box<Expr>,
-    dot_token: Dot,
-    member: Member,
+    pub base: Box<Expr>,
+    pub dot_token: Dot,
+    pub member: Member,
 }
 
 impl Parse for ExprField {

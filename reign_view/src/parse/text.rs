@@ -1,4 +1,4 @@
-use super::{Error, Parse, ParseStream, Tokenize};
+use super::{parse_expr, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::LitStr;
@@ -18,11 +18,12 @@ impl Tokenize for TextPart {
                         #lit
                 }
             }
-            TextPart::Expr(_) => {
+            TextPart::Expr(e) => {
                 // TODO:(expr) Expr parsing
-                let lit = LitStr::new("", Span::call_site());
+                let expr = parse_expr(&e).unwrap();
+
                 quote! {
-                    #lit
+                    #expr
                 }
             }
         }

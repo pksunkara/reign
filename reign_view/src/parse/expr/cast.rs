@@ -7,11 +7,10 @@ use syn::{
     Error, Type,
 };
 
-#[derive(Debug)]
 pub struct ExprCast {
-    expr: Box<Expr>,
-    as_token: As,
-    ty: Box<Type>,
+    pub expr: Box<Expr>,
+    pub as_token: As,
+    pub ty: Box<Type>,
 }
 
 impl Parse for ExprCast {
