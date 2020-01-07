@@ -8,12 +8,12 @@ if true {
     write!(f, "{}", "</div>")? ;
 }
 write!(f, "{}", "\n  ")? ;
-if true {
+if self.a == "true" || self.a {
     write!(f, "{}", "<div")? ;
     write!(f, ">")? ;
     write!(f, "{}", "(Else) True")? ;
     write!(f, "{}", "</div>")? ;
-} else if true {
+} else if self.a == "false" || !self.a {
     write!(f, "{}", "<div")? ;
     write!(f, ">")? ;
     write!(f, "{}", "(Else) False")? ;
@@ -25,12 +25,12 @@ if true {
     write!(f, "{}", "</div>")? ;
 }
 write!(f, "{}", "\n  ")? ;
-if true {
+if self.a {
     write!(f, "{}", "<div")? ;
     write!(f, ">")? ;
     write!(f, "{}", "(ElseIf) True")? ;
     write!(f, "{}", "</div>")? ;
-} else if true {
+} else if !self.a {
     write!(f, "{}", "<div")? ;
     write!(f, ">")? ;
     write!(f, "{}", "(ElseIf) False")? ;

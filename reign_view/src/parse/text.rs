@@ -19,7 +19,6 @@ impl Tokenize for TextPart {
                 }
             }
             TextPart::Expr(e) => {
-                // TODO:(expr) Expr parsing
                 let expr = parse_expr(&e).unwrap();
 
                 quote! {

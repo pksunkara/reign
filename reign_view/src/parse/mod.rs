@@ -7,6 +7,7 @@ mod dynamic_attribute;
 mod element;
 mod error;
 mod expr;
+mod for_;
 mod node;
 mod normal_attribute;
 mod parse_stream;
@@ -24,6 +25,7 @@ use dynamic_attribute::DynamicAttribute;
 use element::Element;
 use error::Error;
 use expr::Expr;
+use for_::For;
 use node::Node;
 use normal_attribute::NormalAttribute;
 use parse_stream::ParseStream;
@@ -62,6 +64,18 @@ pub fn parse(data: String) -> Result<Node, Error> {
 pub fn parse_expr(data: &str) -> Result<Expr, Error> {
     let parsed = parse_str::<Expr>(data);
 
+    if let Err(err) = parsed {
+        // TODO:(view:err) Show the error like others
+        panic!(err)
+    } else {
+        Ok(parsed.unwrap())
+    }
+}
+
+pub fn parse_for(data: &str) -> Result<For, Error> {
+    let parsed = parse_str::<For>(data);
+
+    // TODO:(view:err) Show the error like others
     if let Err(err) = parsed {
         panic!(err)
     } else {

@@ -4,7 +4,7 @@ use syn::{
     braced, bracketed,
     group::parse_group,
     parenthesized,
-    parse::{discouraged::Speculative, Parse, ParseStream},
+    parse::{discouraged::Speculative, Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{self, Brace, Bracket, Paren},
     BinOp, ExprMacro, ExprPath, GenericMethodArgument, Ident, Lit, Macro, MacroDelimiter, Member,
@@ -136,7 +136,7 @@ fn peek_precedence(input: ParseStream) -> Precedence {
 }
 
 impl Parse for Expr {
-    fn parse(input: ParseStream) -> syn::parse::Result<Self> {
+    fn parse(input: ParseStream) -> Result<Self> {
         ambiguous_expr(input, AllowStruct(true))
     }
 }
@@ -174,7 +174,7 @@ impl ToTokens for Expr {
     }
 }
 
-fn expr_group(input: ParseStream) -> syn::parse::Result<ExprGroup> {
+fn expr_group(input: ParseStream) -> Result<ExprGroup> {
     let group = parse_group(input)?;
 
     Ok(ExprGroup {
@@ -183,12 +183,16 @@ fn expr_group(input: ParseStream) -> syn::parse::Result<ExprGroup> {
     })
 }
 
-fn ambiguous_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Result<Expr> {
+pub(super) fn expr_no_struct(input: ParseStream) -> Result<Expr> {
+    ambiguous_expr(input, AllowStruct(false))
+}
+
+fn ambiguous_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
     let lhs = unary_expr(input, allow_struct)?;
     parse_expr(input, lhs, allow_struct, Precedence::Any)
 }
 
-fn unary_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Result<Expr> {
+fn unary_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
     let ahead = input.fork();
 
     if ahead.peek(Token![*]) || ahead.peek(Token![!]) || ahead.peek(Token![-]) {
@@ -208,7 +212,7 @@ fn parse_expr(
     mut lhs: Expr,
     allow_struct: AllowStruct,
     base: Precedence,
-) -> syn::parse::Result<Expr> {
+) -> Result<Expr> {
     loop {
         if input
             .fork()
@@ -298,7 +302,7 @@ fn parse_expr(
     Ok(lhs)
 }
 
-fn trailer_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Result<Expr> {
+fn trailer_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
     if input.peek(token::Group) {
         return input.call(expr_group).map(Expr::Group);
     }
@@ -307,11 +311,11 @@ fn trailer_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Re
     trailer_helper(input, atom)
 }
 
-fn generic_method_argument(input: ParseStream) -> syn::parse::Result<GenericMethodArgument> {
+fn generic_method_argument(input: ParseStream) -> Result<GenericMethodArgument> {
     input.parse().map(GenericMethodArgument::Type)
 }
 
-fn trailer_helper(input: ParseStream, mut e: Expr) -> syn::parse::Result<Expr> {
+fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
     loop {
         if input.peek(token::Paren) {
             let content;
@@ -391,7 +395,7 @@ fn trailer_helper(input: ParseStream, mut e: Expr) -> syn::parse::Result<Expr> {
     Ok(e)
 }
 
-fn atom_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Result<Expr> {
+fn atom_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
     if input.peek(token::Group) {
         input.call(expr_group).map(Expr::Group)
     } else if input.peek(Lit) {
@@ -417,7 +421,7 @@ fn atom_expr(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Resul
     }
 }
 
-pub fn parse_delimiter(input: ParseStream) -> syn::parse::Result<(MacroDelimiter, TokenStream)> {
+pub fn parse_delimiter(input: ParseStream) -> Result<(MacroDelimiter, TokenStream)> {
     input.step(|cursor| {
         if let Some((TokenTree::Group(g), rest)) = cursor.token_tree() {
             let span = g.span();
@@ -436,10 +440,7 @@ pub fn parse_delimiter(input: ParseStream) -> syn::parse::Result<(MacroDelimiter
     })
 }
 
-fn path_or_macro_or_struct(
-    input: ParseStream,
-    allow_struct: AllowStruct,
-) -> syn::parse::Result<Expr> {
+fn path_or_macro_or_struct(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
     let expr: ExprPath = input.parse()?;
 
     if expr.qself.is_some() {
@@ -481,7 +482,7 @@ fn path_or_macro_or_struct(
     }
 }
 
-fn expr_struct_helper(input: ParseStream, path: Path) -> syn::parse::Result<ExprStruct> {
+fn expr_struct_helper(input: ParseStream, path: Path) -> Result<ExprStruct> {
     let content;
     let brace_token = braced!(content in input);
     let mut fields = Punctuated::new();
@@ -516,7 +517,7 @@ fn expr_struct_helper(input: ParseStream, path: Path) -> syn::parse::Result<Expr
     })
 }
 
-fn array_or_repeat(input: ParseStream) -> syn::parse::Result<Expr> {
+fn array_or_repeat(input: ParseStream) -> Result<Expr> {
     let content;
     let bracket_token = bracketed!(content in input);
 
@@ -562,7 +563,7 @@ fn array_or_repeat(input: ParseStream) -> syn::parse::Result<Expr> {
     }
 }
 
-fn paren_or_tuple(input: ParseStream) -> syn::parse::Result<Expr> {
+fn paren_or_tuple(input: ParseStream) -> Result<Expr> {
     let content;
     let paren_token = parenthesized!(content in input);
 
@@ -598,7 +599,7 @@ fn paren_or_tuple(input: ParseStream) -> syn::parse::Result<Expr> {
     Ok(Expr::Tuple(ExprTuple { paren_token, elems }))
 }
 
-fn expr_range(input: ParseStream, allow_struct: AllowStruct) -> syn::parse::Result<ExprRange> {
+fn expr_range(input: ParseStream, allow_struct: AllowStruct) -> Result<ExprRange> {
     Ok(ExprRange {
         from: None,
         limits: input.parse()?,

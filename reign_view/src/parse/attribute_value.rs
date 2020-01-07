@@ -1,5 +1,5 @@
 use super::consts::*;
-use super::{Error, Parse, ParseStream, Tokenize};
+use super::{parse_expr, parse_for, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::LitStr;
@@ -23,15 +23,19 @@ impl AttributeValue {
     }
 
     pub fn for_expr(&self) -> TokenStream {
+        let for_ = parse_for(self.value()).unwrap();
+
         quote! {
             // TODO:(pat) in expr
-            i in 0..10 // TODO:(expr) for_expr
+            #for_
         }
     }
 
     pub fn if_expr(&self) -> TokenStream {
+        let expr = parse_expr(self.value()).unwrap();
+
         quote! {
-            true // TODO:(expr) if_expr
+            #expr
         }
     }
 }
