@@ -71,7 +71,7 @@ impl Parse for Pat {
 }
 
 impl Tokenize for Pat {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         match self {
             Pat::Ident(p) => p.tokenize(tokens, idents, scopes),
             Pat::Reference(p) => p.tokenize(tokens, idents, scopes),
@@ -95,7 +95,7 @@ impl For {
         &self,
         tokens: &mut TokenStream,
         idents: &mut Vec<Ident>,
-        scopes: &Vec<Ident>,
+        scopes: &[Ident],
     ) -> Vec<Ident> {
         let mut declared = vec![];
 
@@ -134,12 +134,10 @@ fn pat_struct_or_tuple_struct(input: ParseStream) -> Result<Pat> {
 fn pat_struct(input: ParseStream, path: Path) -> Result<PatStruct> {
     let content;
     let brace_token = braced!(content in input);
-
     let mut fields = Punctuated::new();
 
     while !content.is_empty() && !content.peek(Dot2) {
-        let value: FieldPat = input.parse()?;
-        fields.push_value(value);
+        fields.push_value(content.parse()?);
 
         if !content.peek(Comma) {
             break;

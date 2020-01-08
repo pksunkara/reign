@@ -8,7 +8,7 @@ pub struct ExprGroup {
 }
 
 impl Tokenize for ExprGroup {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.group_token.surround(tokens, |tokens| {
             self.expr.tokenize(tokens, idents, scopes);
         });

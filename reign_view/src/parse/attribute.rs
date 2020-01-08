@@ -24,7 +24,7 @@ impl Parse for Attribute {
 }
 
 impl Tokenize for Attribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         match self {
             Attribute::Normal(n) => n.tokenize(tokens, idents, scopes),
             Attribute::Dynamic(d) => d.tokenize(tokens, idents, scopes),

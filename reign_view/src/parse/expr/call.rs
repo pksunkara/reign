@@ -32,7 +32,7 @@ impl Parse for ExprCall {
 }
 
 impl Tokenize for ExprCall {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.func.tokenize(tokens, idents, scopes);
         self.paren_token.surround(tokens, |tokens| {
             self.args.tokenize(tokens, idents, scopes);

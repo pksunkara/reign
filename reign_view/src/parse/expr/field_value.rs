@@ -43,7 +43,7 @@ impl Parse for FieldValue {
 }
 
 impl Tokenize for FieldValue {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         if let Some(colon_token) = &self.colon_token {
             self.member.to_tokens(tokens);
             colon_token.to_tokens(tokens);

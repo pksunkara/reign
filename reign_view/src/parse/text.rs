@@ -10,7 +10,7 @@ pub enum TextPart {
 }
 
 impl Tokenize for TextPart {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         match self {
             TextPart::Normal(n) => {
                 let lit = LitStr::new(&n, Span::call_site());
@@ -38,7 +38,7 @@ impl Parse for Text {
 }
 
 impl Tokenize for Text {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         let format_arg_str = "{}".repeat(self.content.len());
         let format_arg_lit = LitStr::new(&format_arg_str, Span::call_site());
 

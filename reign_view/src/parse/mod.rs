@@ -49,7 +49,7 @@ trait Parse: Sized {
 }
 
 trait Tokenize {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>);
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]);
 }
 
 pub fn parse(data: String) -> Result<Node, Error> {
@@ -70,7 +70,7 @@ where
     T: Tokenize,
     P: ToTokens,
 {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         let mut iter = self.pairs();
 
         loop {
@@ -95,7 +95,7 @@ impl<T> Tokenize for Option<Box<T>>
 where
     T: Tokenize,
 {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         if self.is_some() {
             self.as_ref().unwrap().tokenize(tokens, idents, scopes);
         }

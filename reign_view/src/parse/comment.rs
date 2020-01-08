@@ -19,7 +19,7 @@ impl Parse for Comment {
 }
 
 impl Tokenize for Comment {
-    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &[Ident]) {
         let content = format!("<!--{}-->", self.content);
         let comment_str = LitStr::new(&content, Span::call_site());
 

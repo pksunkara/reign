@@ -26,15 +26,14 @@ impl AttributeValue {
         &self,
         tokens: &mut TokenStream,
         idents: &mut Vec<Ident>,
-        scopes: &Vec<Ident>,
+        scopes: &[Ident],
     ) -> Vec<Ident> {
-        let for_ = parse_for(self.value()).unwrap();
-
-        // TODO:(pat) in expr
-        for_.tokenize(tokens, idents, scopes)
+        parse_for(self.value())
+            .unwrap()
+            .tokenize(tokens, idents, scopes)
     }
 
-    pub fn if_expr(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    pub fn if_expr(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         parse_expr(self.value())
             .unwrap()
             .tokenize(tokens, idents, scopes);
@@ -69,7 +68,7 @@ impl Parse for AttributeValue {
 }
 
 impl Tokenize for AttributeValue {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         if let AttributeValue::NoValue = self {
             tokens.append_all(quote! {
                 write!(f, "\"\"")?;

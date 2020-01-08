@@ -23,7 +23,7 @@ impl Parse for PatIdent {
 }
 
 impl Tokenize for PatIdent {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, _: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, _: &[Ident]) {
         self.by_ref.to_tokens(tokens);
         self.ident.to_tokens(tokens);
         idents.push(self.ident.clone());

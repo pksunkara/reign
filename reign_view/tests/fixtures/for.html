@@ -1,9 +1,10 @@
 <ul>
-  <li !for="(i, j) in users">{{ i }}{{ j }}{{ k }}</li>
+  <li !for="(i, j, _) in users">{{ i }}{{ j }}{{ k }}</li>
+  <li !for="User { i, b: j, ref k, d: &l, .. } in users">{{ i }}{{ j }}{{ k }}{{ l }}</li>
   <li !for="i in users">
     <h1>{{ i }}</h1>
     <ul>
-      <li !for="j in i">{{ j }}</li>
+      <li !for="j in i">{{ i  }}{{ j }}</li>
     </ul>
   </li>
 </ul>

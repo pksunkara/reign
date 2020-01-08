@@ -45,17 +45,12 @@ impl Parse for FieldPat {
 }
 
 impl Tokenize for FieldPat {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
-        self.member.to_tokens(tokens);
-
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         if let Some(colon_token) = &self.colon_token {
+            self.member.to_tokens(tokens);
             colon_token.to_tokens(tokens);
-            self.pat.tokenize(tokens, idents, scopes);
-        } else {
-            // Member is always named
-            if let Member::Named(ident) = &self.member {
-                idents.push(ident.clone());
-            }
         }
+
+        self.pat.tokenize(tokens, idents, scopes);
     }
 }

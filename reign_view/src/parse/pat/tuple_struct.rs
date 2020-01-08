@@ -9,7 +9,7 @@ pub struct PatTupleStruct {
 }
 
 impl Tokenize for PatTupleStruct {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.path.to_tokens(tokens);
         self.pat.tokenize(tokens, idents, scopes);
     }

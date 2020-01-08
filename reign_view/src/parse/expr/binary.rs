@@ -26,7 +26,7 @@ impl Parse for ExprBinary {
 }
 
 impl Tokenize for ExprBinary {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.left.tokenize(tokens, idents, scopes);
         self.op.to_tokens(tokens);
         self.right.tokenize(tokens, idents, scopes);

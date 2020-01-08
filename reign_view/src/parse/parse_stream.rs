@@ -7,7 +7,7 @@ pub(super) struct ParseStream {
     pub cursor: usize,
 }
 
-// FIXME: This is not really efficient since getting to the
+// TODO:(perf) This is not really efficient since getting to the
 // start point specified in String::get is not a constant
 // time operation because the String is UTF8.
 //

@@ -36,7 +36,7 @@ impl Parse for ExprMethodCall {
 }
 
 impl Tokenize for ExprMethodCall {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.receiver.tokenize(tokens, idents, scopes);
         self.dot_token.to_tokens(tokens);
         self.method.to_tokens(tokens);

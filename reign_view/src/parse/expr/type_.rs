@@ -32,7 +32,7 @@ impl Parse for ExprType {
 }
 
 impl Tokenize for ExprType {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.expr.tokenize(tokens, idents, scopes);
         self.colon_token.to_tokens(tokens);
         self.ty.to_tokens(tokens);

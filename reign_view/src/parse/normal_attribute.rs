@@ -20,7 +20,7 @@ impl Parse for NormalAttribute {
 }
 
 impl Tokenize for NormalAttribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         if REIGN_ATTR_NAMES.contains(&&self.name.as_str()) {
             return;
         }

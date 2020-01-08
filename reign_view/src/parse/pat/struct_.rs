@@ -15,7 +15,7 @@ pub struct PatStruct {
 }
 
 impl Tokenize for PatStruct {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.path.to_tokens(tokens);
 
         self.brace_token.surround(tokens, |tokens| {

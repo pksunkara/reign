@@ -7,7 +7,7 @@ use syn::{
     parenthesized,
     parse::{discouraged::Speculative, Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::{self, Brace, Bracket, Paren},
+    token::{self, Brace, Bracket, Comma, Paren},
     BinOp, ExprMacro, ExprPath, GenericMethodArgument, Ident, Lit, Macro, MacroDelimiter, Member,
     MethodTurbofish, Path, PathArguments, RangeLimits, Token, Type,
 };
@@ -143,7 +143,7 @@ impl Parse for Expr {
 }
 
 impl Tokenize for Expr {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         match self {
             Expr::Array(e) => e.tokenize(tokens, idents, scopes),
             Expr::Binary(e) => e.tokenize(tokens, idents, scopes),
@@ -259,7 +259,7 @@ fn parse_expr(
             let limits: RangeLimits = input.parse()?;
 
             let rhs = if input.is_empty()
-                || input.peek(Token![,])
+                || input.peek(Comma)
                 || input.peek(Token![;])
                 || !allow_struct.0 && input.peek(token::Brace)
             {
@@ -321,6 +321,7 @@ fn generic_method_argument(input: ParseStream) -> Result<GenericMethodArgument> 
     input.parse().map(GenericMethodArgument::Type)
 }
 
+#[allow(clippy::eval_order_dependence)]
 fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
     loop {
         if input.peek(token::Paren) {
@@ -506,11 +507,11 @@ fn expr_struct_helper(input: ParseStream, path: Path) -> Result<ExprStruct> {
 
         fields.push(content.parse()?);
 
-        if !content.peek(Token![,]) {
+        if !content.peek(Comma) {
             break;
         }
 
-        let punct: Token![,] = content.parse()?;
+        let punct: Comma = content.parse()?;
         fields.push_punct(punct);
     }
 
@@ -536,7 +537,7 @@ fn array_or_repeat(input: ParseStream) -> Result<Expr> {
 
     let first: Expr = content.parse()?;
 
-    if content.is_empty() || content.peek(Token![,]) {
+    if content.is_empty() || content.peek(Comma) {
         let mut elems = Punctuated::new();
         elems.push_value(first);
 
@@ -611,7 +612,7 @@ fn expr_range(input: ParseStream, allow_struct: AllowStruct) -> Result<ExprRange
         limits: input.parse()?,
         to: {
             if input.is_empty()
-                || input.peek(Token![,])
+                || input.peek(Comma)
                 || input.peek(Token![;])
                 || !allow_struct.0 && input.peek(token::Brace)
             {

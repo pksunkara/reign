@@ -33,7 +33,7 @@ impl Parse for ExprRepeat {
 }
 
 impl Tokenize for ExprRepeat {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.bracket_token.surround(tokens, |tokens| {
             self.expr.tokenize(tokens, idents, scopes);
             self.semi_token.to_tokens(tokens);

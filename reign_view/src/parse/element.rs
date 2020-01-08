@@ -38,7 +38,7 @@ impl Element {
     fn component_children(
         &self,
         idents: &mut Vec<Ident>,
-        scopes: &Vec<Ident>,
+        scopes: &[Ident],
     ) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
         let mut names = vec![];
         let mut templates = vec![];
@@ -84,7 +84,7 @@ impl Element {
         }
     }
 
-    fn children_tokens(&self, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) -> Vec<TokenStream> {
+    fn children_tokens(&self, idents: &mut Vec<Ident>, scopes: &[Ident]) -> Vec<TokenStream> {
         let mut tokens = vec![];
         let mut iter = self.children.iter();
         let mut child_option = iter.next();
@@ -206,10 +206,10 @@ impl Parse for Element {
 }
 
 impl Tokenize for Element {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
         let mut for_expr = TokenStream::new();
-        let mut new_scopes = scopes.clone();
+        let mut new_scopes = scopes.to_vec();
 
         // Check for loop to see what variables are defined for this loop (`scopes`)
         if let Some(r_for) = self.attr("!for") {

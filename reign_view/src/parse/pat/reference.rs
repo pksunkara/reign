@@ -22,7 +22,7 @@ impl Parse for PatReference {
 }
 
 impl Tokenize for PatReference {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         self.and_token.to_tokens(tokens);
         self.pat.tokenize(tokens, idents, scopes);
     }
