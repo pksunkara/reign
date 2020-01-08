@@ -27,8 +27,8 @@ impl Parse for ExprCast {
 }
 
 impl Tokenize for ExprCast {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
-        self.expr.tokenize(tokens, idents);
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+        self.expr.tokenize(tokens, idents, scopes);
         self.as_token.to_tokens(tokens);
         self.ty.to_tokens(tokens);
     }

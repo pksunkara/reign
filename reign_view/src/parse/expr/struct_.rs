@@ -35,11 +35,11 @@ impl Parse for ExprStruct {
 }
 
 impl Tokenize for ExprStruct {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         self.path.to_tokens(tokens);
 
         self.brace_token.surround(tokens, |tokens| {
-            self.fields.tokenize(tokens, idents);
+            self.fields.tokenize(tokens, idents, scopes);
 
             if self.rest.is_some() {
                 match self.dot2_token {
@@ -47,7 +47,7 @@ impl Tokenize for ExprStruct {
                     None => Dot2::default().to_tokens(tokens),
                 }
 
-                self.rest.tokenize(tokens, idents);
+                self.rest.tokenize(tokens, idents, scopes);
             }
         })
     }

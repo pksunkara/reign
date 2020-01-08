@@ -6,7 +6,7 @@ use syn::{
     group::parse_group,
     parenthesized,
     parse::{discouraged::Speculative, Parse, ParseStream, Result},
-    punctuated::{Pair, Punctuated},
+    punctuated::Punctuated,
     token::{self, Brace, Bracket, Paren},
     BinOp, ExprMacro, ExprPath, GenericMethodArgument, Ident, Lit, Macro, MacroDelimiter, Member,
     MethodTurbofish, Path, PathArguments, RangeLimits, Token, Type,
@@ -143,73 +143,40 @@ impl Parse for Expr {
 }
 
 impl Tokenize for Expr {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         match self {
-            Expr::Array(e) => e.tokenize(tokens, idents),
-            Expr::Binary(e) => e.tokenize(tokens, idents),
-            Expr::Call(e) => e.tokenize(tokens, idents),
-            Expr::Cast(e) => e.tokenize(tokens, idents),
-            Expr::Field(e) => e.tokenize(tokens, idents),
-            Expr::Group(e) => e.tokenize(tokens, idents),
-            Expr::Index(e) => e.tokenize(tokens, idents),
-            Expr::MethodCall(e) => e.tokenize(tokens, idents),
-            Expr::Paren(e) => e.tokenize(tokens, idents),
+            Expr::Array(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Binary(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Call(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Cast(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Field(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Group(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Index(e) => e.tokenize(tokens, idents, scopes),
+            Expr::MethodCall(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Paren(e) => e.tokenize(tokens, idents, scopes),
             Expr::Path(path) => {
                 if let Some(ident) = path.path.get_ident() {
-                    idents.push(ident.clone());
-                    tokens.append_all(quote! {
-                        self.#ident
-                    });
+                    if !scopes.contains(ident) {
+                        idents.push(ident.clone());
+                        tokens.append_all(quote! {
+                            self.#ident
+                        });
+                    } else {
+                        ident.to_tokens(tokens);
+                    }
                 } else {
                     path.to_tokens(tokens);
                 }
             }
-            Expr::Range(e) => e.tokenize(tokens, idents),
-            Expr::Repeat(e) => e.tokenize(tokens, idents),
-            Expr::Struct(e) => e.tokenize(tokens, idents),
-            Expr::Tuple(e) => e.tokenize(tokens, idents),
-            Expr::Type(e) => e.tokenize(tokens, idents),
-            Expr::Unary(e) => e.tokenize(tokens, idents),
+            Expr::Range(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Repeat(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Struct(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Tuple(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Type(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Unary(e) => e.tokenize(tokens, idents, scopes),
             Expr::Macro(e) => e.to_tokens(tokens),
             Expr::Lit(e) => e.to_tokens(tokens),
         };
-    }
-}
-
-impl<T, P> Tokenize for Punctuated<T, P>
-where
-    T: Tokenize,
-    P: ToTokens,
-{
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
-        let mut iter = self.pairs();
-
-        loop {
-            let item = iter.next();
-
-            if item.is_none() {
-                break;
-            }
-
-            match item.unwrap() {
-                Pair::Punctuated(t, p) => {
-                    t.tokenize(tokens, idents);
-                    p.to_tokens(tokens);
-                }
-                Pair::End(t) => t.tokenize(tokens, idents),
-            }
-        }
-    }
-}
-
-impl<T> Tokenize for Option<Box<T>>
-where
-    T: Tokenize,
-{
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
-        if self.is_some() {
-            self.as_ref().unwrap().tokenize(tokens, idents);
-        }
     }
 }
 

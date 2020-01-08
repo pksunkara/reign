@@ -31,11 +31,11 @@ impl Parse for ExprIndex {
 }
 
 impl Tokenize for ExprIndex {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
-        self.expr.tokenize(tokens, idents);
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+        self.expr.tokenize(tokens, idents, scopes);
 
         self.bracket_token.surround(tokens, |tokens| {
-            self.index.tokenize(tokens, idents);
+            self.index.tokenize(tokens, idents, scopes);
         });
     }
 }

@@ -25,5 +25,5 @@ impl Parse for DynamicAttribute {
 }
 
 impl Tokenize for DynamicAttribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {}
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {}
 }

@@ -38,6 +38,7 @@ impl Element {
     fn component_children(
         &self,
         idents: &mut Vec<Ident>,
+        scopes: &Vec<Ident>,
     ) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
         let mut names = vec![];
         let mut templates = vec![];
@@ -46,7 +47,7 @@ impl Element {
         for child in &self.children {
             let mut ts = TokenStream::new();
 
-            child.tokenize(&mut ts, idents);
+            child.tokenize(&mut ts, idents, scopes);
 
             if let Node::Element(e) = child {
                 if e.name == "template" {
@@ -83,7 +84,7 @@ impl Element {
         }
     }
 
-    fn children_tokens(&self, idents: &mut Vec<Ident>) -> Vec<TokenStream> {
+    fn children_tokens(&self, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) -> Vec<TokenStream> {
         let mut tokens = vec![];
         let mut iter = self.children.iter();
         let mut child_option = iter.next();
@@ -128,7 +129,7 @@ impl Element {
                     for i in after_if {
                         let mut ts = TokenStream::new();
 
-                        i.tokenize(&mut ts, idents);
+                        i.tokenize(&mut ts, idents, scopes);
                         tokens.push(ts);
                     }
 
@@ -148,7 +149,7 @@ impl Element {
 
             let mut ts = TokenStream::new();
 
-            child.tokenize(&mut ts, idents);
+            child.tokenize(&mut ts, idents, scopes);
             tokens.push(ts);
             child_option = iter.next();
         }
@@ -205,8 +206,16 @@ impl Parse for Element {
 }
 
 impl Tokenize for Element {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
+        let mut for_expr = TokenStream::new();
+        let mut new_scopes = scopes.clone();
+
+        // Check for loop to see what variables are defined for this loop (`scopes`)
+        if let Some(r_for) = self.attr("!for") {
+            let mut declared = r_for.value.for_expr(&mut for_expr, idents, scopes);
+            new_scopes.append(&mut declared);
+        }
 
         let mut elem = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
             let start_tag = LitStr::new(&format!("<{}", &self.name), Span::call_site());
@@ -216,11 +225,11 @@ impl Tokenize for Element {
                 .map(|x| {
                     let mut ts = TokenStream::new();
 
-                    x.tokenize(&mut ts, idents);
+                    x.tokenize(&mut ts, idents, &new_scopes);
                     ts
                 })
                 .collect();
-            let children = self.children_tokens(idents);
+            let children = self.children_tokens(idents, &new_scopes);
             let end_tokens = self.end_tokens();
 
             quote! {
@@ -238,7 +247,7 @@ impl Tokenize for Element {
             }
         } else {
             let path = convert_tag_name(tag_pieces);
-            let (names, templates, children) = self.component_children(idents);
+            let (names, templates, children) = self.component_children(idents, &new_scopes);
 
             // TODO:(attrs) For component
             quote! {
@@ -259,11 +268,8 @@ impl Tokenize for Element {
             }
         };
 
-        elem = if let Some(r_for) = self.attr("!for") {
+        elem = if !for_expr.is_empty() {
             // For loop
-            let mut for_expr = TokenStream::new();
-            r_for.value.for_expr(&mut for_expr, idents);
-
             quote! {
                 for #for_expr {
                     #elem
@@ -272,7 +278,7 @@ impl Tokenize for Element {
         } else if let Some(r_if) = self.attr("!if") {
             // If condition
             let mut if_expr = TokenStream::new();
-            r_if.value.if_expr(&mut if_expr, idents);
+            r_if.value.if_expr(&mut if_expr, idents, scopes);
 
             quote! {
                 if #if_expr {
@@ -282,7 +288,7 @@ impl Tokenize for Element {
         } else if let Some(r_else_if) = self.attr("!else-if") {
             // Else If condition
             let mut if_expr = TokenStream::new();
-            r_else_if.value.if_expr(&mut if_expr, idents);
+            r_else_if.value.if_expr(&mut if_expr, idents, scopes);
 
             quote! {
                 else if #if_expr {

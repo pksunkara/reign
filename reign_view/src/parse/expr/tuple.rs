@@ -27,9 +27,9 @@ impl Parse for ExprTuple {
 }
 
 impl Tokenize for ExprTuple {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         self.paren_token.surround(tokens, |tokens| {
-            self.elems.tokenize(tokens, idents);
+            self.elems.tokenize(tokens, idents, scopes);
 
             // If we only have one argument, we need a trailing comma to
             // distinguish ExprTuple from ExprParen.

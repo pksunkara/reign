@@ -26,14 +26,14 @@ impl Parse for ExprRange {
 }
 
 impl Tokenize for ExprRange {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
-        self.from.tokenize(tokens, idents);
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+        self.from.tokenize(tokens, idents, scopes);
 
         match &self.limits {
             RangeLimits::HalfOpen(t) => t.to_tokens(tokens),
             RangeLimits::Closed(t) => t.to_tokens(tokens),
         }
 
-        self.to.tokenize(tokens, idents);
+        self.to.tokenize(tokens, idents, scopes);
     }
 }

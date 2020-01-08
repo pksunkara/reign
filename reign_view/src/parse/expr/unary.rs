@@ -25,8 +25,8 @@ impl Parse for ExprUnary {
 }
 
 impl Tokenize for ExprUnary {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         self.op.to_tokens(tokens);
-        self.expr.tokenize(tokens, idents);
+        self.expr.tokenize(tokens, idents, scopes);
     }
 }

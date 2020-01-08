@@ -30,9 +30,9 @@ impl Parse for ExprParen {
 }
 
 impl Tokenize for ExprParen {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         self.paren_token.surround(tokens, |tokens| {
-            self.expr.tokenize(tokens, idents);
+            self.expr.tokenize(tokens, idents, scopes);
         });
     }
 }

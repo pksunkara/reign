@@ -36,12 +36,12 @@ impl Parse for Node {
 }
 
 impl Tokenize for Node {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         match self {
-            Node::Element(e) => e.tokenize(tokens, idents),
-            Node::Comment(c) => c.tokenize(tokens, idents),
-            Node::Text(t) => t.tokenize(tokens, idents),
-            Node::Doctype(d) => d.tokenize(tokens, idents),
+            Node::Element(e) => e.tokenize(tokens, idents, scopes),
+            Node::Comment(c) => c.tokenize(tokens, idents, scopes),
+            Node::Text(t) => t.tokenize(tokens, idents, scopes),
+            Node::Doctype(d) => d.tokenize(tokens, idents, scopes),
         };
     }
 }

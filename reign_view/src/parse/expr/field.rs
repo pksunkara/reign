@@ -32,8 +32,8 @@ impl Parse for ExprField {
 }
 
 impl Tokenize for ExprField {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
-        self.base.tokenize(tokens, idents);
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
+        self.base.tokenize(tokens, idents, scopes);
         self.dot_token.to_tokens(tokens);
         self.member.to_tokens(tokens);
     }

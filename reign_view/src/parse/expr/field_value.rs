@@ -43,11 +43,11 @@ impl Parse for FieldValue {
 }
 
 impl Tokenize for FieldValue {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &Vec<Ident>) {
         if let Some(colon_token) = &self.colon_token {
             self.member.to_tokens(tokens);
             colon_token.to_tokens(tokens);
-            self.expr.tokenize(tokens, idents);
+            self.expr.tokenize(tokens, idents, scopes);
         } else {
             // Member is always named
             if let Member::Named(ident) = &self.member {

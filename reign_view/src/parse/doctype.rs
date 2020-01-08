@@ -18,7 +18,7 @@ impl Parse for Doctype {
 }
 
 impl Tokenize for Doctype {
-    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>) {
+    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &Vec<Ident>) {
         let doctype_str = LitStr::new(&self.content, Span::call_site());
 
         tokens.append_all(quote! {
