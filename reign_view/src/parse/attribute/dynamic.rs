@@ -1,4 +1,4 @@
-use super::consts::*;
+use super::super::consts::*;
 use super::{AttributeValue, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::TokenStream;
 use syn::Ident;

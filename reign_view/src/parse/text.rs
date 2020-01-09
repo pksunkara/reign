@@ -1,12 +1,12 @@
-use super::{parse_expr, Error, Parse, ParseStream, Tokenize};
+use super::{Code, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{Ident, LitStr};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum TextPart {
     Normal(String),
-    Expr(String),
+    Expr(Code),
 }
 
 impl Tokenize for TextPart {
@@ -16,10 +16,7 @@ impl Tokenize for TextPart {
                 let lit = LitStr::new(&n, Span::call_site());
                 lit.to_tokens(tokens);
             }
-            TextPart::Expr(e) => {
-                let expr = parse_expr(&e).unwrap();
-                expr.tokenize(tokens, idents, scopes);
-            }
+            TextPart::Expr(e) => e.tokenize(tokens, idents, scopes),
         }
     }
 }

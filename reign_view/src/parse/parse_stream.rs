@@ -1,8 +1,8 @@
-use super::{Error, Parse, TextPart};
+use super::{Code, Error, Parse, TextPart};
 use regex::Regex;
 
 #[derive(Debug)]
-pub(super) struct ParseStream {
+pub struct ParseStream {
     pub content: String,
     pub cursor: usize,
 }
@@ -179,7 +179,10 @@ impl ParseStream {
                     let expr_until = self.cursor + end_matches.unwrap();
                     let expr_string = self.content.get(self.cursor..expr_until).unwrap();
 
-                    parts.push(TextPart::Expr(expr_string.to_string()));
+                    parts.push(TextPart::Expr(Code::parse_expr_from_str(
+                        self,
+                        expr_string,
+                    )?));
                     self.cursor = expr_until + 2;
                 }
                 _ => unreachable!(),
@@ -192,7 +195,10 @@ impl ParseStream {
 
 #[cfg(test)]
 mod test {
-    use super::{ParseStream, TextPart};
+    use super::super::Expr;
+    use super::{Code, ParseStream, TextPart};
+    use proc_macro2::Span;
+    use syn::Ident;
 
     #[test]
     fn test_parse_text_in_the_middle() {
@@ -204,7 +210,12 @@ mod test {
         let parts = ps.parse_text().unwrap();
 
         assert_eq!(ps.cursor, 8);
-        assert_eq!(parts, vec![TextPart::Normal("Hello".to_string())]);
+        assert_eq!(parts.len(), 1);
+        assert!(if let Some(TextPart::Normal(s)) = parts.get(0) {
+            s == "Hello"
+        } else {
+            false
+        });
     }
 
     #[test]
@@ -214,7 +225,12 @@ mod test {
         let parts = ps.parse_text().unwrap();
 
         assert_eq!(ps.cursor, 4);
-        assert_eq!(parts, vec![TextPart::Normal("text".to_string())]);
+        assert_eq!(parts.len(), 1);
+        assert!(if let Some(TextPart::Normal(s)) = parts.get(0) {
+            s == "text"
+        } else {
+            false
+        });
     }
 
     #[test]
@@ -224,13 +240,17 @@ mod test {
         let parts = ps.parse_text().unwrap();
 
         assert_eq!(ps.cursor, 11);
-        assert_eq!(
-            parts,
-            vec![
-                TextPart::Normal("\\{{".to_string()),
-                TextPart::Normal(" text }}".to_string()),
-            ],
-        );
+        assert_eq!(parts.len(), 2);
+        assert!(if let Some(TextPart::Normal(s)) = parts.get(0) {
+            s == "\\{{"
+        } else {
+            false
+        });
+        assert!(if let Some(TextPart::Normal(s)) = parts.get(1) {
+            s == " text }}"
+        } else {
+            false
+        });
     }
 
     #[test]
@@ -240,12 +260,20 @@ mod test {
         let parts = ps.parse_text().unwrap();
 
         assert_eq!(ps.cursor, 14);
-        assert_eq!(
-            parts,
-            vec![
-                TextPart::Expr(" text".to_string()),
-                TextPart::Expr("u".to_string()),
-            ],
+        assert_eq!(parts.len(), 2);
+        assert!(
+            if let Some(TextPart::Expr(Code::Expr(Expr::Path(p)))) = parts.get(0) {
+                p.path.is_ident(&Ident::new("text", Span::call_site()))
+            } else {
+                false
+            }
+        );
+        assert!(
+            if let Some(TextPart::Expr(Code::Expr(Expr::Path(p)))) = parts.get(1) {
+                p.path.is_ident(&Ident::new("u", Span::call_site()))
+            } else {
+                false
+            }
         );
     }
 
@@ -256,7 +284,7 @@ mod test {
         let parts = ps.parse_text().unwrap();
 
         assert_eq!(ps.cursor, 0);
-        assert_eq!(parts, vec![]);
+        assert_eq!(parts.len(), 0);
     }
 
     #[test]

@@ -91,18 +91,12 @@ pub struct For {
 }
 
 impl For {
-    pub fn tokenize(
-        &self,
-        tokens: &mut TokenStream,
-        idents: &mut Vec<Ident>,
-        scopes: &[Ident],
-    ) -> Vec<Ident> {
+    pub fn declared(&self) -> Vec<Ident> {
         let mut declared = vec![];
+        let mut tokens = TokenStream::new();
+        let scopes = vec![];
 
-        self.pat.tokenize(tokens, &mut declared, scopes);
-        self.in_token.to_tokens(tokens);
-        self.expr.tokenize(tokens, idents, scopes);
-
+        self.pat.tokenize(&mut tokens, &mut declared, &scopes);
         declared
     }
 }
@@ -114,6 +108,16 @@ impl Parse for For {
             in_token: input.parse()?,
             expr: Box::new(input.call(expr_no_struct)?),
         })
+    }
+}
+
+impl Tokenize for For {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+        let mut declared = vec![];
+
+        self.pat.tokenize(tokens, &mut declared, scopes);
+        self.in_token.to_tokens(tokens);
+        self.expr.tokenize(tokens, idents, scopes);
     }
 }
 

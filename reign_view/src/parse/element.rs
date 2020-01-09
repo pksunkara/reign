@@ -1,6 +1,7 @@
 use super::consts::*;
 use super::{
-    tag_name_regex, Attribute, Error, Node, NormalAttribute, Parse, ParseStream, Tokenize,
+    attribute::{ControlAttribute, NormalAttribute},
+    tag_name_regex, Attribute, Code, Error, Node, Parse, ParseStream, Tokenize,
 };
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Span, TokenStream};
@@ -15,7 +16,19 @@ pub struct Element {
 }
 
 impl Element {
-    fn attr(&self, name: &str) -> Option<&NormalAttribute> {
+    fn control_attr(&self, name: &str) -> Option<&ControlAttribute> {
+        for attr in &self.attrs {
+            if let Attribute::Control(control) = attr {
+                if control.name == name {
+                    return Some(control);
+                }
+            }
+        }
+
+        None
+    }
+
+    fn normal_attr(&self, name: &str) -> Option<&NormalAttribute> {
         for attr in &self.attrs {
             if let Attribute::Normal(normal) = attr {
                 if normal.name == name {
@@ -28,7 +41,7 @@ impl Element {
     }
 
     fn slot_name(&self) -> &str {
-        if let Some(attr) = self.attr("name") {
+        if let Some(attr) = self.normal_attr("name") {
             return attr.value.value();
         }
 
@@ -93,7 +106,7 @@ impl Element {
             let child = child_option.unwrap();
 
             if let Node::Element(e) = child {
-                if e.attr("!if").is_some() {
+                if e.control_attr("if").is_some() {
                     let mut after_if = vec![child];
                     let mut next = iter.next();
                     let (mut has_else, mut has_else_if) = (false, false);
@@ -103,7 +116,7 @@ impl Element {
 
                         if let Node::Element(e) = sibling {
                             // If element has `else`, Mark the children to be cleaned
-                            if e.attr("!else").is_some() {
+                            if e.control_attr("else").is_some() {
                                 after_if.push(sibling);
                                 has_else = true;
                                 child_option = iter.next();
@@ -111,7 +124,7 @@ impl Element {
                             }
 
                             // If element has `else-if`, mark the children to be cleaned even though we have no `else`
-                            if e.attr("!else-if").is_some() {
+                            if e.control_attr("else-if").is_some() {
                                 has_else_if = true;
                             } else {
                                 // Otherwise go to the main loop
@@ -141,7 +154,7 @@ impl Element {
                     continue;
                 }
 
-                if e.attr("!else").is_some() || e.attr("!else-if").is_some() {
+                if e.control_attr("else").is_some() || e.control_attr("else-if").is_some() {
                     // TODO:(view:err) Show the error position
                     // panic!("expected `!if` element before `!else` or `!else-if`");
                 }
@@ -208,13 +221,14 @@ impl Parse for Element {
 impl Tokenize for Element {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
-        let mut for_expr = TokenStream::new();
         let mut new_scopes = scopes.to_vec();
 
         // Check for loop to see what variables are defined for this loop (`scopes`)
-        if let Some(r_for) = self.attr("!for") {
-            let mut declared = r_for.value.for_expr(&mut for_expr, idents, scopes);
-            new_scopes.append(&mut declared);
+        if let Some(attr_for) = self.control_attr("for") {
+            if let Code::For(for_) = &attr_for.value {
+                let mut declared = for_.declared();
+                new_scopes.append(&mut declared);
+            }
         }
 
         let mut elem = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
@@ -268,34 +282,37 @@ impl Tokenize for Element {
             }
         };
 
-        elem = if !for_expr.is_empty() {
+        elem = if let Some(r_for) = self.control_attr("for") {
             // For loop
+            let mut for_expr = TokenStream::new();
+            r_for.value.tokenize(&mut for_expr, idents, scopes);
+
             quote! {
                 for #for_expr {
                     #elem
                 }
             }
-        } else if let Some(r_if) = self.attr("!if") {
+        } else if let Some(r_if) = self.control_attr("if") {
             // If condition
             let mut if_expr = TokenStream::new();
-            r_if.value.if_expr(&mut if_expr, idents, scopes);
+            r_if.value.tokenize(&mut if_expr, idents, scopes);
 
             quote! {
                 if #if_expr {
                     #elem
                 }
             }
-        } else if let Some(r_else_if) = self.attr("!else-if") {
+        } else if let Some(r_else_if) = self.control_attr("else-if") {
             // Else If condition
             let mut if_expr = TokenStream::new();
-            r_else_if.value.if_expr(&mut if_expr, idents, scopes);
+            r_else_if.value.tokenize(&mut if_expr, idents, scopes);
 
             quote! {
                 else if #if_expr {
                     #elem
                 }
             }
-        } else if self.attr("!else").is_some() {
+        } else if self.control_attr("else").is_some() {
             // Else condition
             quote! {
                 else {

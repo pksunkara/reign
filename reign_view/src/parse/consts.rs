@@ -1,14 +1,13 @@
 pub const DOCTYPE: &str = "(?i)<!DOCTYPE [^>]+>";
 pub const TAG_NAME: &str = "[[:alpha:]](:?[a-zA-Z0-9\\-]*[[:alnum:]])?";
 pub const ATTR_NAME: &str = "[^\\s\"\'>/=]+";
-pub const ATTR_SYMBOL: &str = ":";
+pub const VAR_ATTR_SYMBOL: &str = ":";
+pub const CTRL_ATTR: &str = "!(for|if|else-if|else)";
 pub const DY_ATTR_NAME_PART: &str = "[^\\{}\\s\"\'>/=]*";
 pub const DY_ATTR_EXPR: &str = "\\{\\{([^=]+)}}";
 pub const ATTR_VALUE_DOUBLE_QUOTED: &str = "\"([^\"]*)\"";
 pub const ATTR_VALUE_SINGLE_QUOTED: &str = "'([^']*)'";
 pub const ATTR_VALUE_UNQUOTED: &str = "[^\\s\"'=<>`]+";
-
-pub const REIGN_ATTR_NAMES: [&str; 4] = ["!if", "!else-if", "!else", "!for"];
 
 pub const HTML_TAGS: [&str; 116] = [
     "html",

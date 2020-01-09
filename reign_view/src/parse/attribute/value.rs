@@ -1,5 +1,5 @@
-use super::consts::*;
-use super::{parse_expr, parse_for, Error, Parse, ParseStream, Tokenize};
+use super::super::consts::*;
+use super::{Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
 use syn::{Ident, LitStr};
@@ -21,22 +21,26 @@ impl AttributeValue {
             _ => "",
         }
     }
+}
 
-    pub fn for_expr(
-        &self,
-        tokens: &mut TokenStream,
-        idents: &mut Vec<Ident>,
-        scopes: &[Ident],
-    ) -> Vec<Ident> {
-        parse_for(self.value())
-            .unwrap()
-            .tokenize(tokens, idents, scopes)
-    }
+impl AttributeValue {
+    pub fn parse_to_str(input: &mut ParseStream) -> Result<String, Error> {
+        input.skip_spaces()?;
 
-    pub fn if_expr(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
-        parse_expr(self.value())
-            .unwrap()
-            .tokenize(tokens, idents, scopes);
+        if input.peek("=") {
+            input.step("=")?;
+            input.skip_spaces()?;
+
+            if input.peek("\"") {
+                Ok(input.capture(ATTR_VALUE_DOUBLE_QUOTED, 1)?)
+            } else if input.peek("\'") {
+                Ok(input.capture(ATTR_VALUE_SINGLE_QUOTED, 1)?)
+            } else {
+                Ok(input.matched(ATTR_VALUE_UNQUOTED)?)
+            }
+        } else {
+            Ok("\"\"".to_string())
+        }
     }
 }
 
@@ -68,7 +72,7 @@ impl Parse for AttributeValue {
 }
 
 impl Tokenize for AttributeValue {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &[Ident]) {
         if let AttributeValue::NoValue = self {
             tokens.append_all(quote! {
                 write!(f, "\"\"")?;
@@ -83,7 +87,6 @@ impl Tokenize for AttributeValue {
             _ => unreachable!(),
         };
 
-        // TODO:(expr-attr) {{ var }} in value
         let value = LitStr::new(&string, Span::call_site());
 
         tokens.append_all(quote! {

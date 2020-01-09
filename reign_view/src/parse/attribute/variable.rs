@@ -1,37 +1,32 @@
-use super::consts::*;
-use super::{AttributeValue, Error, Parse, ParseStream, Tokenize};
+use super::super::consts::*;
+use super::{Code, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
 use syn::{Ident, LitStr};
 
 #[derive(Debug)]
-pub struct NormalAttribute {
+pub struct VariableAttribute {
     pub name: String,
-    pub value: AttributeValue,
+    pub value: Code,
 }
 
-impl Parse for NormalAttribute {
+impl Parse for VariableAttribute {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
-        Ok(NormalAttribute {
+        Ok(VariableAttribute {
             name: input.matched(ATTR_NAME)?,
-            value: input.parse()?,
+            value: Code::parse_expr(input)?,
         })
     }
 }
 
-impl Tokenize for NormalAttribute {
+impl Tokenize for VariableAttribute {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
-        if REIGN_ATTR_NAMES.contains(&&self.name.as_str()) {
-            return;
-        }
-
-        // TODO:(expr-attr) If name has `:` at the beginning, wrap value in `{{  }}`
-
         let name = LitStr::new(&format!(" {}=", &self.name), Span::call_site());
 
         tokens.append_all(quote! {
             write!(f, "{}", #name)?;
         });
-        self.value.tokenize(tokens, idents, scopes);
+
+        // self.value.tokenize(tokens, idents, scopes);
     }
 }
