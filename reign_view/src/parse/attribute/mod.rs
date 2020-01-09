@@ -58,5 +58,5 @@ fn dy_attr_regex() -> String {
 }
 
 fn var_attr_regex() -> String {
-    format!("{}{}", VAR_ATTR_SYMBOL, ATTR_NAME)
+    format!("{}({})", VAR_ATTR_SYMBOL, ATTR_NAME)
 }

@@ -1,6 +1,14 @@
 write!(f, "{}", "<div")? ;
 write!(f, "{}", " @s=")? ;
 write!(f, "{}", "\"1\"")? ;
+write!(f, "{}", " src=")? ;
+write!(f, "{}", "\"example.png\"")? ;
+write!(f, "{}", " disabled=")? ;
+write!(f, "\"\"")? ;
+write!(f, "{}", " width=")? ;
+write!(f, "{}", "\"200\"")? ;
+write!(f, "{}", " height=")? ;
+write!(f, "{}", "'10\"0'")? ;
 write!(f, "{}", " <s=")? ;
 write!(f, "{}", "\"1\"")? ;
 write!(f, ">")? ;

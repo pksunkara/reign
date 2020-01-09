@@ -16,6 +16,7 @@ impl Tokenize for TextPart {
                 let lit = LitStr::new(&n, Span::call_site());
                 lit.to_tokens(tokens);
             }
+            // TODO:(view:html-escape) expression
             TextPart::Expr(e) => e.tokenize(tokens, idents, scopes),
         }
     }

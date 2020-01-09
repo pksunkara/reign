@@ -7,7 +7,7 @@ fn test_comment() {
 
 #[test]
 fn test_attributes() {
-    common::parse_pass("attributes");
+    common::parse_pass("variable_attribute");
 }
 
 #[test]

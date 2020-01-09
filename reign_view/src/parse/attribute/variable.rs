@@ -1,5 +1,4 @@
-use super::super::consts::*;
-use super::{Code, Error, Parse, ParseStream, Tokenize};
+use super::{var_attr_regex, Code, Error, Parse, ParseStream, Tokenize};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
 use syn::{Ident, LitStr};
@@ -13,7 +12,7 @@ pub struct VariableAttribute {
 impl Parse for VariableAttribute {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
         Ok(VariableAttribute {
-            name: input.matched(ATTR_NAME)?,
+            name: input.capture(&var_attr_regex(), 1)?,
             value: Code::parse_expr(input)?,
         })
     }
@@ -21,12 +20,14 @@ impl Parse for VariableAttribute {
 
 impl Tokenize for VariableAttribute {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
-        let name = LitStr::new(&format!(" {}=", &self.name), Span::call_site());
+        let name = LitStr::new(&self.name, Span::call_site());
+        let mut value = TokenStream::new();
 
+        self.value.tokenize(&mut value, idents, scopes);
+
+        // TODO:(view:html-escape) value
         tokens.append_all(quote! {
-            write!(f, "{}", #name)?;
+            write!(f, " {}=\"{}\"", #name, #value)?;
         });
-
-        // self.value.tokenize(tokens, idents, scopes);
     }
 }
