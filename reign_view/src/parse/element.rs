@@ -4,7 +4,7 @@ use super::{
     tag_name_regex, Attribute, Code, Error, Node, Parse, ParseStream, Tokenize,
 };
 use inflector::cases::pascalcase::to_pascal_case;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Punct, Spacing, Span, TokenStream};
 use quote::{quote, TokenStreamExt};
 use syn::{Ident, LitStr};
 
@@ -64,15 +64,22 @@ impl Element {
 
             if let Node::Element(e) = child {
                 if e.name == "template" {
+                    let mut has_named_template = false;
+
                     for attr in &e.attrs {
                         if let Attribute::Normal(n) = attr {
                             if n.name.starts_with('#') {
                                 names
                                     .push(LitStr::new(n.name.get(1..).unwrap(), Span::call_site()));
-                                templates.push(ts);
+                                templates.push(ts.clone());
+                                has_named_template = true;
                                 break;
                             }
                         }
+                    }
+
+                    if !has_named_template {
+                        other.push(ts);
                     }
                 } else {
                     other.push(ts);
@@ -83,6 +90,34 @@ impl Element {
         }
 
         (names, templates, other)
+    }
+
+    fn component_attrs(&self, idents: &mut Vec<Ident>, scopes: &[Ident]) -> Vec<TokenStream> {
+        let mut attrs = vec![];
+
+        for attr in &self.attrs {
+            let mut tokens = TokenStream::new();
+
+            match attr {
+                // TODO: snake case (for normal & variable)
+                Attribute::Normal(n) => {
+                    tokens.append(Ident::new(&n.name, Span::call_site()));
+                    tokens.append(Punct::new(':', Spacing::Alone));
+                    n.value.tokenize(&mut tokens, idents, scopes);
+                }
+                Attribute::Variable(v) => {
+                    tokens.append(Ident::new(&v.name, Span::call_site()));
+                    tokens.append(Punct::new(':', Spacing::Alone));
+                    v.value.tokenize(&mut tokens, idents, scopes);
+                }
+                Attribute::Dynamic(d) => continue,
+                _ => continue,
+            }
+
+            attrs.push(tokens);
+        }
+
+        attrs
     }
 
     fn end_tokens(&self) -> TokenStream {
@@ -261,6 +296,7 @@ impl Tokenize for Element {
             }
         } else {
             let path = convert_tag_name(tag_pieces);
+            let attrs = self.component_attrs(idents, &new_scopes);
             let (names, templates, children) = self.component_children(idents, &new_scopes);
 
             // TODO:(attrs) For component
@@ -278,6 +314,7 @@ impl Tokenize for Element {
                             Ok(())
                         }),
                     },
+                    #(#attrs),*
                 })?;
             }
         };

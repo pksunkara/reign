@@ -21,11 +21,14 @@ impl Parse for NormalAttribute {
 
 impl Tokenize for NormalAttribute {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
-        let name = LitStr::new(&format!(" {}=", &self.name), Span::call_site());
+        let name = LitStr::new(&self.name, Span::call_site());
+        let mut value = TokenStream::new();
 
+        self.value.tokenize(&mut value, idents, scopes);
+
+        // TODO:(view:html-escape) value
         tokens.append_all(quote! {
-            write!(f, "{}", #name)?;
+            write!(f, " {}=\"{}\"", #name, #value)?;
         });
-        self.value.tokenize(tokens, idents, scopes);
     }
 }

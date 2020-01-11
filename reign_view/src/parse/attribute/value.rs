@@ -73,24 +73,15 @@ impl Parse for AttributeValue {
 
 impl Tokenize for AttributeValue {
     fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &[Ident]) {
-        if let AttributeValue::NoValue = self {
-            tokens.append_all(quote! {
-                write!(f, "\"\"")?;
-            });
-            return;
-        }
-
         let string = match self {
-            AttributeValue::SingleQuoted(s) => format!("'{}'", s),
-            AttributeValue::DoubleQuoted(d) => format!("\"{}\"", d),
-            AttributeValue::Unquoted(u) => format!("\"{}\"", u),
-            _ => unreachable!(),
+            AttributeValue::SingleQuoted(s) => s,
+            AttributeValue::DoubleQuoted(d) => d,
+            AttributeValue::Unquoted(u) => u,
+            AttributeValue::NoValue => "",
         };
 
         let value = LitStr::new(&string, Span::call_site());
 
-        tokens.append_all(quote! {
-            write!(f, "{}", #value)?;
-        });
+        tokens.append_all(quote! { #value });
     }
 }
