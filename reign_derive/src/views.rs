@@ -76,7 +76,7 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
             views.push(quote! {
                 pub struct #ident<'a> {
                     pub _slots: ::reign::view::Slots<'a>,
-                    #(pub #idents: &'a str),*
+                    #(pub #idents: #types),*
                 }
 
                 impl<'a> ::reign::view::View for #ident<'a> {

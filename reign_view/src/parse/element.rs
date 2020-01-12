@@ -208,7 +208,7 @@ impl Element {
 
                 if e.control_attr("else").is_some() || e.control_attr("else-if").is_some() {
                     // TODO:(view:err) Show the error position
-                    // panic!("expected `!if` element before `!else` or `!else-if`");
+                    panic!("expected `!if` element before `!else` or `!else-if`");
                 }
             }
 
@@ -317,7 +317,7 @@ impl Tokenize for Element {
             quote! {
                 write!(f, "{}", crate::views::#(#path)::* {
                     _slots: ::reign::view::Slots {
-                        templates: ::maplit::hashmap!{
+                        templates: ::reign::view::maplit::hashmap!{
                             #(#names => Box::new(|f| {
                                 #templates
                                 Ok(())

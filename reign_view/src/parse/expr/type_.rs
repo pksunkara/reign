@@ -1,6 +1,6 @@
 use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
-use quote::ToTokens;
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Colon,
@@ -33,8 +33,28 @@ impl Parse for ExprType {
 
 impl Tokenize for ExprType {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
+        let mut ty_tokens = TokenStream::new();
+
+        self.ty.to_tokens(&mut ty_tokens);
+
+        if let Expr::Path(path) = &*self.expr {
+            if let Some(ident) = path.path.get_ident() {
+                if !scopes.contains(&ident) {
+                    idents.insert(ident.clone(), Some(ty_tokens.clone()));
+
+                    tokens.append_all(quote! {
+                        self.#ident
+                    });
+
+                    self.colon_token.to_tokens(tokens);
+                    tokens.append_all(ty_tokens);
+                    return;
+                }
+            }
+        }
+
         self.expr.tokenize(tokens, idents, scopes);
         self.colon_token.to_tokens(tokens);
-        self.ty.to_tokens(tokens);
+        tokens.append_all(ty_tokens);
     }
 }

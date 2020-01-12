@@ -3,7 +3,7 @@ write!(
     "{}",
     crate::views::Page {
         _slots: ::reign::view::Slots {
-            templates: ::maplit::hashmap! {
+            templates: ::reign::view::maplit::hashmap! {
                 "header" => Box::new(|f| {
                     write!(f, "{}", "Hello")? ;
                     Ok(())

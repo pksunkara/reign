@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream;
-use std::collections::hash_map::IntoIter;
+use quote::quote;
 use std::collections::HashMap;
 use syn::Ident;
 
@@ -16,25 +16,50 @@ impl ViewFields {
     }
 
     pub fn push(&mut self, ident: Ident) {
-        self.fields.insert(ident, Some(TokenStream::new()));
+        self.insert(ident, None);
+    }
+
+    pub fn insert(&mut self, ident: Ident, tokens: Option<TokenStream>) {
+        if let Some(ots) = self.fields.get(&ident) {
+            if ots.is_some() && tokens.is_some() {
+                // FIXME: Unable to compare the syn::Type or TokenStream here
+                // TODO:(view:err) Show the error position
+                panic!("identifier `{}` has multiple type ascription hints", ident);
+            } else if ots.is_none() {
+                self.fields.insert(ident, tokens);
+            }
+        } else {
+            self.fields.insert(ident, tokens);
+        }
     }
 
     pub fn append(&mut self, other: ViewFields) {
         for field in other.fields {
-            self.fields.insert(field.0, field.1);
+            self.insert(field.0, field.1);
         }
     }
 
     pub fn contains(&self, ident: &Ident) -> bool {
         self.fields.get(ident).is_some()
     }
-}
 
-impl IntoIterator for ViewFields {
-    type Item = (Ident, Option<TokenStream>);
-    type IntoIter = IntoIter<Ident, Option<TokenStream>>;
+    pub fn keys(&self) -> Vec<Ident> {
+        self.fields.keys().cloned().collect()
+    }
 
-    fn into_iter(self) -> Self::IntoIter {
-        self.fields.into_iter()
+    pub fn values(&self) -> Vec<TokenStream> {
+        self.fields
+            .values()
+            .cloned()
+            .map(|x| {
+                if let Some(ts) = x {
+                    ts
+                } else {
+                    quote! {
+                        &'a str
+                    }
+                }
+            })
+            .collect()
     }
 }

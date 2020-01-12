@@ -94,16 +94,12 @@ where
     }
 }
 
-pub fn tokenize(node: Node) -> (TokenStream, Vec<Ident>, Vec<Option<TokenStream>>) {
+pub fn tokenize(node: Node) -> (TokenStream, Vec<Ident>, Vec<TokenStream>) {
     let mut tokens = TokenStream::new();
     let mut idents = ViewFields::new();
     let scopes = ViewFields::new();
 
     node.tokenize(&mut tokens, &mut idents, &scopes);
 
-    (
-        tokens,
-        idents.fields.keys().cloned().collect(),
-        idents.fields.values().cloned().collect(),
-    )
+    (tokens, idents.keys(), idents.values())
 }

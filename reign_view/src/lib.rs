@@ -1,6 +1,7 @@
 use gotham::helpers::http::response::{create_empty_response, create_response};
 use gotham::state::State;
 use hyper::{Body, Response, StatusCode};
+pub use maplit;
 use mime;
 use std::fmt::{write, Display, Result, Write};
 

@@ -1,4 +1,16 @@
 <layouts:application title="Listing Articles">
   <shared:button link="/articles/new">New Article</shared:button>
-  <span>Articles List</span>
+  <h1>Articles List</h1>
+
+  <table>
+    <tr>
+      <th>Title</th>
+      <th>Content</th>
+    </tr>
+
+    <tr !for="article in &(articles: Vec<crate::models::articles::Article>)">
+      <td>{{ article.title }}</td>
+      <td>{{ article.content }}</td>
+    </tr>
+  </table>
 </layouts:application>

@@ -2,11 +2,11 @@ use std::collections::HashMap;
 use std::fmt::{Result, Write};
 use std::marker::PhantomData;
 
-pub type SlotRender = Box<dyn Fn(&mut dyn Write) -> Result>;
+pub type SlotRender<'a> = Box<dyn Fn(&mut dyn Write) -> Result + 'a>;
 
 pub struct Slots<'a> {
-    pub templates: HashMap<String, SlotRender>,
-    pub children: SlotRender,
+    pub templates: HashMap<String, SlotRender<'a>>,
+    pub children: SlotRender<'a>,
     pub phantom: PhantomData<&'a str>,
 }
 
