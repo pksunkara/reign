@@ -61,8 +61,8 @@ fn test_component() {
 }
 
 #[test]
-fn test_template_without_name() {
-    common::parse_pass("template_without_name");
+fn test_component_if() {
+    common::parse_pass("component_if");
 }
 
 // #[test]

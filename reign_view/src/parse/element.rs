@@ -48,48 +48,43 @@ impl Element {
         "default"
     }
 
-    fn component_children(
-        &self,
-        idents: &mut ViewFields,
-        scopes: &ViewFields,
-    ) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
-        let mut names = vec![];
-        let mut templates = vec![];
-        let mut other = vec![];
-
-        for child in &self.children {
-            let mut ts = TokenStream::new();
-
-            child.tokenize(&mut ts, idents, scopes);
-
-            if let Node::Element(e) = child {
-                if e.name == "template" {
-                    let mut has_named_template = false;
-
-                    for attr in &e.attrs {
-                        if let Attribute::Normal(n) = attr {
-                            if n.name.starts_with('#') {
-                                names
-                                    .push(LitStr::new(n.name.get(1..).unwrap(), Span::call_site()));
-                                templates.push(ts.clone());
-                                has_named_template = true;
-                                break;
-                            }
-                        }
+    fn template_name(&self) -> Option<String> {
+        if self.name == "template" {
+            for attr in &self.attrs {
+                if let Attribute::Normal(n) = attr {
+                    if n.name.starts_with('#') {
+                        return Some(n.name.clone());
                     }
-
-                    if !has_named_template {
-                        other.push(ts);
-                    }
-                } else {
-                    other.push(ts);
                 }
-            } else {
-                other.push(ts);
             }
         }
 
-        (names, templates, other)
+        None
+    }
+
+    fn templates(
+        &self,
+        idents: &mut ViewFields,
+        scopes: &ViewFields,
+    ) -> (Vec<LitStr>, Vec<TokenStream>) {
+        let mut names = vec![];
+        let mut templates = vec![];
+
+        for child in &self.children {
+            if let Node::Element(e) = child {
+                if let Some(name) = e.template_name() {
+                    let name = name.get(1..).unwrap();
+                    let mut ts = TokenStream::new();
+
+                    child.tokenize(&mut ts, idents, scopes);
+
+                    names.push(LitStr::new(name, Span::call_site()));
+                    templates.push(ts);
+                }
+            }
+        }
+
+        (names, templates)
     }
 
     fn component_attrs(&self, idents: &mut ViewFields, scopes: &ViewFields) -> Vec<TokenStream> {
@@ -132,6 +127,18 @@ impl Element {
         }
     }
 
+    fn attrs_tokens(&self, idents: &mut ViewFields, scopes: &ViewFields) -> Vec<TokenStream> {
+        self.attrs
+            .iter()
+            .map(|x| {
+                let mut ts = TokenStream::new();
+
+                x.tokenize(&mut ts, idents, &scopes);
+                ts
+            })
+            .collect()
+    }
+
     fn children_tokens(&self, idents: &mut ViewFields, scopes: &ViewFields) -> Vec<TokenStream> {
         let mut tokens = vec![];
         let mut iter = self.children.iter();
@@ -141,6 +148,11 @@ impl Element {
             let child = child_option.unwrap();
 
             if let Node::Element(e) = child {
+                if e.template_name().is_some() {
+                    child_option = iter.next();
+                    continue;
+                }
+
                 if e.control_attr("if").is_some() {
                     let mut after_if = vec![child];
                     let mut next = iter.next();
@@ -150,6 +162,11 @@ impl Element {
                         let sibling = next.unwrap();
 
                         if let Node::Element(e) = sibling {
+                            if e.template_name().is_some() {
+                                next = iter.next();
+                                continue;
+                            }
+
                             // If element has `else`, Mark the children to be cleaned
                             if e.control_attr("else").is_some() {
                                 after_if.push(sibling);
@@ -254,6 +271,7 @@ impl Parse for Element {
 }
 
 impl Tokenize for Element {
+    #[allow(clippy::cognitive_complexity)]
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
         let mut new_scopes = scopes.clone();
@@ -265,18 +283,21 @@ impl Tokenize for Element {
             }
         }
 
-        let mut elem = if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
-            let start_tag = LitStr::new(&format!("<{}", &self.name), Span::call_site());
-            let attrs: Vec<TokenStream> = self
-                .attrs
-                .iter()
-                .map(|x| {
-                    let mut ts = TokenStream::new();
+        let mut elem = if self.name == "template" {
+            let children = self.children_tokens(idents, &new_scopes);
 
-                    x.tokenize(&mut ts, idents, &new_scopes);
-                    ts
-                })
-                .collect();
+            quote! {
+                #(#children)*
+            }
+        } else if self.name == "slot" {
+            let name = LitStr::new(self.slot_name(), Span::call_site());
+
+            quote! {
+                self._slots.render(f, #name)?;
+            }
+        } else if tag_pieces.len() == 1 && is_reserved_tag(&self.name) {
+            let start_tag = LitStr::new(&format!("<{}", &self.name), Span::call_site());
+            let attrs = self.attrs_tokens(idents, &new_scopes);
             let children = self.children_tokens(idents, &new_scopes);
             let end_tokens = self.end_tokens();
 
@@ -287,18 +308,12 @@ impl Tokenize for Element {
                 #(#children)*
                 #end_tokens
             }
-        } else if self.name == "slot" {
-            let name = LitStr::new(self.slot_name(), Span::call_site());
-
-            quote! {
-                self._slots.render(f, #name)?;
-            }
         } else {
             let path = convert_tag_name(tag_pieces);
             let attrs = self.component_attrs(idents, &new_scopes);
-            let (names, templates, children) = self.component_children(idents, &new_scopes);
+            let (names, templates) = self.templates(idents, &new_scopes);
+            let children = self.children_tokens(idents, &new_scopes);
 
-            // TODO:(attrs) For component
             quote! {
                 write!(f, "{}", crate::views::#(#path)::* {
                     _slots: ::reign::view::Slots {

@@ -4,28 +4,19 @@ write!(f, "{}", crate::views::Page {
         children: Box::new (|f| {
             write!(f, "{}", "\n  " )? ;
             if self.a {
-                write!(f, "{}", "<template" )? ;
-                write!(f, ">" )? ;
-                write!(f, "{}", "\n    " )? ;
                 write!(f, "{}", "<h1" )? ;
                 write!(f, ">" )? ;
-                write!(f, "{}", "Yes" )? ;
-                write!(f, "{}", "</h1>" )? ;
-                write!(f, "{}", "\n    " )? ;
-                write!(f, "{}", "<span" )? ;
-                write!(f, ">" )? ;
                 write!(f, "{}", "True" )? ;
-                write!(f, "{}", "</span>" )? ;
-                write!(f, "{}", "\n  " )? ;
-                write!(f, "{}", "</template>" )? ;
+                write!(f, "{}", "</h1>" )? ;
             } else {
                 write!(f, "{}", "<h1" )? ;
                 write!(f, ">" )? ;
-                write!(f, "{}", "Unknown" )? ;
+                write!(f, "{}", "False" )? ;
                 write!(f, "{}", "</h1>" )? ;
             }
             write!(f, "{}", "\n" )? ;
             Ok(())
         }),
+        phantom: ::std::marker::PhantomData,
     },
 })? ;
