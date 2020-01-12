@@ -23,6 +23,7 @@ mod index;
 mod method_call;
 mod paren;
 mod range;
+mod reference;
 mod repeat;
 mod struct_;
 mod tuple;
@@ -40,6 +41,7 @@ use index::ExprIndex;
 use method_call::ExprMethodCall;
 use paren::ExprParen;
 use range::ExprRange;
+use reference::ExprReference;
 use repeat::ExprRepeat;
 use struct_::ExprStruct;
 use tuple::ExprTuple;
@@ -59,6 +61,7 @@ pub enum Expr {
     Paren(ExprParen),
     Path(ExprPath),
     Range(ExprRange),
+    Reference(ExprReference),
     Repeat(ExprRepeat),
     Struct(ExprStruct),
     Tuple(ExprTuple),
@@ -169,6 +172,7 @@ impl Tokenize for Expr {
                 }
             }
             Expr::Range(e) => e.tokenize(tokens, idents, scopes),
+            Expr::Reference(e) => e.tokenize(tokens, idents, scopes),
             Expr::Repeat(e) => e.tokenize(tokens, idents, scopes),
             Expr::Struct(e) => e.tokenize(tokens, idents, scopes),
             Expr::Tuple(e) => e.tokenize(tokens, idents, scopes),
@@ -201,13 +205,24 @@ fn ambiguous_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr>
 fn unary_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
     let ahead = input.fork();
 
-    if ahead.peek(Token![*]) || ahead.peek(Token![!]) || ahead.peek(Token![-]) {
+    if ahead.peek(Token![&])
+        || ahead.peek(Token![*])
+        || ahead.peek(Token![!])
+        || ahead.peek(Token![-])
+    {
         input.advance_to(&ahead);
 
-        Ok(Expr::Unary(ExprUnary {
-            op: input.parse()?,
-            expr: Box::new(unary_expr(input, allow_struct)?),
-        }))
+        if input.peek(Token![&]) {
+            Ok(Expr::Reference(ExprReference {
+                and_token: input.parse()?,
+                expr: Box::new(unary_expr(input, allow_struct)?),
+            }))
+        } else {
+            Ok(Expr::Unary(ExprUnary {
+                op: input.parse()?,
+                expr: Box::new(unary_expr(input, allow_struct)?),
+            }))
+        }
     } else {
         trailer_expr(input, allow_struct)
     }

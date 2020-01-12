@@ -18,7 +18,6 @@ pub fn list(state: State) -> Box<HandlerFuture> {
             .run(move |connection| articles.load::<Article>(&connection))
             .then(|result| match result {
                 Ok(data) => future::ok({
-                    println!("{:#?}", data);
                     render!(articles::List {
                         _slots: Slots::default(),
                         articles: data,
