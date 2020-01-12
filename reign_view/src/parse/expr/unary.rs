@@ -1,9 +1,9 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    Error, Ident, UnOp,
+    Error, UnOp,
 };
 
 pub struct ExprUnary {
@@ -25,7 +25,7 @@ impl Parse for ExprUnary {
 }
 
 impl Tokenize for ExprUnary {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.op.to_tokens(tokens);
         self.expr.tokenize(tokens, idents, scopes);
     }

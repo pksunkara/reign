@@ -1,7 +1,6 @@
 use super::super::consts::*;
-use super::{AttributeValue, Error, Parse, ParseStream, Tokenize};
+use super::{AttributeValue, Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
-use syn::Ident;
 
 #[derive(Debug)]
 pub struct DynamicAttribute {
@@ -25,5 +24,5 @@ impl Parse for DynamicAttribute {
 }
 
 impl Tokenize for DynamicAttribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {}
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {}
 }

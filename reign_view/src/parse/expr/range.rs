@@ -1,9 +1,9 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    Error, Ident, RangeLimits,
+    Error, RangeLimits,
 };
 
 pub struct ExprRange {
@@ -26,7 +26,7 @@ impl Parse for ExprRange {
 }
 
 impl Tokenize for ExprRange {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.from.tokenize(tokens, idents, scopes);
 
         match &self.limits {

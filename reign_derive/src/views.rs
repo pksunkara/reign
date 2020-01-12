@@ -70,21 +70,23 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
             let cased = to_pascal_case(file_name.trim_end_matches(".html"));
             let ident = Ident::new(&cased, Span::call_site());
 
-            let (tokens, _) = tokenize(parse(read_to_string(new_path).unwrap()).unwrap());
+            let (tokens, idents, types) =
+                tokenize(parse(read_to_string(new_path).unwrap()).unwrap());
 
             views.push(quote! {
-                pub struct #ident {
-                    pub _slots: ::reign::view::Slots,
+                pub struct #ident<'a> {
+                    pub _slots: ::reign::view::Slots<'a>,
+                    #(pub #idents: &'a str),*
                 }
 
-                impl ::reign::view::View for #ident {
+                impl<'a> ::reign::view::View for #ident<'a> {
                     fn render(&self, f: &mut dyn std::fmt::Write) -> std::fmt::Result {
                         #tokens
                         Ok(())
                     }
                 }
 
-                impl std::fmt::Display for #ident {
+                impl<'a> std::fmt::Display for #ident<'a> {
                     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                         self.render(f)
                     }

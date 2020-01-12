@@ -1,8 +1,8 @@
 use super::super::consts::*;
-use super::{Error, Parse, ParseStream, Tokenize};
+use super::{Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
-use syn::{Ident, LitStr};
+use syn::LitStr;
 
 #[derive(Debug)]
 pub enum AttributeValue {
@@ -72,7 +72,7 @@ impl Parse for AttributeValue {
 }
 
 impl Tokenize for AttributeValue {
-    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, _: &mut ViewFields, _: &ViewFields) {
         let string = match self {
             AttributeValue::SingleQuoted(s) => s,
             AttributeValue::DoubleQuoted(d) => d,

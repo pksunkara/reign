@@ -1,7 +1,7 @@
 use super::consts::*;
 use super::{
     attribute::{ControlAttribute, NormalAttribute},
-    tag_name_regex, Attribute, Code, Error, Node, Parse, ParseStream, Tokenize,
+    tag_name_regex, Attribute, Code, Error, Node, Parse, ParseStream, Tokenize, ViewFields,
 };
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Punct, Spacing, Span, TokenStream};
@@ -50,8 +50,8 @@ impl Element {
 
     fn component_children(
         &self,
-        idents: &mut Vec<Ident>,
-        scopes: &[Ident],
+        idents: &mut ViewFields,
+        scopes: &ViewFields,
     ) -> (Vec<LitStr>, Vec<TokenStream>, Vec<TokenStream>) {
         let mut names = vec![];
         let mut templates = vec![];
@@ -92,7 +92,7 @@ impl Element {
         (names, templates, other)
     }
 
-    fn component_attrs(&self, idents: &mut Vec<Ident>, scopes: &[Ident]) -> Vec<TokenStream> {
+    fn component_attrs(&self, idents: &mut ViewFields, scopes: &ViewFields) -> Vec<TokenStream> {
         let mut attrs = vec![];
 
         for attr in &self.attrs {
@@ -132,7 +132,7 @@ impl Element {
         }
     }
 
-    fn children_tokens(&self, idents: &mut Vec<Ident>, scopes: &[Ident]) -> Vec<TokenStream> {
+    fn children_tokens(&self, idents: &mut ViewFields, scopes: &ViewFields) -> Vec<TokenStream> {
         let mut tokens = vec![];
         let mut iter = self.children.iter();
         let mut child_option = iter.next();
@@ -254,15 +254,14 @@ impl Parse for Element {
 }
 
 impl Tokenize for Element {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         let tag_pieces: Vec<&str> = self.name.split(':').collect();
-        let mut new_scopes = scopes.to_vec();
+        let mut new_scopes = scopes.clone();
 
         // Check for loop to see what variables are defined for this loop (`scopes`)
         if let Some(attr_for) = self.control_attr("for") {
             if let Code::For(for_) = &attr_for.value {
-                let mut declared = for_.declared();
-                new_scopes.append(&mut declared);
+                new_scopes.append(for_.declared());
             }
         }
 
@@ -313,6 +312,7 @@ impl Tokenize for Element {
                             #(#children)*
                             Ok(())
                         }),
+                        phantom: ::std::marker::PhantomData,
                     },
                     #(#attrs),*
                 })?;

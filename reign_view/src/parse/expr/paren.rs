@@ -1,9 +1,9 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Paren,
-    Error, Ident,
+    Error,
 };
 
 pub struct ExprParen {
@@ -30,7 +30,7 @@ impl Parse for ExprParen {
 }
 
 impl Tokenize for ExprParen {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.paren_token.surround(tokens, |tokens| {
             self.expr.tokenize(tokens, idents, scopes);
         });

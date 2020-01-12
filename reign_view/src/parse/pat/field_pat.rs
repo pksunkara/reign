@@ -1,10 +1,10 @@
-use super::{Pat, PatIdent, Tokenize};
+use super::{Pat, PatIdent, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::{Colon, Ref},
-    Ident, Member,
+    Member,
 };
 
 pub struct FieldPat {
@@ -45,7 +45,7 @@ impl Parse for FieldPat {
 }
 
 impl Tokenize for FieldPat {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         if let Some(colon_token) = &self.colon_token {
             self.member.to_tokens(tokens);
             colon_token.to_tokens(tokens);

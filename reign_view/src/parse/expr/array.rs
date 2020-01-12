@@ -1,10 +1,10 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Bracket, Comma},
-    Error, Ident,
+    Error,
 };
 
 pub struct ExprArray {
@@ -31,7 +31,7 @@ impl Parse for ExprArray {
 }
 
 impl Tokenize for ExprArray {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.bracket_token.surround(tokens, |tokens| {
             self.elems.tokenize(tokens, idents, scopes);
         })

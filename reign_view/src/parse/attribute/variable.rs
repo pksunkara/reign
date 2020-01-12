@@ -1,7 +1,7 @@
-use super::{var_attr_regex, Code, Error, Parse, ParseStream, Tokenize};
+use super::{var_attr_regex, Code, Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
-use syn::{Ident, LitStr};
+use syn::LitStr;
 
 #[derive(Debug)]
 pub struct VariableAttribute {
@@ -19,7 +19,7 @@ impl Parse for VariableAttribute {
 }
 
 impl Tokenize for VariableAttribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         let name = LitStr::new(&self.name, Span::call_site());
         let mut value = TokenStream::new();
 

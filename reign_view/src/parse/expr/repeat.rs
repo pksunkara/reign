@@ -1,10 +1,10 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::{Bracket, Semi},
-    Error, Ident,
+    Error,
 };
 
 pub struct ExprRepeat {
@@ -33,7 +33,7 @@ impl Parse for ExprRepeat {
 }
 
 impl Tokenize for ExprRepeat {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.bracket_token.surround(tokens, |tokens| {
             self.expr.tokenize(tokens, idents, scopes);
             self.semi_token.to_tokens(tokens);

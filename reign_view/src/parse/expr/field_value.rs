@@ -1,10 +1,10 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Colon,
-    ExprPath, Ident, Member, Path, Token,
+    ExprPath, Member, Path, Token,
 };
 
 pub struct FieldValue {
@@ -43,7 +43,7 @@ impl Parse for FieldValue {
 }
 
 impl Tokenize for FieldValue {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         if let Some(colon_token) = &self.colon_token {
             self.member.to_tokens(tokens);
             colon_token.to_tokens(tokens);

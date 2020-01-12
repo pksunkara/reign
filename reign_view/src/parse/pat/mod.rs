@@ -1,4 +1,4 @@
-use super::{expr::expr_no_struct, Expr, Tokenize};
+use super::{expr::expr_no_struct, Expr, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
@@ -71,7 +71,7 @@ impl Parse for Pat {
 }
 
 impl Tokenize for Pat {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         match self {
             Pat::Ident(p) => p.tokenize(tokens, idents, scopes),
             Pat::Reference(p) => p.tokenize(tokens, idents, scopes),
@@ -91,10 +91,10 @@ pub struct For {
 }
 
 impl For {
-    pub fn declared(&self) -> Vec<Ident> {
-        let mut declared = vec![];
+    pub fn declared(&self) -> ViewFields {
+        let mut declared = ViewFields::new();
         let mut tokens = TokenStream::new();
-        let scopes = vec![];
+        let scopes = ViewFields::new();
 
         self.pat.tokenize(&mut tokens, &mut declared, &scopes);
         declared
@@ -112,8 +112,8 @@ impl Parse for For {
 }
 
 impl Tokenize for For {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
-        let mut declared = vec![];
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
+        let mut declared = ViewFields::new();
 
         self.pat.tokenize(tokens, &mut declared, scopes);
         self.in_token.to_tokens(tokens);

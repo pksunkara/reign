@@ -1,9 +1,9 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::Bracket,
-    Error, Ident,
+    Error,
 };
 
 pub struct ExprIndex {
@@ -31,7 +31,7 @@ impl Parse for ExprIndex {
 }
 
 impl Tokenize for ExprIndex {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.expr.tokenize(tokens, idents, scopes);
 
         self.bracket_token.surround(tokens, |tokens| {

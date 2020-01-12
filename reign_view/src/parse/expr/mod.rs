@@ -1,4 +1,4 @@
-use super::Tokenize;
+use super::{Tokenize, ViewFields};
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
@@ -143,7 +143,7 @@ impl Parse for Expr {
 }
 
 impl Tokenize for Expr {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         match self {
             Expr::Array(e) => e.tokenize(tokens, idents, scopes),
             Expr::Binary(e) => e.tokenize(tokens, idents, scopes),
@@ -156,7 +156,7 @@ impl Tokenize for Expr {
             Expr::Paren(e) => e.tokenize(tokens, idents, scopes),
             Expr::Path(path) => {
                 if let Some(ident) = path.path.get_ident() {
-                    if !scopes.contains(ident) {
+                    if !scopes.contains(&ident) {
                         idents.push(ident.clone());
                         tokens.append_all(quote! {
                             self.#ident

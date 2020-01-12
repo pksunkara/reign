@@ -1,10 +1,10 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Comma, Paren},
-    Error, Ident,
+    Error,
 };
 
 pub struct ExprCall {
@@ -32,7 +32,7 @@ impl Parse for ExprCall {
 }
 
 impl Tokenize for ExprCall {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.func.tokenize(tokens, idents, scopes);
         self.paren_token.surround(tokens, |tokens| {
             self.args.tokenize(tokens, idents, scopes);

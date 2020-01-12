@@ -1,11 +1,11 @@
-use super::{Expr, FieldValue, Tokenize};
+use super::{Expr, FieldValue, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Brace, Comma, Dot2},
-    Error, Ident, Path,
+    Error, Path,
 };
 
 pub struct ExprStruct {
@@ -35,7 +35,7 @@ impl Parse for ExprStruct {
 }
 
 impl Tokenize for ExprStruct {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.path.to_tokens(tokens);
 
         self.brace_token.surround(tokens, |tokens| {

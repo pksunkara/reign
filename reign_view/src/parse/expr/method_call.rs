@@ -1,4 +1,4 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
@@ -36,7 +36,7 @@ impl Parse for ExprMethodCall {
 }
 
 impl Tokenize for ExprMethodCall {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.receiver.tokenize(tokens, idents, scopes);
         self.dot_token.to_tokens(tokens);
         self.method.to_tokens(tokens);

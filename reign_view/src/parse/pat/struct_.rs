@@ -1,10 +1,10 @@
-use super::{FieldPat, Tokenize};
+use super::{FieldPat, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
     punctuated::Punctuated,
     token::{Brace, Comma, Dot2},
-    Ident, Path,
+    Path,
 };
 
 pub struct PatStruct {
@@ -15,7 +15,7 @@ pub struct PatStruct {
 }
 
 impl Tokenize for PatStruct {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.path.to_tokens(tokens);
 
         self.brace_token.surround(tokens, |tokens| {

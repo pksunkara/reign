@@ -1,7 +1,7 @@
-use super::{PatTuple, Tokenize};
+use super::{PatTuple, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::{Ident, Path};
+use syn::Path;
 
 pub struct PatTupleStruct {
     pub path: Path,
@@ -9,7 +9,7 @@ pub struct PatTupleStruct {
 }
 
 impl Tokenize for PatTupleStruct {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.path.to_tokens(tokens);
         self.pat.tokenize(tokens, idents, scopes);
     }

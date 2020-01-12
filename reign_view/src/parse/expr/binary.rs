@@ -1,9 +1,9 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    BinOp, Error, Ident,
+    BinOp, Error,
 };
 
 pub struct ExprBinary {
@@ -26,7 +26,7 @@ impl Parse for ExprBinary {
 }
 
 impl Tokenize for ExprBinary {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.left.tokenize(tokens, idents, scopes);
         self.op.to_tokens(tokens);
         self.right.tokenize(tokens, idents, scopes);

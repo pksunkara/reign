@@ -1,7 +1,7 @@
-use super::{attribute::AttributeValue, Error, Expr, For, ParseStream, Tokenize};
+use super::{attribute::AttributeValue, Error, Expr, For, ParseStream, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use std::fmt::{Debug, Error as FError, Formatter};
-use syn::{parse_str, Ident};
+use syn::parse_str;
 
 pub enum Code {
     For(For),
@@ -41,7 +41,7 @@ impl Code {
 }
 
 impl Tokenize for Code {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         match self {
             Code::For(f) => f.tokenize(tokens, idents, scopes),
             Code::Expr(e) => e.tokenize(tokens, idents, scopes),

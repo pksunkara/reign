@@ -1,8 +1,8 @@
 use super::super::consts::*;
-use super::{AttributeValue, Error, Parse, ParseStream, Tokenize};
+use super::{AttributeValue, Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
-use syn::{Ident, LitStr};
+use syn::LitStr;
 
 #[derive(Debug)]
 pub struct NormalAttribute {
@@ -20,7 +20,7 @@ impl Parse for NormalAttribute {
 }
 
 impl Tokenize for NormalAttribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         let name = LitStr::new(&self.name, Span::call_site());
         let mut value = TokenStream::new();
 

@@ -1,7 +1,6 @@
 use super::consts::*;
-use super::{Code, Error, Parse, ParseStream, Tokenize};
+use super::{Code, Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
-use syn::Ident;
 
 mod control;
 mod dynamic;
@@ -40,7 +39,7 @@ impl Parse for Attribute {
 }
 
 impl Tokenize for Attribute {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         match self {
             Attribute::Normal(n) => n.tokenize(tokens, idents, scopes),
             Attribute::Dynamic(d) => d.tokenize(tokens, idents, scopes),

@@ -1,4 +1,4 @@
-use super::Tokenize;
+use super::{Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
@@ -23,7 +23,7 @@ impl Parse for PatIdent {
 }
 
 impl Tokenize for PatIdent {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, _: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, _: &ViewFields) {
         self.by_ref.to_tokens(tokens);
         self.ident.to_tokens(tokens);
         idents.push(self.ident.clone());

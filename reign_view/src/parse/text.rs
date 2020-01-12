@@ -1,7 +1,7 @@
-use super::{Code, Error, Parse, ParseStream, Tokenize};
+use super::{Code, Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{Ident, LitStr};
+use syn::LitStr;
 
 #[derive(Debug)]
 pub enum TextPart {
@@ -10,7 +10,7 @@ pub enum TextPart {
 }
 
 impl Tokenize for TextPart {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         match self {
             TextPart::Normal(n) => {
                 let lit = LitStr::new(&n, Span::call_site());
@@ -36,7 +36,7 @@ impl Parse for Text {
 }
 
 impl Tokenize for Text {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         let format_arg_str = "{}".repeat(self.content.len());
         let format_arg_lit = LitStr::new(&format_arg_str, Span::call_site());
 

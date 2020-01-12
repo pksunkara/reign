@@ -1,10 +1,10 @@
-use super::{Expr, Tokenize};
+use super::{Expr, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::As,
-    Error, Ident, Type,
+    Error, Type,
 };
 
 pub struct ExprCast {
@@ -27,7 +27,7 @@ impl Parse for ExprCast {
 }
 
 impl Tokenize for ExprCast {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.expr.tokenize(tokens, idents, scopes);
         self.as_token.to_tokens(tokens);
         self.ty.to_tokens(tokens);

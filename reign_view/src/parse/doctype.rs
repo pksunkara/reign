@@ -1,8 +1,8 @@
 use super::consts::DOCTYPE;
-use super::{Error, Parse, ParseStream, Tokenize};
+use super::{Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
-use syn::{Ident, LitStr};
+use syn::LitStr;
 
 #[derive(Debug)]
 pub struct Doctype {
@@ -18,7 +18,7 @@ impl Parse for Doctype {
 }
 
 impl Tokenize for Doctype {
-    fn tokenize(&self, tokens: &mut TokenStream, _: &mut Vec<Ident>, _: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, _: &mut ViewFields, _: &ViewFields) {
         let doctype_str = LitStr::new(&self.content, Span::call_site());
 
         tokens.append_all(quote! {

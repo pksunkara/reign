@@ -1,11 +1,10 @@
-use super::{Pat, Tokenize};
+use super::{Pat, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use syn::{
     parenthesized,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Comma, Paren},
-    Ident,
 };
 
 pub struct PatTuple {
@@ -37,7 +36,7 @@ impl Parse for PatTuple {
 }
 
 impl Tokenize for PatTuple {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut Vec<Ident>, scopes: &[Ident]) {
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
         self.paren_token.surround(tokens, |tokens| {
             self.elems.tokenize(tokens, idents, scopes);
         });
