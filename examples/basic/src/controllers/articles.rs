@@ -1,5 +1,4 @@
-use crate::models::articles::Article;
-use crate::schema::articles::dsl::articles;
+use crate::models::{Article, Articles};
 use diesel::prelude::*;
 use gotham::handler::HandlerFuture;
 use gotham::helpers::http::response::*;
@@ -15,12 +14,36 @@ pub fn list(state: State) -> Box<HandlerFuture> {
 
     let f = future::ok((state, ())).and_then(move |(state, _)| {
         crate::Repo::borrow_from(&state)
-            .run(move |connection| articles.load::<Article>(&connection))
+            .run(move |connection| Articles.load::<Article>(&connection))
             .then(|result| match result {
-                Ok(data) => future::ok({
+                Ok(articles) => future::ok({
                     render!(articles::List {
                         _slots: Slots::default(),
-                        articles: data,
+                        articles,
+                    })
+                }),
+                Err(e) => future::err((state, e.into_handler_error())),
+            })
+    });
+
+    Box::new(f)
+}
+
+pub fn show(state: State) -> Box<HandlerFuture> {
+    use futures::{future, Future};
+    use gotham::{handler::IntoHandlerError, state::FromState};
+
+    // let path = crate::routes::IdExtractor::borrow_from(&state);
+
+    let f = future::ok((state, ())).and_then(move |(state, _)| {
+        crate::Repo::borrow_from(&state)
+            .run(move |connection| Articles.find(1).first::<Article>(&connection))
+            .then(|result| match result {
+                Ok(article) => future::ok({
+                    println!("{:?}", article);
+                    render!(articles::Show {
+                        _slots: Slots::default(),
+                        // article: "",
                     })
                 }),
                 Err(e) => future::err((state, e.into_handler_error())),

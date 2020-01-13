@@ -10,11 +10,9 @@ mod slots;
 
 pub use slots::{SlotRender, Slots};
 
-pub trait View: Display {
+pub trait View {
     fn render(&self, f: &mut dyn Write) -> Result;
 }
-
-// TODO: Can I do impl Display for View
 
 /// Renders a view for gotham handler.
 ///

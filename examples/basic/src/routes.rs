@@ -2,8 +2,15 @@ use crate::controllers::*;
 use gotham::middleware::logger::RequestLogger;
 use gotham::pipeline::{new_pipeline, single::single_pipeline};
 use gotham::router::{builder::*, Router};
+use gotham_derive::*;
 use gotham_middleware_diesel::{DieselMiddleware, Repo};
 use reign::log::Level;
+use serde::Deserialize;
+
+#[derive(Deserialize, StateData, StaticResponseExtender)]
+pub struct IdExtractor {
+    pub id: i32,
+}
 
 pub fn router<T>(repo: Repo<T>) -> Router
 where
@@ -21,6 +28,13 @@ where
             route.associate("/", |assoc| {
                 assoc.get().to(articles::list);
                 assoc.post().to(articles::create);
+            });
+
+            route.associate("/:id", |assoc| {
+                assoc
+                    .get()
+                    .with_path_extractor::<IdExtractor>()
+                    .to(articles::show);
             });
         });
     })

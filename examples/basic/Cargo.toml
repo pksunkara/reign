@@ -16,3 +16,4 @@ hyper = "0.12.32"
 mime = "0.3.14"
 gotham_middleware_diesel = "0.1.0"
 futures = "0.1"
+serde = { version = "1.0.104", features = ["derive"] }

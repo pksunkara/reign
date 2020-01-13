@@ -3,7 +3,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::ToTokens;
 use syn::{
     parse::{Parse, ParseStream, Result},
-    token::{And, Mut},
+    token::And,
     Error,
 };
 
