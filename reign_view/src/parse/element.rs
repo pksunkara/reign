@@ -110,7 +110,6 @@ impl Element {
                     tokens.append(Punct::new(':', Spacing::Alone));
                     v.value.tokenize(&mut tokens, idents, scopes);
                 }
-                Attribute::Dynamic(d) => continue,
                 _ => continue,
             }
 

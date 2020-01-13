@@ -14,6 +14,7 @@ pub use normal::NormalAttribute;
 pub use value::AttributeValue;
 use variable::VariableAttribute;
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug)]
 pub enum Attribute {
     Normal(NormalAttribute),
