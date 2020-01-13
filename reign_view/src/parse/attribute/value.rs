@@ -1,25 +1,37 @@
-use super::super::consts::*;
+use super::super::{consts::*, StringPart};
 use super::{Error, Parse, ParseStream, Tokenize, ViewFields};
 use proc_macro2::{Span, TokenStream};
 use quote::{quote, TokenStreamExt};
 use syn::LitStr;
 
 #[derive(Debug)]
-pub enum AttributeValue {
-    SingleQuoted(String),
-    DoubleQuoted(String),
-    Unquoted(String),
-    NoValue,
+pub struct AttributeValue {
+    pub parts: Vec<StringPart>,
 }
 
 impl AttributeValue {
-    pub fn value(&self) -> &str {
-        match self {
-            AttributeValue::SingleQuoted(s) => s,
-            AttributeValue::DoubleQuoted(d) => d,
-            AttributeValue::Unquoted(u) => u,
-            _ => "",
+    pub fn value(&self) -> Option<String> {
+        let mut strings: Vec<String> = vec![];
+
+        for part in &self.parts {
+            if let StringPart::Normal(s) = part {
+                strings.push(s.clone());
+            } else {
+                return None;
+            }
         }
+
+        Some(strings.join(""))
+    }
+
+    pub fn has_expr(&self) -> bool {
+        for part in &self.parts {
+            if let StringPart::Expr(_) = part {
+                return true;
+            }
+        }
+
+        false
     }
 }
 
@@ -46,42 +58,35 @@ impl AttributeValue {
 
 impl Parse for AttributeValue {
     fn parse(input: &mut ParseStream) -> Result<Self, Error> {
-        input.skip_spaces()?;
-
-        if input.peek("=") {
-            input.step("=")?;
-            input.skip_spaces()?;
-
-            if input.peek("\"") {
-                Ok(AttributeValue::DoubleQuoted(
-                    input.capture(ATTR_VALUE_DOUBLE_QUOTED, 1)?,
-                ))
-            } else if input.peek("\'") {
-                Ok(AttributeValue::SingleQuoted(
-                    input.capture(ATTR_VALUE_SINGLE_QUOTED, 1)?,
-                ))
-            } else {
-                Ok(AttributeValue::Unquoted(
-                    input.matched(ATTR_VALUE_UNQUOTED)?,
-                ))
-            }
-        } else {
-            Ok(AttributeValue::NoValue)
-        }
+        Ok(AttributeValue {
+            parts: {
+                let value = AttributeValue::parse_to_str(input)?;
+                StringPart::parse(input, &value, true)?
+            },
+        })
     }
 }
 
 impl Tokenize for AttributeValue {
-    fn tokenize(&self, tokens: &mut TokenStream, _: &mut ViewFields, _: &ViewFields) {
-        let string = match self {
-            AttributeValue::SingleQuoted(s) => s,
-            AttributeValue::DoubleQuoted(d) => d,
-            AttributeValue::Unquoted(u) => u,
-            AttributeValue::NoValue => "",
-        };
+    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
+        if !self.has_expr() {
+            let mut string = self.value().unwrap();
 
-        let value = LitStr::new(&string, Span::call_site());
+            if string == "\"\"" {
+                string = "".to_string();
+            }
 
-        tokens.append_all(quote! { #value });
+            // TODO:(view:html-escape)
+            let value = LitStr::new(&string, Span::call_site());
+
+            tokens.append_all(quote! { #value });
+        } else {
+            let mut ts = TokenStream::new();
+            self.parts.tokenize(&mut ts, idents, scopes);
+
+            tokens.append_all(quote! {
+                format!(#ts)
+            })
+        }
     }
 }

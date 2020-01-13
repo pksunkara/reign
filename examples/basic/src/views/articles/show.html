@@ -1,15 +1,15 @@
 <layouts:application title>
   <p>
     <strong>Title:</strong>
-    <!-- {{ article.title }} -->
+    {{ article.title }}
   </p>
 
   <p>
     <strong>Content:</strong>
-    <!-- {{ article.content }} -->
+    {{ article.content }}
   </p>
 
   <a href="/articles/{{ (article: crate::models::Article).id }}/edit">Edit</a>
   |
-  <a href="/articles/new">Back</a>
+  <a href="/articles">Back</a>
 </layouts:application>

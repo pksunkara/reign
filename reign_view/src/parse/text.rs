@@ -1,30 +1,10 @@
-use super::{Code, Error, Parse, ParseStream, Tokenize, ViewFields};
-use proc_macro2::{Span, TokenStream};
-use quote::{quote, ToTokens, TokenStreamExt};
-use syn::LitStr;
-
-#[derive(Debug)]
-pub enum TextPart {
-    Normal(String),
-    Expr(Code),
-}
-
-impl Tokenize for TextPart {
-    fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
-        match self {
-            TextPart::Normal(n) => {
-                let lit = LitStr::new(&n, Span::call_site());
-                lit.to_tokens(tokens);
-            }
-            // TODO:(view:html-escape) expression
-            TextPart::Expr(e) => e.tokenize(tokens, idents, scopes),
-        }
-    }
-}
+use super::{Error, Parse, ParseStream, StringPart, Tokenize, ViewFields};
+use proc_macro2::TokenStream;
+use quote::{quote, TokenStreamExt};
 
 #[derive(Debug)]
 pub struct Text {
-    pub content: Vec<TextPart>,
+    pub content: Vec<StringPart>,
 }
 
 impl Parse for Text {
@@ -37,22 +17,11 @@ impl Parse for Text {
 
 impl Tokenize for Text {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
-        let format_arg_str = "{}".repeat(self.content.len());
-        let format_arg_lit = LitStr::new(&format_arg_str, Span::call_site());
-
-        let content: Vec<TokenStream> = self
-            .content
-            .iter()
-            .map(|x| {
-                let mut ts = TokenStream::new();
-
-                x.tokenize(&mut ts, idents, scopes);
-                ts
-            })
-            .collect();
+        let mut ts = TokenStream::new();
+        self.content.tokenize(&mut ts, idents, scopes);
 
         tokens.append_all(quote! {
-            write!(f, #format_arg_lit, #(#content),*)?;
-        });
+            write!(f, #ts)?;
+        })
     }
 }

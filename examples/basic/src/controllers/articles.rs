@@ -43,7 +43,7 @@ pub fn show(state: State) -> Box<HandlerFuture> {
                     println!("{:?}", article);
                     render!(articles::Show {
                         _slots: Slots::default(),
-                        // article: "",
+                        article,
                     })
                 }),
                 Err(e) => future::err((state, e.into_handler_error())),

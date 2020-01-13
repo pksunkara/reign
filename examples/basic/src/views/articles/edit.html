@@ -3,7 +3,7 @@
 
   <form></form>
 
-  <a href="/articles/{{ article.id }}">Show</a>
+  <a href="/articles/{{ (article: crate::models::Article).id }}">Show</a>
   |
   <a href="/articles/new">Back</a>
 </layouts:application>

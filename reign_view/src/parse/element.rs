@@ -40,12 +40,17 @@ impl Element {
         None
     }
 
-    fn slot_name(&self) -> &str {
+    fn slot_name(&self) -> String {
         if let Some(attr) = self.normal_attr("name") {
-            return attr.value.value();
+            if let Some(name) = attr.value.value() {
+                return name;
+            } else {
+                // TODO:(view:err) Show the error position
+                panic!("slot name should not have expression");
+            }
         }
 
-        "default"
+        "default".to_string()
     }
 
     fn template_name(&self) -> Option<String> {
@@ -290,7 +295,7 @@ impl Tokenize for Element {
                 #(#children)*
             }
         } else if self.name == "slot" {
-            let name = LitStr::new(self.slot_name(), Span::call_site());
+            let name = LitStr::new(&self.slot_name(), Span::call_site());
 
             quote! {
                 self._slots.render(f, #name)?;

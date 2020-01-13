@@ -1,0 +1,13 @@
+write!(f, "{}", "<div")? ;
+write!(f, ">")? ;
+write!(f, "{}", "\n  ")? ;
+write!(f, "{}", "<h1")? ;
+write!(f, ">")? ;
+write!(f, "{}", "\n    ")? ;
+self._slots.render(f, "title")? ;
+write!(f, "{}", "\n  ")? ;
+write!(f, "{}", "</h1>")? ;
+write!(f, "{}", "\n  ")? ;
+self._slots.render(f, "default")? ;
+write!(f, "{}", "\n")? ;
+write!(f, "{}", "</div>")? ;

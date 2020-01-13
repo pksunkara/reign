@@ -16,6 +16,7 @@ mod expr;
 mod node;
 mod parse_stream;
 mod pat;
+mod string_part;
 mod text;
 mod view_fields;
 
@@ -29,7 +30,8 @@ use expr::Expr;
 use node::Node;
 use parse_stream::ParseStream;
 use pat::For;
-use text::{Text, TextPart};
+use string_part::StringPart;
+use text::Text;
 use view_fields::ViewFields;
 
 fn tag_name_regex() -> String {

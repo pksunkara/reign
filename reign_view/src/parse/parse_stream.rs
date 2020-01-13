@@ -1,4 +1,4 @@
-use super::{Code, Error, Parse, TextPart};
+use super::{Error, Parse, StringPart};
 use regex::Regex;
 
 #[derive(Debug)]
@@ -132,71 +132,15 @@ impl ParseStream {
     }
 
     // FIXME: Move this to Text by making self a RefCell
-    pub(super) fn parse_text(&mut self) -> Result<Vec<TextPart>, Error> {
-        let mut parts = vec![];
-        let start_regex = Regex::new(r"\\\{\{|\{\{|<").unwrap();
-
-        loop {
-            let remaining = self.content.get(self.cursor..).unwrap();
-
-            if remaining.is_empty() {
-                break;
-            }
-
-            let matches = start_regex.find(remaining);
-
-            if matches.is_none() {
-                parts.push(TextPart::Normal(remaining.to_string()));
-                self.cursor += remaining.len();
-                break;
-            }
-
-            let until = self.cursor + matches.unwrap().start();
-            let sub_string = self.content.get(self.cursor..until).unwrap();
-
-            if !sub_string.is_empty() {
-                parts.push(TextPart::Normal(sub_string.to_string()));
-                self.cursor = until;
-            }
-
-            match self.content.get(self.cursor..=self.cursor).unwrap() {
-                "\\" => {
-                    parts.push(TextPart::Normal("\\{{".to_string()));
-                    self.cursor += 3;
-                }
-                "<" => {
-                    break;
-                }
-                "{" => {
-                    self.cursor += 2;
-                    let end_remaining = self.content.get(self.cursor..).unwrap();
-                    let end_matches = end_remaining.find("}}");
-
-                    if end_matches.is_none() {
-                        return Err(self.error("expression incomplete"));
-                    }
-
-                    let expr_until = self.cursor + end_matches.unwrap();
-                    let expr_string = self.content.get(self.cursor..expr_until).unwrap();
-
-                    parts.push(TextPart::Expr(Code::parse_expr_from_str(
-                        self,
-                        expr_string,
-                    )?));
-                    self.cursor = expr_until + 2;
-                }
-                _ => unreachable!(),
-            }
-        }
-
-        Ok(parts)
+    pub(super) fn parse_text(&mut self) -> Result<Vec<StringPart>, Error> {
+        StringPart::parse(self, &self.content.clone(), false)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::super::Expr;
-    use super::{Code, ParseStream, TextPart};
+    use super::super::{Code, Expr};
+    use super::{ParseStream, StringPart};
     use proc_macro2::Span;
     use syn::Ident;
 
@@ -211,7 +155,7 @@ mod test {
 
         assert_eq!(ps.cursor, 8);
         assert_eq!(parts.len(), 1);
-        assert!(if let Some(TextPart::Normal(s)) = parts.get(0) {
+        assert!(if let Some(StringPart::Normal(s)) = parts.get(0) {
             s == "Hello"
         } else {
             false
@@ -226,7 +170,7 @@ mod test {
 
         assert_eq!(ps.cursor, 4);
         assert_eq!(parts.len(), 1);
-        assert!(if let Some(TextPart::Normal(s)) = parts.get(0) {
+        assert!(if let Some(StringPart::Normal(s)) = parts.get(0) {
             s == "text"
         } else {
             false
@@ -241,12 +185,12 @@ mod test {
 
         assert_eq!(ps.cursor, 11);
         assert_eq!(parts.len(), 2);
-        assert!(if let Some(TextPart::Normal(s)) = parts.get(0) {
+        assert!(if let Some(StringPart::Normal(s)) = parts.get(0) {
             s == "\\{{"
         } else {
             false
         });
-        assert!(if let Some(TextPart::Normal(s)) = parts.get(1) {
+        assert!(if let Some(StringPart::Normal(s)) = parts.get(1) {
             s == " text }}"
         } else {
             false
@@ -262,14 +206,14 @@ mod test {
         assert_eq!(ps.cursor, 14);
         assert_eq!(parts.len(), 2);
         assert!(
-            if let Some(TextPart::Expr(Code::Expr(Expr::Path(p)))) = parts.get(0) {
+            if let Some(StringPart::Expr(Code::Expr(Expr::Path(p)))) = parts.get(0) {
                 p.path.is_ident(&Ident::new("text", Span::call_site()))
             } else {
                 false
             }
         );
         assert!(
-            if let Some(TextPart::Expr(Code::Expr(Expr::Path(p)))) = parts.get(1) {
+            if let Some(StringPart::Expr(Code::Expr(Expr::Path(p)))) = parts.get(1) {
                 p.path.is_ident(&Ident::new("u", Span::call_site()))
             } else {
                 false
