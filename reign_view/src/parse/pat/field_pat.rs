@@ -1,3 +1,4 @@
+use super::super::is_member_named;
 use super::{Pat, PatIdent, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::ToTokens;
@@ -18,7 +19,7 @@ impl Parse for FieldPat {
         let by_ref: Option<Ref> = input.parse()?;
         let member: Member = input.parse()?;
 
-        if by_ref.is_none() && input.peek(Colon) || !member.is_named() {
+        if by_ref.is_none() && input.peek(Colon) || !is_member_named(&member) {
             return Ok(FieldPat {
                 member,
                 colon_token: input.parse()?,

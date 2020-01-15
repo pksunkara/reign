@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::ToTokens;
 use syn::{
     punctuated::{Pair, Punctuated},
-    Ident,
+    Ident, Member,
 };
 
 mod attribute;
@@ -104,4 +104,11 @@ pub fn tokenize(node: Node) -> (TokenStream, Vec<Ident>, Vec<TokenStream>) {
     node.tokenize(&mut tokens, &mut idents, &scopes);
 
     (tokens, idents.keys(), idents.values())
+}
+
+fn is_member_named(member: &Member) -> bool {
+    match member {
+        Member::Named(_) => true,
+        Member::Unnamed(_) => false,
+    }
 }

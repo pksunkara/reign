@@ -1,4 +1,4 @@
-use super::{Expr, Tokenize, ViewFields};
+use super::{is_member_named, Expr, Tokenize, ViewFields};
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
@@ -17,7 +17,7 @@ impl Parse for FieldValue {
     fn parse(input: ParseStream) -> Result<Self> {
         let member: Member = input.parse()?;
 
-        let (colon_token, value) = if input.peek(Token![:]) || !member.is_named() {
+        let (colon_token, value) = if input.peek(Token![:]) || !is_member_named(&member) {
             let colon_token: Token![:] = input.parse()?;
             let value: Expr = input.parse()?;
 

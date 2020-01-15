@@ -1,13 +1,11 @@
-use super::{Tokenize, ViewFields};
+use super::{is_member_named, Tokenize, ViewFields};
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
-    braced, bracketed,
-    group::parse_group,
-    parenthesized,
+    braced, bracketed, parenthesized,
     parse::{discouraged::Speculative, Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::{self, Brace, Bracket, Comma, Paren},
+    token::{Brace, Bracket, Comma, Group, Paren},
     BinOp, ExprMacro, ExprPath, GenericMethodArgument, Ident, Lit, Macro, MacroDelimiter, Member,
     MethodTurbofish, Path, PathArguments, RangeLimits, Token, Type,
 };
@@ -184,15 +182,6 @@ impl Tokenize for Expr {
     }
 }
 
-fn expr_group(input: ParseStream) -> Result<ExprGroup> {
-    let group = parse_group(input)?;
-
-    Ok(ExprGroup {
-        group_token: group.token,
-        expr: group.content.parse()?,
-    })
-}
-
 pub(super) fn expr_no_struct(input: ParseStream) -> Result<Expr> {
     ambiguous_expr(input, AllowStruct(false))
 }
@@ -276,7 +265,7 @@ fn parse_expr(
             let rhs = if input.is_empty()
                 || input.peek(Comma)
                 || input.peek(Token![;])
-                || !allow_struct.0 && input.peek(token::Brace)
+                || !allow_struct.0 && input.peek(Brace)
             {
                 None
             } else {
@@ -324,8 +313,8 @@ fn parse_expr(
 }
 
 fn trailer_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
-    if input.peek(token::Group) {
-        return input.call(expr_group).map(Expr::Group);
+    if input.peek(Group) {
+        return Ok(Expr::Group(input.parse()?));
     }
 
     let atom = atom_expr(input, allow_struct)?;
@@ -339,7 +328,7 @@ fn generic_method_argument(input: ParseStream) -> Result<GenericMethodArgument> 
 #[allow(clippy::eval_order_dependence)]
 fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
     loop {
-        if input.peek(token::Paren) {
+        if input.peek(Paren) {
             let content;
             e = Expr::Call(ExprCall {
                 func: Box::new(e),
@@ -350,7 +339,7 @@ fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
             let dot_token: Token![.] = input.parse()?;
             let member: Member = input.parse()?;
 
-            let turbofish = if member.is_named() && input.peek(Token![::]) {
+            let turbofish = if is_member_named(&member) && input.peek(Token![::]) {
                 Some(MethodTurbofish {
                     colon2_token: input.parse()?,
                     lt_token: input.parse()?,
@@ -379,7 +368,7 @@ fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
                 None
             };
 
-            if turbofish.is_some() || input.peek(token::Paren) {
+            if turbofish.is_some() || input.peek(Paren) {
                 if let Member::Named(method) = member {
                     let content;
 
@@ -401,7 +390,7 @@ fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
                 dot_token,
                 member,
             });
-        } else if input.peek(token::Bracket) {
+        } else if input.peek(Bracket) {
             let content;
 
             e = Expr::Index(ExprIndex {
@@ -418,8 +407,8 @@ fn trailer_helper(input: ParseStream, mut e: Expr) -> Result<Expr> {
 }
 
 fn atom_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
-    if input.peek(token::Group) {
-        input.call(expr_group).map(Expr::Group)
+    if input.peek(Group) {
+        Ok(Expr::Group(input.parse()?))
     } else if input.peek(Lit) {
         input.parse().map(Expr::Lit)
     } else if input.peek(Ident)
@@ -432,9 +421,9 @@ fn atom_expr(input: ParseStream, allow_struct: AllowStruct) -> Result<Expr> {
         || input.peek(Token![crate])
     {
         path_or_macro_or_struct(input, allow_struct)
-    } else if input.peek(token::Paren) {
+    } else if input.peek(Paren) {
         paren_or_tuple(input)
-    } else if input.peek(token::Bracket) {
+    } else if input.peek(Bracket) {
         array_or_repeat(input)
     } else if input.peek(Token![..]) {
         expr_range(input, allow_struct).map(Expr::Range)
@@ -497,7 +486,7 @@ fn path_or_macro_or_struct(input: ParseStream, allow_struct: AllowStruct) -> Res
         }
     }
 
-    if allow_struct.0 && input.peek(token::Brace) {
+    if allow_struct.0 && input.peek(Brace) {
         expr_struct_helper(input, expr.path).map(Expr::Struct)
     } else {
         Ok(Expr::Path(expr))
@@ -629,7 +618,7 @@ fn expr_range(input: ParseStream, allow_struct: AllowStruct) -> Result<ExprRange
             if input.is_empty()
                 || input.peek(Comma)
                 || input.peek(Token![;])
-                || !allow_struct.0 && input.peek(token::Brace)
+                || !allow_struct.0 && input.peek(Brace)
             {
                 None
             } else {
