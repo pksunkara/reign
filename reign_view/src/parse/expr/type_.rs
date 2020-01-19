@@ -53,6 +53,8 @@ impl Tokenize for ExprType {
             }
         }
 
+        // TODO:(stable) Since type_ascription is not stable, we can not tokenize the type here
+
         self.expr.tokenize(tokens, idents, scopes);
         self.colon_token.to_tokens(tokens);
         tokens.append_all(ty_tokens);

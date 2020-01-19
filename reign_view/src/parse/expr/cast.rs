@@ -28,6 +28,8 @@ impl Parse for ExprCast {
 
 impl Tokenize for ExprCast {
     fn tokenize(&self, tokens: &mut TokenStream, idents: &mut ViewFields, scopes: &ViewFields) {
+        // Can't use casting for type identification because it tries to copy the variable
+
         self.expr.tokenize(tokens, idents, scopes);
         self.as_token.to_tokens(tokens);
         self.ty.to_tokens(tokens);

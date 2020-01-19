@@ -15,6 +15,7 @@ readme = "README.md"
 [[bin]]
 name = "reign"
 path = "src/main.rs"
+required-features = ["build-binary"]
 
 [lib]
 name = "reign"
@@ -26,6 +27,7 @@ reign_derive = { path = "./reign_derive", version = "0.1.2" }
 reign_router = { path = "./reign_router", version = "0.1.2", optional = true }
 reign_view = { path = "./reign_view", version = "0.1.2" }
 log = "0.4.8"
+structopt = { version = "0.3.7", optional = true }
 
 [dev-dependencies]
 
@@ -41,5 +43,6 @@ members = [
 
 [features]
 default = ["views-gotham", "router-gotham"]
+build-binary = ["structopt"]
 views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
 router-gotham = ["reign_router"]
