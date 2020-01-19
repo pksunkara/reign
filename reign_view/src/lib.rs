@@ -1,9 +1,11 @@
-use gotham::helpers::http::response::{create_empty_response, create_response};
+#[cfg(feature = "views-gotham")]
 use gotham::state::State;
+#[cfg(feature = "views-gotham")]
 use hyper::{Body, Response, StatusCode};
+
+use std::fmt::{self, write, Write};
+
 pub use maplit;
-use mime;
-use std::fmt::{write, Display, Result, Write};
 
 pub mod parse;
 mod slots;
@@ -11,7 +13,17 @@ mod slots;
 pub use slots::{SlotRender, Slots};
 
 pub trait View {
-    fn render(&self, f: &mut dyn Write) -> Result;
+    fn render(&self, f: &mut dyn Write) -> fmt::Result;
+}
+
+#[cfg(not(feature = "views-gotham"))]
+pub fn render<D: fmt::Display>(view: D) -> Result<String, fmt::Error> {
+    let mut content = String::new();
+
+    match write(&mut content, format_args!("{}", view)) {
+        Ok(()) => Ok(content),
+        Err(e) => Err(e),
+    }
 }
 
 /// Renders a view for gotham handler.
@@ -34,7 +46,10 @@ pub trait View {
 ///     render(state, CustomView {})
 /// }
 /// ```
-pub fn render<D: Display>(state: State, view: D) -> (State, Response<Body>) {
+#[cfg(feature = "views-gotham")]
+pub fn render<D: fmt::Display>(state: State, view: D) -> (State, Response<Body>) {
+    use gotham::helpers::http::response::{create_empty_response, create_response};
+
     let mut content = String::new();
 
     let response = match write(&mut content, format_args!("{}", view)) {

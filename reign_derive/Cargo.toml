@@ -25,3 +25,7 @@ Inflector = "0.11.4"
 
 [dev-dependencies]
 reign = { path = "../" }
+
+[features]
+default = []
+views-gotham = ["reign_view/views-gotham"]

@@ -23,7 +23,7 @@ path = "src/lib.rs"
 [dependencies]
 reign_boot = { path = "./reign_boot", version = "0.1.2" }
 reign_derive = { path = "./reign_derive", version = "0.1.2" }
-reign_router = { path = "./reign_router", version = "0.1.2" }
+reign_router = { path = "./reign_router", version = "0.1.2", optional = true }
 reign_view = { path = "./reign_view", version = "0.1.2" }
 log = "0.4.8"
 
@@ -38,3 +38,8 @@ members = [
 
 	"examples/basic",
 ]
+
+[features]
+default = ["views-gotham", "router-gotham"]
+views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
+router-gotham = ["reign_router"]

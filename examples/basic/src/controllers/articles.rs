@@ -1,4 +1,5 @@
 use crate::models::{Article, Articles};
+use crate::views::articles::{List, Show};
 use diesel::prelude::*;
 use gotham::handler::HandlerFuture;
 use gotham::helpers::http::response::*;
@@ -17,7 +18,7 @@ pub fn list(state: State) -> Box<HandlerFuture> {
             .run(move |connection| Articles.load::<Article>(&connection))
             .then(|result| match result {
                 Ok(articles) => future::ok({
-                    render!(articles::List {
+                    render!(List {
                         _slots: Slots::default(),
                         articles,
                     })
@@ -41,7 +42,7 @@ pub fn show(state: State) -> Box<HandlerFuture> {
             .then(|result| match result {
                 Ok(article) => future::ok({
                     println!("{:?}", article);
-                    render!(articles::Show {
+                    render!(Show {
                         _slots: Slots::default(),
                         article,
                     })
