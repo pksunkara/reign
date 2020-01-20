@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{Result, Write};
 use std::marker::PhantomData;
 
+#[doc(hidden)]
 pub type SlotRender<'a> = Box<dyn Fn(&mut dyn Write) -> Result + 'a>;
 
 pub struct Slots<'a> {

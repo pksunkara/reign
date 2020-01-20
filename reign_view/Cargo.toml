@@ -1,6 +1,6 @@
 [package]
 name = "reign_view"
-version = "0.1.2"
+version = "0.1.2" # Also change html_root_url in lib.rs
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
@@ -11,6 +11,7 @@ keywords = ["isomorphic", "web", "framework", "reign"]
 categories = []
 license = "MIT"
 readme = "README.md"
+exclude = ["src/views"]
 
 [lib]
 name = "reign_view"
@@ -33,3 +34,7 @@ pretty_assertions = "0.6.1"
 [features]
 default = []
 views-gotham = ["gotham", "mime"]
+views-warp = []
+
+[package.metadata.docs.rs]
+all-features = true
