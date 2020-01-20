@@ -54,8 +54,6 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
 
                 views.push(quote! {
                     pub mod #ident {
-                        use ::reign::view::View;
-
                         #(#sub_views)*
                     }
                 });
@@ -79,16 +77,10 @@ fn recurse(path: &PathBuf) -> Vec<proc_macro2::TokenStream> {
                     #(pub #idents: #types),*
                 }
 
-                impl<'a> ::reign::view::View for #ident<'a> {
-                    fn render(&self, f: &mut dyn std::fmt::Write) -> std::fmt::Result {
-                        #tokens
-                        Ok(())
-                    }
-                }
-
                 impl<'a> std::fmt::Display for #ident<'a> {
                     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                        self.render(f)
+                        #tokens
+                        Ok(())
                     }
                 }
             });
@@ -109,8 +101,6 @@ pub(super) fn views(input: Views) -> TokenStream {
 
     quote! {
         pub mod views {
-            use ::reign::view::View;
-
             #(#views)*
         }
     }

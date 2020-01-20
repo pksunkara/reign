@@ -189,7 +189,7 @@
 #[cfg(doctest)]
 pub struct ReadmeDoctests;
 
-use std::fmt::{self, write, Write};
+use std::fmt::{self, write};
 
 #[doc(hidden)]
 pub use maplit;
@@ -198,11 +198,6 @@ pub mod parse;
 mod slots;
 
 pub use slots::{SlotRender, Slots};
-
-/// View
-pub trait View {
-    fn render(&self, f: &mut dyn Write) -> fmt::Result;
-}
 
 #[cfg(feature = "views-gotham")]
 use gotham::{
