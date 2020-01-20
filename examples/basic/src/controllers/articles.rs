@@ -3,55 +3,58 @@ use crate::views::articles::{List, Show};
 use diesel::prelude::*;
 use gotham::handler::HandlerFuture;
 use gotham::helpers::http::response::*;
+use gotham::hyper::{Body, Response, StatusCode};
 use gotham::state::State;
-use hyper::{Body, Response, StatusCode};
 use mime;
 use reign::prelude::*;
 use reign::view::Slots;
+use std::pin::Pin;
 
-pub fn list(state: State) -> Box<HandlerFuture> {
-    use futures::{future, Future};
+pub fn list(state: State) -> Pin<Box<HandlerFuture>> {
+    use futures::prelude::*;
     use gotham::{handler::IntoHandlerError, state::FromState};
 
-    let f = future::ok((state, ())).and_then(move |(state, _)| {
-        crate::Repo::borrow_from(&state)
-            .run(move |connection| Articles.load::<Article>(&connection))
-            .then(|result| match result {
-                Ok(articles) => future::ok({
-                    render!(List {
-                        _slots: Slots::default(),
-                        articles,
-                    })
-                }),
-                Err(e) => future::err((state, e.into_handler_error())),
-            })
-    });
+    let repo = crate::Repo::borrow_from(&state).clone();
 
-    Box::new(f)
+    async move {
+        let articles = match repo
+            .run(move |connection| Articles.load::<Article>(&connection))
+            .await
+        {
+            Ok(rows) => rows,
+            Err(e) => return Err((state, e.into_handler_error())),
+        };
+
+        Ok(render!(List {
+            _slots: Slots::default(),
+            articles,
+        }))
+    }
+    .boxed()
 }
 
-pub fn show(state: State) -> Box<HandlerFuture> {
-    use futures::{future, Future};
+pub fn show(state: State) -> Pin<Box<HandlerFuture>> {
+    use futures::prelude::*;
     use gotham::{handler::IntoHandlerError, state::FromState};
 
-    // let path = crate::routes::IdExtractor::borrow_from(&state);
+    let id = crate::routes::IdExtractor::borrow_from(&state).id;
+    let repo = crate::Repo::borrow_from(&state).clone();
 
-    let f = future::ok((state, ())).and_then(move |(state, _)| {
-        crate::Repo::borrow_from(&state)
-            .run(move |connection| Articles.find(1).first::<Article>(&connection))
-            .then(|result| match result {
-                Ok(article) => future::ok({
-                    println!("{:?}", article);
-                    render!(Show {
-                        _slots: Slots::default(),
-                        article,
-                    })
-                }),
-                Err(e) => future::err((state, e.into_handler_error())),
-            })
-    });
+    async move {
+        let article = match repo
+            .run(move |connection| Articles.find(id).first::<Article>(&connection))
+            .await
+        {
+            Ok(rows) => rows,
+            Err(e) => return Err((state, e.into_handler_error())),
+        };
 
-    Box::new(f)
+        Ok(render!(Show {
+            _slots: Slots::default(),
+            article,
+        }))
+    }
+    .boxed()
 }
 
 pub fn create(state: State) -> (State, Response<Body>) {

@@ -1,7 +1,5 @@
 #[cfg(feature = "views-gotham")]
-use gotham::state::State;
-#[cfg(feature = "views-gotham")]
-use hyper::{Body, Response, StatusCode};
+use gotham::{state::State, hyper::{Body, Response, StatusCode}};
 
 use std::fmt::{self, write, Write};
 

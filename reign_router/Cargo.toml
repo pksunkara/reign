@@ -17,8 +17,7 @@ name = "reign_router"
 path = "src/lib.rs"
 
 [dependencies]
-gotham = "0.4.0"
-hyper = "0.12.32"
+gotham = { git = "git://github.com/reign-rs/gotham", branch = "hyper-export" }
 
 [dev-dependencies]
 reign = { path = "../" }

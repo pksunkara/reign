@@ -1,6 +1,8 @@
-use gotham::helpers::http::response::*;
-use gotham::state::State;
-use hyper::{header, Body, Response, StatusCode};
+use gotham::{
+    helpers::http::response::*,
+    hyper::{header, Body, Response, StatusCode},
+    state::State,
+};
 use std::borrow::Cow;
 
 // TODO: Allow non-string locations like route names etc..
@@ -15,7 +17,6 @@ use std::borrow::Cow;
 ///     redirect(state, "/redirect")
 /// }
 /// ```
-
 pub fn redirect<L: Into<Cow<'static, str>>>(state: State, location: L) -> (State, Response<Body>) {
     let mut response = create_empty_response(&state, StatusCode::SEE_OTHER);
 
@@ -30,8 +31,12 @@ pub fn redirect<L: Into<Cow<'static, str>>>(state: State, location: L) -> (State
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gotham::{router::builder::*, state::State, test::TestServer};
-    use hyper::{header::*, Body, Response, StatusCode};
+    use gotham::{
+        hyper::{header::*, Body, Response, StatusCode},
+        router::builder::*,
+        state::State,
+        test::TestServer,
+    };
 
     #[test]
     fn test_redirect() {
