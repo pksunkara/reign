@@ -1,23 +1,25 @@
-//! Reign View is a templating library for Rust inspired by
-//! [Vue.js](https://vuejs.org) templates.
+//! Reign View is a component based templating library for Rust
+//! inspired by [Vue.js](https://vuejs.org) templates.
 //!
 //! This library makes using templates as easy as pie.
 //! It uses HTML based template syntax that are valid and can
 //! be parsed by spec-compliant browsers and HTML parsers.
-//! It has been developed foremost with ease of use in mind and
-//! then future extensibility immediately afterward it.
+//! It has been developed foremost with ease of use in mind followed
+//! by future extensibility, modularization and customization.
 //!
-//! This library also provides multiple feature gates which an user
-//! can use to customize, allowing the library to be used directly
-//! with multiple web frameworks like [gotham][], [rocket][],
-//! [actix][], [warp][], [tide][] and [nickel][].
+//! This library also provides multiple helpers and feature gates
+//! which an user can use to customize, allowing the library to be
+//! used directly with multiple web frameworks like [gotham][],
+//! [rocket][], [actix][], [warp][], [tide][] and [nickel][].
 //!
 //! # Table of contents
 //!
 //! * [Quickstart](#quickstart)
 //! * [How it works](#how-it-works)
 //! * [Template Syntax](#template-syntax)
+//! * [Components](#components)
 //! * [Helpers & Feature Gates](#helpers--feature-gates)
+//! * [Appendix](#appendix)
 //!
 //! # Quickstart
 //!
@@ -69,7 +71,7 @@
 //!
 //!         // The macro automatically captures all the
 //!         // variables it needs and returns a String
-//!         render!(crate::views::pages::About)
+//!         render!(views::pages::About)
 //!     }
 //!     ```
 //!
@@ -119,7 +121,7 @@
 //!
 //!         use std::fmt::{Display, Formatter, Result};
 //!
-//!         // Then it will implement std::format::Display for it
+//!         // Then it will implement std::fmt::Display for it
 //!         impl Display for About<'_> {
 //!             fn fmt(&self, f: &mut Formatter) -> Result {
 //!                 write!(f, "{}{}{}{}{}",
@@ -131,37 +133,61 @@
 //! }
 //! ```
 //!
-//! > **NOTE:** The above expansion is approximate. There might be small changes
+//! **NOTE:** The above expansion is approximate. There might be small changes
 //! in the way they were expanded or other hidden things that are for internal use.
 //!
 //! You can read more about template syntax below [here](#template-syntax)
 //!
 //! ### Rendering
 //!
-//! When you try to render a template using the following:
+//! When no default features are enabled and when you try to render a template
+//! like the following:
 //!
 //! ```ignore
 //! # #![feature(proc_macro_hygiene)]
 //! use reign::prelude::*;
 //!
 //! let (name, age) = ("Pavan", 28);
+//! #
+//! # pub mod views {
+//! #     pub mod pages {
+//! #         pub struct About<'a> {
+//! #             pub name: &'a str,
+//! #             pub age: u8,
+//! #         }
+//! #         impl std::fmt::Display for About<'_> {
+//! #             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+//! #                 Ok(())
+//! #             }
+//! #         }
+//! #     }
+//! # }
 //!
-//! # let response =
-//! render!(crate::views::pages::About);
+//! render!(views::pages::About);
 //! ```
 //!
 //! The library expands the `render!` macro to something like the following:
 //!
-//! ```ignore
+//! ```
 //! # let (name, age) = ("Pavan", 28);
-//! # let response =
-//! format!("{}", crate::views::pages::About {
+//! # pub mod views {
+//! #     pub mod pages {
+//! #         pub struct About<'a> {
+//! #             pub name: &'a str,
+//! #             pub age: u8,
+//! #         }
+//! #         impl std::fmt::Display for About<'_> {
+//! #             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+//! #                 Ok(())
+//! #             }
+//! #         }
+//! #     }
+//! # }
+//! format!("{}", views::pages::About {
 //!     name: name,
 //!     age: age,
 //! });
 //! ```
-//!
-//! > **NOTE:** This expansion is when no default features are enabled
 //!
 //! Which returns the following String:
 //!
@@ -174,7 +200,147 @@
 //!
 //! # Template Syntax
 //!
+//! Before we start talking about the template syntax,
+//! let's agree on a few terms for this section so that it
+//! will be easier to refer to them later on.
+//!
+//! An **expression** is a custom subset of all the types
+//! of expressions available in Rust language. You can read
+//! more about them [here](#expressions).
+//!
+//! A **pattern** is a custom rust pattern syntax where the
+//! expressions allowed are the only ones defined in the above
+//! paragraph. You can read more about them [here](#patterns)
+//!
+//! A **field** refers to a field of the struct that is built
+//! for the template by the `views!` macro when initiating
+//! the template library.
+//!
+//! All html style tags that are used in the template should be
+//! closed either by a self closing syntax or an end tag. The only
+//! exception are the tags which are allowed by HTML spec to be
+//! self closing by default called **void elements**.
+//!
+//! ### Text
+//!
+//! The most basic form of templating is *"interpolation"*
+//! using the *"mustache"* syntax (double curly braces).
+//!
+//! ```html
+//! <span>Message: {{ msg }}</span>
+//! ```
+//!
+//! The mustache tag will be replaced with the value of the
+//! `msg` *field*. You can also use an *expression* inside the
+//! mustache tags. Any type that has `std::fmt::Display` implemented
+//! can be the final result of the *expression* defined by the mustache
+//! tags.
+//!
+//! ```html
+//! <span>Word Count: {{ msg.len() }}</span>
+//! ```
+//!
+//! ### Attributes
+//!
+//! Interpolation can also be used in values of attributes.
+//!
+//! ```html
+//! <div title="Application - {{ page_name }}"></div>
+//! ```
+//!
+//! If you want to use `"` inside the attribute value for an
+//! expression, you can refer to the HTML spec and surround the
+//! value with `'`.
+//!
+//! ```html
+//! <div title='Application - {{ "Welcome" }}'></div>
+//! ```
+//!
+//! ### Variable Attributes
+//!
+//! If you want to have an attribute that is completely interpolated
+//! with just one mustache tag and nothing else, you can do this.
+//!
+//! ```html
+//! <div :title="page_name"></div>
+//! ```
+//!
+//! The value of the attribute `title` will be the value of `page_name` field.
+//!
+//! ### Control Attributes
+//!
+//! The library doesn't allow `if` conditions and `for` loops as expressions
+//! inside the mustache tags. You can use a control attribute on html tags to do this.
+//!
+//! ```html
+//! <div !if='page_name == "home"'>Welcome</div>
+//! <div !else>{{ page_name }}</div>
+//! ```
+//!
+//! The above template prints either the first or the second `div` depending
+//! on the expression provided to the `!if` control attribute.
+//!
+//! **NOTE:** `!else-if` is also supported as you would expect.
+//!
+//! `for` loops also make use of control attribute syntax like shown below.
+//!
+//! ```html
+//! <div !for="char in page_name.chars()">{{ char }}</div>
+//! ```
+//!
+//! The above template prints `div` tags for all the characters in `page_name`
+//! field. Other than the name difference in the control attribute, `!for` needs
+//! "**pattern *in* expression**" syntax.
+//!
+//! ### Grouping Elements
+//!
+//! Because `!if` and `!for` are attributes, they need to be attached to a single
+//! tag. But sometimes, you might need to render more than one element. In that
+//! case, you can use the `template` tag which works like an invisible wrapper.
+//!
+//! ```html
+//! <template v-if="condition">
+//!   <h1>{{ title }}</h1>
+//!   <p>{{ content }}</p>
+//! </template>
+//! ```
+//!
+//! **NOTE:** A template doesn't allow multiple elements to be defined at the root.
+//! Which means, you can use the `template` tag to group elements at the root of
+//! the template.
+//!
+//! ```html
+//! <template>
+//!   <!DOCTYPE html>
+//!   <html></html>
+//! </template>
+//! ```
+//!
+//! ### Class & Style bindings
+//!
+//! To be implemented
+//!
+//! # Components
+//!
+//! TODO:(doc)
+//!
+//! ### Slots
+//!
+//! TODO:(doc)
+//!
 //! # Helpers & Feature Gates
+//!
+//! TODO:(doc)
+//!
+//! # Appendix
+//!
+//! ### Expressions
+//!
+//! TODO:(doc)
+//!
+//! ### Patterns
+//!
+//! TODO:(doc)
 //!
 //! [gotham]: https://gotham.rs
 //! [rocket]: https://rocket.rs
