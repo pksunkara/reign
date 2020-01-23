@@ -12,12 +12,6 @@ mod slots;
 
 pub use slots::{SlotRender, Slots};
 
-#[cfg(feature = "views-gotham")]
-use gotham::{
-    helpers::http::response::{create_empty_response, create_response},
-    state::State,
-};
-
 /// Renders a view for [gotham](https://gotham.rs) handler.
 ///
 /// The response is sent with status code `200`
@@ -70,9 +64,13 @@ use gotham::{
 /// ```
 #[cfg(feature = "views-gotham")]
 pub fn render_gotham<D: fmt::Display>(
-    state: State,
+    state: gotham::state::State,
     view: D,
-) -> (State, gotham::hyper::Response<gotham::hyper::Body>) {
+) -> (
+    gotham::state::State,
+    gotham::hyper::Response<gotham::hyper::Body>,
+) {
+    use gotham::helpers::http::response::{create_empty_response, create_response};
     use gotham::hyper::StatusCode;
 
     let mut content = String::new();
@@ -233,5 +231,72 @@ pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
             .body_string(content)
             .set_mime(mime::TEXT_HTML_UTF_8),
         Err(_) => Response::new(500),
+    }
+}
+
+/// Renders a view for [actix](https://actix.rs) request handler.
+///
+/// The response is sent with status code `200`
+/// and content-type set as `text/html`.
+///
+/// *This function is available if the crate is built with the `"views-actix"` feature.*
+///
+/// # Examples
+///
+/// ```
+/// use reign::view::render_actix;
+/// # use std::fmt::{Formatter, Result, Display};
+/// # use actix_web::{web, App, Responder, http::StatusCode};
+/// # use actix_web::test::{init_service, call_service, read_body, TestRequest};
+/// # use tokio::prelude::*;
+/// # use tokio::runtime::Runtime;
+///
+/// # struct CustomView<'a> {
+/// #     msg: &'a str
+/// # }
+/// #
+/// # impl Display for CustomView<'_> {
+/// #     fn fmt(&self, f: &mut Formatter) -> Result {
+/// #         write!(f, "<h1>{}</h1>", self.msg)
+/// #     }
+/// # }
+/// #
+/// pub async fn handler() -> impl Responder {
+///     render_actix(CustomView {
+///         msg: "Hello World!"
+///     })
+/// }
+/// #
+/// # let mut rt = Runtime::new().unwrap();
+/// #
+/// # rt.block_on(async {
+/// #     let mut app = init_service(
+/// #         App::new().route("/", web::get().to(handler))
+/// #     ).await;
+/// #     let request = TestRequest::get().uri("/").to_request();
+/// #     let response = call_service(&mut app, request).await;
+/// #
+/// #     assert_eq!(response.status(), StatusCode::OK);
+/// #     assert!(response.headers().contains_key("content-type"));
+/// #     assert_eq!(
+/// #         response.headers().get("content-type").unwrap(),
+/// #         "text/html; charset=utf-8"
+/// #     );
+/// #
+/// #     let body = read_body(response).await;
+/// #     assert_eq!(&body[..], b"<h1>Hello World!</h1>");
+/// # });
+/// ```
+#[cfg(feature = "views-actix")]
+pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
+    use actix_web::{http::header::ContentType, HttpResponse};
+
+    let mut content = String::new();
+
+    match write(&mut content, format_args!("{}", view)) {
+        Ok(()) => HttpResponse::Ok()
+            .set(ContentType(mime::TEXT_HTML_UTF_8))
+            .body(content),
+        Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }

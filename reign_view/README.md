@@ -10,7 +10,7 @@ by future extensibility, modularization and customization.
 This library also provides multiple helpers and feature gates
 which an user can use to customize, allowing the library to be
 used directly with multiple web frameworks like <!--[rocket][],-->
-[gotham][], [actix][], [warp][], [tide][] and [nickel][].
+[gotham][], [actix][], [warp][] and [tide][].
 
 # Table of contents
 
