@@ -29,3 +29,5 @@ reign = { path = "../" }
 [features]
 default = []
 views-gotham = ["reign_view/views-gotham"]
+views-warp = ["reign_view/views-warp"]
+views-tide = ["reign_view/views-tide"]

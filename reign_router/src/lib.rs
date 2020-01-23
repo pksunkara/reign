@@ -12,6 +12,8 @@ use std::borrow::Cow;
 ///
 /// ```
 /// use reign::router::redirect;
+/// use gotham::state::State;
+/// use gotham::hyper::{Response, Body};
 ///
 /// pub fn handler(mut state: State) -> (State, Response<Body>) {
 ///     redirect(state, "/redirect")

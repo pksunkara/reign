@@ -9,8 +9,8 @@ by future extensibility, modularization and customization.
 
 This library also provides multiple helpers and feature gates
 which an user can use to customize, allowing the library to be
-used directly with multiple web frameworks like [gotham][],
-[rocket][], [actix][], [warp][], [tide][] and [nickel][].
+used directly with multiple web frameworks like <!--[rocket][],-->
+[gotham][], [actix][], [warp][], [tide][] and [nickel][].
 
 # Table of contents
 
@@ -53,7 +53,7 @@ used directly with multiple web frameworks like [gotham][],
 
 4. Render the template
 
-    ```rust
+    ```rust,ignore
     use reign::prelude::*;
 
     let (name, age) = ("pksunkara", 28);
@@ -131,7 +131,7 @@ You can read more about template syntax below [here](#template-syntax)
 When no default features are enabled and when you try to render a template
 like the following:
 
-```rust
+```rust,ignore
 use reign::prelude::*;
 
 let (name, age) = ("Pavan", 28);
@@ -141,7 +141,7 @@ render!(views::pages::About);
 
 The library expands the `render!` macro to something like the following:
 
-```rust
+```rust,ignore
 format!("{}", views::pages::About {
     name: name,
     age: age,

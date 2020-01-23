@@ -4,25 +4,23 @@ cache: cargo
 env:
   - PATH=$HOME/.cargo/bin:$PATH
 script:
-  - cargo test --all --tests
+  - cargo test --all --all-features
 matrix:
   allow_failures:
-    - rust: stable
-    - rust: beta
     - env:
-        - SHARD=clippy
-  fast_finish: true
+      - SHARD=lint
   include:
-    # TODO #![feature(proc_macro_hygiene)]
-    # - rust: stable
-    # - rust: beta
-    - rust: nightly
-    # Run Clippy in its own shard.
-    - rust: nightly
+    - rust: nightly-2020-01-08
       env:
-        - SHARD=clippy
+        - SHARD=test
+    - rust: nightly
+      if: tag IS blank
+      env:
+        - SHARD=lint
       before_script:
-        - rustup component add --toolchain nightly clippy
+        - rustup component add clippy
+        - rustup component add rustfmt
       script:
         - echo "Checking codebase with Clippy release `cargo clippy --version`."
         - cargo clippy --all --profile test
+        - cargo fmt -- --check

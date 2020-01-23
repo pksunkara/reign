@@ -22,10 +22,12 @@ mod views;
 ///
 /// # Examples
 ///
-/// ```
-/// use reign;
+/// ```ignore
+/// #![feature(proc_macro_hygiene)]
+/// #![feature(type_ascription)]
+/// use reign::prelude::*;
 ///
-/// reign::prelude::views!("src", "views");
+/// views!("src", "views");
 /// ```
 #[proc_macro]
 pub fn views(input: TokenStream) -> TokenStream {
@@ -40,12 +42,10 @@ pub fn views(input: TokenStream) -> TokenStream {
 ///
 /// Render the given view
 ///
-/// ```
+/// ```ignore
 /// use reign::prelude::*;
 ///
-/// pub fn handler(mut state: State) -> (State, Response<Body>) {
-///     render!(pages::Home {})
-/// }
+/// render!(views::pages::Home)
 /// ```
 #[proc_macro]
 pub fn render(input: TokenStream) -> TokenStream {

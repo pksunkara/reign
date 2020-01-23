@@ -45,4 +45,6 @@ members = [
 default = ["views-gotham", "router-gotham"]
 build-binary = ["structopt"]
 views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
+views-warp = ["reign_view/views-warp", "reign_derive/views-warp"]
+views-tide = ["reign_view/views-tide", "reign_derive/views-tide"]
 router-gotham = ["reign_router"]

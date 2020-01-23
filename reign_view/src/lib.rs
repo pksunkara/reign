@@ -102,7 +102,6 @@ pub fn render_gotham<D: fmt::Display>(
 /// ```
 /// use reign::view::render_warp;
 /// # use std::fmt::{Formatter, Result, Display};
-/// use warp::hyper::{Body, Response};
 /// # use warp::hyper::StatusCode;
 /// # use warp::Filter;
 /// # use tokio::prelude::*;
@@ -117,8 +116,7 @@ pub fn render_gotham<D: fmt::Display>(
 /// #         write!(f, "<h1>{}</h1>", self.msg)
 /// #     }
 /// # }
-/// #
-/// #
+///
 /// let filter = warp::any().map(|| {
 ///     render_warp(CustomView {
 ///         msg: "Hello World!"
@@ -166,5 +164,74 @@ pub fn render_warp<D: fmt::Display>(view: D) -> warp::hyper::Response<warp::hype
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::empty())
             .expect("Response built from a compatible type"),
+    }
+}
+
+/// Renders a view for [tide](https://docs.rs/tide) endpoint closure.
+///
+/// The response is sent with status code `200`
+/// and content-type set as `text/html`.
+///
+/// *This function is available if the crate is built with the `"views-tide"` feature.*
+///
+/// # Examples
+///
+/// ```
+/// use reign::view::render_tide;
+/// # use std::fmt::{Formatter, Result, Display};
+/// # use tide::http::{Request, StatusCode};
+/// # use http_service::Body;
+/// # use http_service_mock::make_server;
+/// # use tokio::prelude::*;
+/// # use tokio::runtime::Runtime;
+/// # use async_std::io::prelude::*;
+/// #
+/// # struct CustomView<'a> {
+/// #     msg: &'a str
+/// # }
+/// #
+/// # impl Display for CustomView<'_> {
+/// #     fn fmt(&self, f: &mut Formatter) -> Result {
+/// #         write!(f, "<h1>{}</h1>", self.msg)
+/// #     }
+/// # }
+/// # let mut app = tide::new();
+///
+/// app.at("/").get(|_| async move {
+///     render_tide(CustomView {
+///         msg: "Hello World!"
+///     })
+/// });
+/// #
+/// # let mut rt = Runtime::new().unwrap();
+/// #
+/// # rt.block_on(async {
+/// #     let mut server = make_server(app.into_http_service()).unwrap();
+/// #     let response = server.simulate(
+/// #         Request::get("/").body(Body::empty()).unwrap()
+/// #     ).unwrap();
+/// #
+/// #     assert_eq!(response.status(), StatusCode::OK);
+/// #     assert!(response.headers().contains_key("content-type"));
+/// #     assert_eq!(
+/// #         response.headers()["content-type"],
+/// #         "text/html; charset=utf-8"
+/// #     );
+/// #
+/// #     let mut body = Vec::new();
+/// #     response.into_body().read_to_end(&mut body).await.unwrap();
+/// #     assert_eq!(&body[..], b"<h1>Hello World!</h1>");
+/// # });
+#[cfg(feature = "views-tide")]
+pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
+    use tide::Response;
+
+    let mut content = String::new();
+
+    match write(&mut content, format_args!("{}", view)) {
+        Ok(()) => Response::new(200)
+            .body_string(content)
+            .set_mime(mime::TEXT_HTML_UTF_8),
+        Err(_) => Response::new(500),
     }
 }

@@ -27,16 +27,21 @@ regex = "1.3.1"
 Inflector = "0.11.4"
 maplit = "1.0.2"
 warp = { version = "0.2.0", optional = true }
+tide = { version = "0.5.1", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
 pretty_assertions = "0.6.1"
 tokio = "0.2.10"
+async-std = "1.4.0"
+http-service-mock = "0.4.0"
+http-service = "0.4.0"
 
 [features]
 default = []
 views-gotham = ["gotham", "mime"]
 views-warp = ["warp", "mime"]
+views-tide = ["tide", "mime"]
 
 [package.metadata.docs.rs]
 all-features = true
