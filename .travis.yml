@@ -1,18 +1,15 @@
-sudo: false
 language: rust
 cache: cargo
-env:
-  - PATH=$HOME/.cargo/bin:$PATH
-script:
-  - cargo test --all --all-features
 matrix:
   allow_failures:
     - env:
-      - SHARD=lint
+        - SHARD=lint
   include:
     - rust: nightly-2020-01-08
       env:
         - SHARD=test
+      script:
+        - cargo test --all --all-features
     - rust: nightly
       if: tag IS blank
       env:
