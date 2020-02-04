@@ -1,16 +1,13 @@
 language: rust
 cache: cargo
 matrix:
-  allow_failures:
-    - env:
-        - SHARD=lint
   include:
     - rust: nightly-2020-01-08
       env:
         - SHARD=test
       script:
         - cargo test --all --all-features
-    - rust: nightly
+    - rust: stable
       if: tag IS blank
       env:
         - SHARD=lint

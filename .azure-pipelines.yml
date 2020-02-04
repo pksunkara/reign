@@ -13,12 +13,6 @@ stages:
             Windows 64-bit (MSVC):
               image: vs2017-win2016
               target: x86_64-pc-windows-msvc
-            Windows 32-bit (MinGW):
-              image: vs2017-win2016
-              target: i686-pc-windows-gnu
-            Windows 64-bit (MinGW):
-              image: vs2017-win2016
-              target: x86_64-pc-windows-gnu
         pool:
           vmImage: $(image)
         steps:
@@ -34,8 +28,6 @@ stages:
               7z e sqlite3.zip -y
               call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
               lib /machine:x64 /def:sqlite3.def /out:sqlite3.lib
-              set PATH=%PATH%;C:\sqlite
-              echo "##vso[task.setvariable variable=PATH;]%PATH%;C:\sqlite"
             displayName: Install sqlite
           - task: Cache@2
             inputs:

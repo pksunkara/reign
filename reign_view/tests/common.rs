@@ -37,7 +37,7 @@ pub fn parse_pass(file_name: &str) {
     fixture.push(&format!("{}.html", file_name));
     output.push(&format!("{}.rs", file_name));
 
-    let f = read_to_string(fixture).unwrap();
+    let f = read_to_string(fixture).unwrap().replace("\r\n", "\n");
     let o = read_to_string(output).unwrap();
     let t: TokenStream = o.parse().unwrap();
 
@@ -55,8 +55,8 @@ pub fn parse_fail(file_name: &str) {
     fixture.push(&format!("{}.html", file_name));
     errlog.push(&format!("{}.err", file_name));
 
-    let f = read_to_string(fixture).unwrap();
-    let e = read_to_string(errlog).unwrap();
+    let f = read_to_string(fixture).unwrap().replace("\r\n", "\n");
+    let e = read_to_string(errlog).unwrap().replace("\r\n", "\n");
 
     eq!(&e, &format!("{:?}", parse(f).unwrap_err()));
 }

@@ -37,6 +37,7 @@ tokio = "0.2.10"
 async-std = "1.4.0"
 http-service-mock = "0.4.0"
 http-service = "0.4.0"
+version-sync = "0.8.1"
 
 [features]
 default = []
