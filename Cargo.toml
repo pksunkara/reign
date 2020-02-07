@@ -39,6 +39,7 @@ members = [
 	"reign_view",
 
 	"examples/basic",
+	"examples/views/tide",
 ]
 
 [features]

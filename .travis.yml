@@ -7,7 +7,7 @@ matrix:
         - SHARD=test
       script:
         - cargo test --all --all-features
-    - rust: stable
+    - rust: nightly
       if: tag IS blank
       env:
         - SHARD=lint

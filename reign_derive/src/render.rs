@@ -2,21 +2,27 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::ExprStruct;
 
-#[cfg(not(feature = "views-gotham"))]
-fn final_render(input: TokenStream) -> TokenStream {
-    quote! {
-        format!("{}", #input)
-    }
-}
-
-#[cfg(feature = "views-gotham")]
-fn final_render(input: TokenStream) -> TokenStream {
-    quote! {
-        ::reign::view::render_gotham(state, #input)
-    }
-}
-
 // TODO: Capture local variables unhygienically and send them to templates
 pub(super) fn render(input: ExprStruct) -> TokenStream {
-    final_render(quote! { #input })
+    if cfg!(feature = "views-gotham") {
+        quote! {
+            ::reign::view::render_gotham(state, #input)
+        }
+    } else if cfg!(feature = "views-warp") {
+        quote! {
+            ::reign::view::render_warp(#input)
+        }
+    } else if cfg!(feature = "views-tide") {
+        quote! {
+            ::reign::view::render_tide(#input)
+        }
+    } else if cfg!(feature = "views-actix") {
+        quote! {
+            ::reign::view::render_actix(#input)
+        }
+    } else {
+        quote! {
+            format!("{}", #input)
+        }
+    }
 }
