@@ -4,13 +4,13 @@
 #[macro_use]
 extern crate diesel;
 
+reign::prelude::views!("src", "views");
+
 pub mod controllers;
 pub mod models;
 
 mod routes;
 mod schema;
-
-reign::prelude::views!("src", "views");
 
 pub type Repo = gotham_middleware_diesel::Repo<diesel::sqlite::SqliteConnection>;
 

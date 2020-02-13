@@ -7,10 +7,10 @@ publish = false
 
 [dependencies]
 reign = { path = "../../../reign" }
+mime = "0.3.14"
 diesel = { version = "1.4.3", features = ["sqlite"] }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 gotham_derive = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
-mime = "0.3.14"
 gotham_middleware_diesel = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 futures = "0.3"
 serde = { version = "1.0.104", features = ["derive"] }

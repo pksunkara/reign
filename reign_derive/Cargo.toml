@@ -18,10 +18,12 @@ proc-macro = true
 [dependencies]
 syn = { version = "1", features = ["full"] }
 quote = "1"
+proc-macro-error = "0.4"
 proc-macro2 = "1"
 regex = "1.3.1"
 reign_view = { path = "../reign_view", version = "0.1.2" }
 Inflector = "0.11.4"
+lazy_static = "1.4.0"
 
 [dev-dependencies]
 reign = { path = "../" }

@@ -3,7 +3,7 @@ inspired by [Vue.js](https://vuejs.org) templates.
 
 This library makes using templates as easy as pie.
 It uses HTML based template syntax that are valid and can
-be parsed by spec-compliant browsers and HTML parsers.
+be parsed by spec-compliant browsers and HTML parsers<sup>[[1][ann]]</sup>.
 It has been developed foremost with ease of use in mind followed
 by future extensibility, modularization and customization.
 
@@ -56,11 +56,12 @@ used directly with multiple web frameworks like <!--[rocket][],-->
     ```rust,ignore
     use reign::prelude::*;
 
-    let (name, age) = ("pksunkara", 28);
+    let (name, age) = ("John", 28);
 
     // The macro automatically captures all the
-    // variables it needs and returns a String
-    render!(views::pages::About)
+    // variables it needs, builds the view to display
+    // and returns a String
+    render!("pages:about")
     ```
 
 # How it works
@@ -68,8 +69,8 @@ used directly with multiple web frameworks like <!--[rocket][],-->
 There are multiple components that goes into this templating
 library.
 
-* Building a Struct out of the HTML template.
-* Rendering the Struct into a String.
+* Building a View out of the HTML template.
+* Rendering the View into a String.
 
 ### Building
 
@@ -134,15 +135,15 @@ like the following:
 ```rust,ignore
 use reign::prelude::*;
 
-let (name, age) = ("Pavan", 28);
+let (name, age) = ("John", 28);
 
-render!(views::pages::About);
+render!("pages:about");
 ```
 
 The library expands the `render!` macro to something like the following:
 
 ```rust,ignore
-format!("{}", views::pages::About {
+format!("{}", crate::views::pages::About {
     name: name,
     age: age,
 });
@@ -152,7 +153,7 @@ Which returns the following String:
 
 ```html
 <p>
-  Pavan
+  John
   <sub>aged 28</sub>
 <p>
 ```
@@ -301,9 +302,15 @@ TODO:(doc)
 
 TODO:(doc)
 
+# Annotations
+
+1. Tag names contain `:` which is not completely supported by pure HTML5
+   spec but most of the parsers support it.
+
 [gotham]: https://gotham.rs
 [rocket]: https://rocket.rs
 [actix]: https://actix.rs
 [warp]: https://docs.rs/warp
 [tide]: https://docs.rs/tide
 [nickel]: https://nickel.rs
+[ann]: #annotations

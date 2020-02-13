@@ -1,9 +1,9 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, ExprStruct};
+use proc_macro_error::proc_macro_error;
+use syn::{parse_macro_input, LitStr};
 
-mod render;
 mod views;
 
 /// Auto load the views from the given directory.
@@ -45,11 +45,12 @@ pub fn views(input: TokenStream) -> TokenStream {
 /// ```ignore
 /// use reign::prelude::*;
 ///
-/// render!(views::pages::Home)
+/// render!("pages:home")
 /// ```
 #[proc_macro]
+#[proc_macro_error]
 pub fn render(input: TokenStream) -> TokenStream {
-    let input: ExprStruct = parse_macro_input!(input);
+    let lit: LitStr = parse_macro_input!(input);
 
-    render::render(input).into()
+    views::render(lit).into()
 }

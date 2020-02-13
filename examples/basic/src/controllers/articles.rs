@@ -1,5 +1,4 @@
 use crate::models::{Article, Articles};
-use crate::views::articles::{List, Show};
 use diesel::prelude::*;
 use gotham::handler::HandlerFuture;
 use gotham::helpers::http::response::*;
@@ -7,7 +6,6 @@ use gotham::hyper::{Body, Response, StatusCode};
 use gotham::state::State;
 use mime;
 use reign::prelude::*;
-use reign::view::Slots;
 use std::pin::Pin;
 
 pub fn list(state: State) -> Pin<Box<HandlerFuture>> {
@@ -25,10 +23,7 @@ pub fn list(state: State) -> Pin<Box<HandlerFuture>> {
             Err(e) => return Err((state, e.into_handler_error())),
         };
 
-        Ok(render!(List {
-            _slots: Slots::default(),
-            articles,
-        }))
+        Ok(render!("articles:list"))
     }
     .boxed()
 }
@@ -49,10 +44,7 @@ pub fn show(state: State) -> Pin<Box<HandlerFuture>> {
             Err(e) => return Err((state, e.into_handler_error())),
         };
 
-        Ok(render!(Show {
-            _slots: Slots::default(),
-            article,
-        }))
+        Ok(render!("articles:show"))
     }
     .boxed()
 }

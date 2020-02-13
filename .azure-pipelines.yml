@@ -41,7 +41,7 @@ stages:
             displayName: Caching compiled
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
-          - script: cargo test --all --all-features
+          - script: cargo test --all-features
             env:
               SQLITE3_LIB_DIR: C:\sqlite
             displayName: Run cargo tests
