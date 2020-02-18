@@ -1,11 +1,11 @@
 [package]
-name = "reign_examples_views_tide"
+name = "reign_examples_views_warp"
 version = "0.1.0"
 authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
 edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["views-tide"], default-features = false }
-tide = "0.6"
+reign = { path = "../../../../reign", features = ["views-warp"], default-features = false }
+warp = "0.2"
 tokio = { version = "0.2.11", features = ["full"] }

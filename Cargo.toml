@@ -39,7 +39,10 @@ members = [
 	"reign_view",
 
 	"examples/basic",
+	# "examples/views/actix",
+	# "examples/views/gotham",
 	"examples/views/tide",
+	"examples/views/warp",
 ]
 default-members = [
 	".",

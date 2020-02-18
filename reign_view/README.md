@@ -1,4 +1,4 @@
-Reign View is a component based templating library for Rust
+Reign View is a component based HTML templating library for Rust
 inspired by [Vue.js](https://vuejs.org) templates.
 
 This library makes using templates as easy as pie.
@@ -33,7 +33,7 @@ used directly with multiple web frameworks like <!--[rocket][],-->
 
 2. Initiate the templates in your `main.rs`
 
-    ```rust
+    ```rust,ignore
     #![feature(proc_macro_hygiene)]
     #![feature(type_ascription)]
     use reign::prelude::*;
@@ -60,7 +60,9 @@ used directly with multiple web frameworks like <!--[rocket][],-->
 
     // The macro automatically captures all the
     // variables it needs, builds the view to display
-    // and returns a String
+    // and returns a `String`
+    //
+    // `pages:about` is the ID of the above template
     render!("pages:about")
     ```
 
@@ -79,7 +81,7 @@ previous section at the respective path.
 
 Now, when you initiate the templating library by writing the following:
 
-```rust
+```rust,ignore
 #![feature(proc_macro_hygiene)]
 #![feature(type_ascription)]
 use reign::prelude::*;
@@ -122,8 +124,8 @@ mod views {
 }
 ```
 
-**NOTE:** The above expansion is approximate. There might be small changes
-in the way they were expanded or other hidden things that are for internal use.
+> The above expansion is approximate. There might be small changes in the
+> way they were expanded or other hidden things that are for internal use.
 
 You can read more about template syntax below [here](#template-syntax)
 
@@ -209,7 +211,7 @@ Interpolation can also be used in values of attributes.
 ```
 
 If you want to use `"` inside the attribute value for an
-expression, you can refer to the HTML spec and surround the
+*expression*, you can refer to the HTML spec and surround the
 value with `'`.
 
 ```html
@@ -238,9 +240,9 @@ inside the mustache tags. You can use a control attribute on html tags to do thi
 ```
 
 The above template prints either the first or the second `div` depending
-on the expression provided to the `!if` control attribute.
+on the *expression* provided to the `!if` control attribute.
 
-**NOTE:** `!else-if` is also supported as you would expect.
+`!else-if` is also supported as you would expect.
 
 `for` loops also make use of control attribute syntax like shown below.
 
@@ -250,7 +252,7 @@ on the expression provided to the `!if` control attribute.
 
 The above template prints `div` tags for all the characters in `page_name`
 field. Other than the name difference in the control attribute, `!for` needs
-"**pattern *in* expression**" syntax.
+*pattern **in** expression* syntax.
 
 ### Grouping Elements
 
@@ -265,8 +267,8 @@ case, you can use the `template` tag which works like an invisible wrapper.
 </template>
 ```
 
-**NOTE:** A template doesn't allow multiple elements to be defined at the root.
-Which means, you can use the `template` tag to group elements at the root of
+A template doesn't allow multiple elements to be defined at the root. Which
+means, you can use the `template` tag to group elements at the root of
 the template.
 
 ```html
@@ -282,27 +284,182 @@ To be implemented
 
 # Components
 
-TODO:(doc)
+Every template can be used as a component by default and thus is reusable. Let us
+assume we have a template `src/views/shared/button.html` with the following:
+
+```html
+<button :href="href">{{text}}</button>
+```
+
+The generated view for this would look like the following:
+
+```rust
+struct Button<'a> {
+    href: &'a str,
+    text: &'a str,
+}
+```
+
+The above template can be used in other templates using the following syntax:
+
+```HTML
+<navbar>
+  <shared:button href="/" text="Dashboard" />
+  <shared:button href="/settings" text="Account" />
+</navbar>
+```
+
+The attributes on a component work just like the attirbutes on a normal HTML element
+described [above](#attributes).
 
 ### Slots
 
-TODO:(doc)
+Just like with HTML elements, it’s often useful to be able to pass content to a
+component, like this:
+
+```html
+<div>
+  <shared:button href="/">
+    <span class="icon"></span>
+    Dashboard
+  </shared:button>
+</div>
+```
+
+Fortunately, this is possible by using our custom `slot` element in the `button.html`.
+
+```html
+<button :href="href">
+  <slot></slot>
+</button>
+```
+
+The `<slot></slot>` above will be replaced by the elements you described inside
+`shared:button` element when it's used.
+
+### Scope
+
+### Fallback
+
+To be implemented
+
+### Named Slots
+
+There are times when it’s useful to have multiple slots. For example, in a `<base-layout>`
+component with the following template:
+
+```html
+<div class="container">
+  <header>
+    <!-- We want header content here -->
+  </header>
+  <main>
+    <!-- We want main content here -->
+  </main>
+  <footer>
+    <!-- We want footer content here -->
+  </footer>
+</div>
+```
+
+For these cases, the `<slot>` element has a special attribute, `name`, which can be
+used to define additional slots:
+
+```html
+<div class="container">
+  <header>
+    <slot name="header"></slot>
+  </header>
+  <main>
+    <slot></slot>
+  </main>
+  <footer>
+    <slot name="footer"></slot>
+  </footer>
+</div>
+```
+
+A `<slot>` outlet without `name` implicitly has the name `"default"`.
+
+To provide content to named slots, we can use a special attribute on a `<template>`,
+providing the name of the slot:
+
+```html
+<layout:base>
+  <template #header>
+    <h1>Here might be a page title</h1>
+  </template>
+
+  <p>A paragraph for the main content.</p>
+  <p>And another one.</p>
+
+  <template #footer>
+    <p>Here's some contact info</p>
+  </template>
+</layout:base>
+```
+
+Now everything inside the `<template>` elements will be passed to the corresponding
+slots. Any content not wrapped in a `<template>` is assumed to be for the default slot.
+
+However, you can still wrap default slot content in a `<template>` if you wish to be explicit.
 
 # Helpers & Feature Gates
 
-TODO:(doc)
+There are multiple feature gates to help the user select what he wants from the library.
+By default, none of them are selected and the default rendering results in a plain string.
+
+The following features are available:
+
+* `views-actix`: Enables `render_actix` helper and `render!` to be used for actix's request handler
+* `views-warp`: Enables `render_warp` helper and `render!` to be used for warp's closure
+* `views-tide`: Enables `render_tide` helper and `render!` to be used for tide's endpoint closure
+* `views-gotham`: Enables `render_gotham` helper and `render!` to be used for gotham's handler
+
+> The above features are considered to be mutually exclusive and using them together might
+> have unintended consequences.
+
+You can check the [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
+to see how they are used.
 
 # Appendix
 
 ### Expressions
 
-TODO:(doc)
+Below are the descriptions of what an expression can be with `bop` being a binary
+operator and `uop` being an unary operator. `...` represents possible repetitions.
+
+* `literal`
+* `ident`
+* `[expr, ...]`
+* `expr bop expr`
+* `uop expr`
+* `expr(expr, ...)`
+* `expr.ident`
+* `expr.number`
+* `expr[expr]`
+* `(expr)`
+* `[expr; expr]`
+* `(expr, ...)`
+* `& expr`
+* `expr as type`
+* `expr: type`
+* `expr..expr`
+* `type { ident: expr, ..expr, ... }`
 
 ### Patterns
 
-TODO:(doc)
+Below are the description of what a pattern can be. `expr` represents the above
+mentioned *expression*. `...` represents possible repetitions.
 
-# Annotations
+* `ident`
+* `_`
+* `& pat`
+* `type { pat, .., ... }`
+* `(pat, ...)`
+* `type(pat, .., ...)`
+
+### Annotations
 
 1. Tag names contain `:` which is not completely supported by pure HTML5
    spec but most of the parsers support it.

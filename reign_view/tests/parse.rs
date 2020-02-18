@@ -36,6 +36,11 @@ fn test_interpolation_good() {
 }
 
 #[test]
+fn test_interpolation_bad() {
+    common::parse_fail("interpolation_bad");
+}
+
+#[test]
 fn test_for() {
     common::parse_pass("for");
 }
