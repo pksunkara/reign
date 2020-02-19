@@ -322,12 +322,12 @@ impl Tokenize for Element {
                 write!(f, "{}", crate::views::#(#path)::* {
                     _slots: ::reign::view::Slots {
                         templates: ::reign::view::maplit::hashmap!{
-                            #(#names => Box::new(|f| {
+                            #(#names => ::reign::view::slot_render(|f: &mut dyn std::fmt::Write| {
                                 #templates
                                 Ok(())
                             })),*
                         },
-                        children: Box::new(|f| {
+                        children: ::reign::view::slot_render(|f: &mut dyn std::fmt::Write| {
                             #(#children)*
                             Ok(())
                         }),

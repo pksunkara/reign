@@ -2,6 +2,12 @@
 #![doc(html_root_url = "https://docs.rs/reign_view/0.1.2")]
 #![doc(include = "../README.md")]
 
+#[cfg(any(
+    feature = "views-gotham",
+    feature = "views-warp",
+    feature = "views-tide",
+    feature = "views-actix"
+))]
 use std::fmt::{self, write};
 
 #[doc(hidden)]
@@ -10,7 +16,7 @@ pub use maplit;
 pub mod parse;
 mod slots;
 
-pub use slots::{SlotRender, Slots};
+pub use slots::{slot_render, Slots};
 
 /// Renders a view for [gotham](https://gotham.rs) handler.
 ///

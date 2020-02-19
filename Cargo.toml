@@ -40,7 +40,8 @@ members = [
 
 	"examples/basic",
 	# "examples/views/actix",
-	# "examples/views/gotham",
+	"examples/views/gotham",
+	"examples/views/normal",
 	"examples/views/tide",
 	"examples/views/warp",
 ]

@@ -12,6 +12,8 @@ which an user can use to customize, allowing the library to be
 used directly with multiple web frameworks like <!--[rocket][],-->
 [gotham][], [actix][], [warp][] and [tide][].
 
+Please refer to [API documentation](https://docs.rs/reign_view) for more details.
+
 # Table of contents
 
 * [Quickstart](#quickstart)
@@ -68,11 +70,10 @@ used directly with multiple web frameworks like <!--[rocket][],-->
 
 # How it works
 
-There are multiple components that goes into this templating
-library.
+There are multiple steps that goes into this templating library.
 
-* Building a View out of the HTML template.
-* Rendering the View into a String.
+* Building a *view* out of the HTML template.
+* Rendering the *view* into a String.
 
 ### Building
 
@@ -338,6 +339,26 @@ The `<slot></slot>` above will be replaced by the elements you described inside
 `shared:button` element when it's used.
 
 ### Scope
+
+When you use a variable inside a component's slot, such as:
+
+```html
+<div>
+  <shared:button href="/">{{ link_text }}</shared:button>
+</div>
+```
+
+That slot tries to access this templates fields (i.e. the same `scope`). The slot does
+not have access to `<shared:button>`'s fields. For example, trying to access `href`
+would not work:
+
+```html
+<div>
+  <shared:button href="/">{{ href }}</shared:button>
+</div>
+```
+
+It would instead create a `href` field on the template itself.
 
 ### Fallback
 

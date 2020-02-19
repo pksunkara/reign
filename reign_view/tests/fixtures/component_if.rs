@@ -1,7 +1,7 @@
 write!(f, "{}", crate::views::Page {
     _slots: ::reign::view::Slots {
         templates: ::reign::view::maplit::hashmap! {},
-        children: Box::new (|f| {
+        children: ::reign::view::slot_render(|f: &mut dyn std::fmt::Write| {
             write!(f, "{}", "\n  " )? ;
             if self.a {
                 write!(f, "{}", "<h1" )? ;

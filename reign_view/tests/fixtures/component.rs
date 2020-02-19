@@ -4,16 +4,16 @@ write!(
     crate::views::Page {
         _slots: ::reign::view::Slots {
             templates: ::reign::view::maplit::hashmap! {
-                "header" => Box::new(|f| {
+                "header" => ::reign::view::slot_render(|f: &mut dyn std::fmt::Write| {
                     write!(f, "{}", "Hello")? ;
                     Ok(())
                 }),
-                "footer" => Box::new(|f| {
+                "footer" => ::reign::view::slot_render(|f: &mut dyn std::fmt::Write| {
                     write!(f, "{}", "Bye")? ;
                     Ok(())
                 })
             },
-            children: Box::new(|f| {
+            children: ::reign::view::slot_render(|f: &mut dyn std::fmt::Write| {
                 write!(f, "{}", "\n  ")? ;
                 write!(f, "{}", "\n  ")? ;
                 write!(f, "{}", "<h1")? ;
