@@ -1,13 +1,19 @@
+os: linux
 language: rust
 cache: cargo
-matrix:
+jobs:
   include:
     - rust: nightly-2020-01-08
       env:
         - SHARD=test
       script:
         - cargo test --all-features
-    - rust: nightly
+    - rust: nightly-2020-01-08
+      env:
+        - SHARD=test
+      script:
+        - bash test.sh
+    - rust: nightly-2020-01-08
       if: tag IS blank
       env:
         - SHARD=lint

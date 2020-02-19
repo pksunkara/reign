@@ -1,5 +1,4 @@
 #![feature(proc_macro_hygiene)]
-#![feature(type_ascription)]
 
 use gotham::{
     hyper::{Body, Response},

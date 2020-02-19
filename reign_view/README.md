@@ -14,6 +14,9 @@ used directly with multiple web frameworks like <!--[rocket][],-->
 
 Please refer to [API documentation](https://docs.rs/reign_view) for more details.
 
+> `proc_macro_hygiene` feature is needed making this library needing nightly rust.
+> But it is stabilizing soon which means this can be used on stable rust soon.
+
 # Table of contents
 
 * [Quickstart](#quickstart)
@@ -37,7 +40,6 @@ Please refer to [API documentation](https://docs.rs/reign_view) for more details
 
     ```rust,ignore
     #![feature(proc_macro_hygiene)]
-    #![feature(type_ascription)]
     use reign::prelude::*;
 
     // If your templates live under `src/views` folder
@@ -84,7 +86,6 @@ Now, when you initiate the templating library by writing the following:
 
 ```rust,ignore
 #![feature(proc_macro_hygiene)]
-#![feature(type_ascription)]
 use reign::prelude::*;
 
 views!("src", "views");

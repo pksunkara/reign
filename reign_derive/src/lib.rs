@@ -24,7 +24,7 @@ mod views;
 ///
 /// ```ignore
 /// #![feature(proc_macro_hygiene)]
-/// #![feature(type_ascription)]
+///
 /// use reign::prelude::*;
 ///
 /// views!("src", "views");

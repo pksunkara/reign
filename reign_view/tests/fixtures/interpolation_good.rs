@@ -78,7 +78,7 @@ write!(f, "{}", "</span>")? ;
 write!(f, "{}", "\n  ")? ;
 write!(f, "{}", "<span")? ;
 write!(f, ">")? ;
-write!(f, "{}{}", "Type ", self.a: i32)? ;
+write!(f, "{}{}", "Type ", self.a)? ;
 write!(f, "{}", "</span>")? ;
 write!(f, "{}", "\n  ")? ;
 write!(f, "{}", "<span")? ;

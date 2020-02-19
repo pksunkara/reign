@@ -42,9 +42,13 @@ stages:
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
           - script: cargo test --all-features
+            displayName: Run cargo tests
+          - task: Bash@3
+            inputs:
+              filePath: test.sh
             env:
               SQLITE3_LIB_DIR: C:\sqlite
-            displayName: Run cargo tests
+            displayName: Run cargo examples tests
           - script: |
               rmdir /Q /S C:\Rust\.cargo\registry\src
               rmdir /Q /S target\.rustc_info.json
