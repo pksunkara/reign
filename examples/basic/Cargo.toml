@@ -9,8 +9,8 @@ publish = false
 reign = { path = "../../../reign" }
 mime = "0.3.14"
 diesel = { version = "1.4.3", features = ["sqlite"] }
-gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
-gotham_derive = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
-gotham_middleware_diesel = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
+gotham = "0.5"
+gotham_derive = "0.5"
+gotham_middleware_diesel = "0.5"
 futures = "0.3"
 serde = { version = "1.0.104", features = ["derive"] }

@@ -7,4 +7,4 @@ publish = false
 
 [dependencies]
 reign = { path = "../../../../reign", features = ["views-gotham"], default-features = false }
-gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
+gotham = "0.5"
