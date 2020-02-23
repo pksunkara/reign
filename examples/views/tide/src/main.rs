@@ -12,7 +12,7 @@ async fn main() {
     app.at("/").get(|_| async move {
         let msg = "Hello World!";
 
-        render!("app")
+        render!(app)
     });
 
     app.listen("127.0.0.1:8080").await;

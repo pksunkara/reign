@@ -4,13 +4,11 @@ cache: cargo
 jobs:
   include:
     - rust: nightly-2020-01-08
-      env:
-        - SHARD=test
+      name: Run cargo tests
       script:
         - cargo test --all-features
     - rust: nightly-2020-01-08
-      env:
-        - SHARD=test
+      name: Run cargo examples tests
       script:
         - bash test.sh
     - rust: nightly-2020-01-08

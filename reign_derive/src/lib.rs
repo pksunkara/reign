@@ -2,7 +2,7 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
-use syn::{parse_macro_input, LitStr};
+use syn::parse_macro_input;
 
 mod router;
 mod views;
@@ -46,14 +46,14 @@ pub fn views(input: TokenStream) -> TokenStream {
 /// ```ignore
 /// use reign::prelude::*;
 ///
-/// render!("pages:home")
+/// render!(pages::home)
 /// ```
 #[proc_macro]
 #[proc_macro_error]
 pub fn render(input: TokenStream) -> TokenStream {
-    let lit: LitStr = parse_macro_input!(input);
+    let input: views::Render = parse_macro_input!(input);
 
-    views::render(lit).into()
+    views::render(input).into()
 }
 
 #[proc_macro]

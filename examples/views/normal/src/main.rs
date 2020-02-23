@@ -9,7 +9,7 @@ fn main() {
     let content = "Lorem ipsum";
     let count: u8 = 8;
 
-    println!("{}", render!("app"));
+    println!("{}", render!(app));
 }
 
 #[cfg(test)]

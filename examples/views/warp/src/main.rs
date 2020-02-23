@@ -10,7 +10,7 @@ async fn main() {
     let app = warp::path::end().map(|| {
         let msg = "Hello World!";
 
-        render!("app")
+        render!(app)
     });
 
     warp::serve(app).run(([127, 0, 0, 1], 8080)).await;

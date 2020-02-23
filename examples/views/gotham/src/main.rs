@@ -13,7 +13,7 @@ views!("src", "views");
 fn hello(state: State) -> (State, Response<Body>) {
     let msg = "Hello World!";
 
-    render!("app")
+    render!(app)
 }
 
 fn router() -> Router {

@@ -66,8 +66,8 @@ Please refer to [API documentation](https://docs.rs/reign_view) for more details
     // variables it needs, builds the view to display
     // and returns a `String`
     //
-    // `pages:about` is the ID of the above template
-    render!("pages:about")
+    // `pages::about` is the unique path of the above template
+    render!(pages::about)
     ```
 
 # How it works
@@ -141,7 +141,7 @@ use reign::prelude::*;
 
 let (name, age) = ("John", 28);
 
-render!("pages:about");
+render!(pages::about);
 ```
 
 The library expands the `render!` macro to something like the following:

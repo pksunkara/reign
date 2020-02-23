@@ -1,7 +1,7 @@
 use inflector::cases::pascalcase::to_pascal_case;
 use lazy_static::lazy_static;
 use proc_macro2::{Span, TokenStream};
-use proc_macro_error::abort;
+use proc_macro_error::abort_call_site;
 use quote::quote;
 use regex::Regex;
 use reign_view::parse::{parse, tokenize};
@@ -13,7 +13,7 @@ use std::sync::Mutex;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::Comma,
+    token::{Colon2, Comma},
     Ident, LitStr,
 };
 
@@ -30,6 +30,28 @@ impl Parse for Views {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Views {
             paths: input.parse_terminated(|i| i.parse::<LitStr>())?,
+        })
+    }
+}
+
+pub struct Render {
+    path: Punctuated<Ident, Colon2>,
+}
+
+impl Render {
+    fn id(&self) -> String {
+        self.parts().join(":")
+    }
+
+    fn parts(&self) -> Vec<String> {
+        self.path.iter().map(|i| format!("{}", i)).collect()
+    }
+}
+
+impl Parse for Render {
+    fn parse(input: ParseStream) -> Result<Self> {
+        Ok(Render {
+            path: input.parse_terminated(|i| i.parse::<Ident>())?,
         })
     }
 }
@@ -124,13 +146,9 @@ pub fn views(input: Views) -> TokenStream {
     }
 }
 
-fn view_path(input: LitStr) -> TokenStream {
-    let parts: Vec<String> = input.value().split(':').map(|x| x.to_string()).collect();
+fn view_path(input: &Render) -> TokenStream {
+    let parts = input.parts();
     let (last, elements) = parts.split_last().unwrap();
-
-    if last == "" {
-        abort!(input.span(), "expected a non-empty string");
-    }
 
     let view = Ident::new(&to_pascal_case(last), Span::call_site());
     let path: Vec<Ident> = elements
@@ -143,13 +161,13 @@ fn view_path(input: LitStr) -> TokenStream {
     }
 }
 
-fn capture(input: LitStr) -> TokenStream {
-    let path = view_path(input.clone());
+fn capture(input: Render) -> TokenStream {
+    let path = view_path(&input);
     let ident_map = IDENTMAP.lock().unwrap();
-    let value = ident_map.get(&input.value());
+    let value = ident_map.get(&input.id());
 
     if value.is_none() {
-        abort!(input.span(), "expected a string referencing to a view file");
+        abort_call_site!("expected a string referencing to a view file");
     }
 
     let idents: Vec<Ident> = value
@@ -166,7 +184,7 @@ fn capture(input: LitStr) -> TokenStream {
     }
 }
 
-pub fn render(input: LitStr) -> TokenStream {
+pub fn render(input: Render) -> TokenStream {
     let capture = capture(input);
 
     if cfg!(feature = "views-gotham") {
