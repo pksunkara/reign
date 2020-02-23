@@ -17,7 +17,11 @@ name = "reign_router"
 path = "src/lib.rs"
 
 [dependencies]
-gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
+gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
+
+[features]
+default = []
+router-gotham = ["gotham"]

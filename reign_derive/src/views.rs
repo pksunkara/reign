@@ -10,7 +10,6 @@ use std::env;
 use std::fs::read_to_string;
 use std::path::PathBuf;
 use std::sync::Mutex;
-
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
@@ -23,7 +22,7 @@ lazy_static! {
 }
 
 // TODO: Options after the paths (including changing `crate::views`)
-pub(super) struct Views {
+pub struct Views {
     paths: Punctuated<LitStr, Comma>,
 }
 
@@ -35,11 +34,11 @@ impl Parse for Views {
     }
 }
 
-pub(crate) fn file_regex() -> Regex {
+fn file_regex() -> Regex {
     Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)\.html$").unwrap()
 }
 
-pub(crate) fn folder_regex() -> Regex {
+fn folder_regex() -> Regex {
     Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)").unwrap()
 }
 
@@ -109,10 +108,10 @@ fn recurse(path: &PathBuf, relative_path: &str) -> Vec<proc_macro2::TokenStream>
     views
 }
 
-pub(super) fn views(input: Views) -> TokenStream {
+pub fn views(input: Views) -> TokenStream {
     let mut dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    for (_, i) in input.paths.into_iter().enumerate() {
+    for i in input.paths.into_iter() {
         dir.push(i.value());
     }
 
@@ -167,7 +166,7 @@ fn capture(input: LitStr) -> TokenStream {
     }
 }
 
-pub(super) fn render(input: LitStr) -> TokenStream {
+pub fn render(input: LitStr) -> TokenStream {
     let capture = capture(input);
 
     if cfg!(feature = "views-gotham") {

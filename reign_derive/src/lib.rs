@@ -4,6 +4,7 @@ use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use syn::{parse_macro_input, LitStr};
 
+mod router;
 mod views;
 
 /// Auto load the views from the given directory.
@@ -53,4 +54,32 @@ pub fn render(input: TokenStream) -> TokenStream {
     let lit: LitStr = parse_macro_input!(input);
 
     views::render(lit).into()
+}
+
+#[proc_macro]
+pub fn pipelines(input: TokenStream) -> TokenStream {
+    let input: router::Pipelines = parse_macro_input!(input);
+
+    router::pipelines(input).into()
+}
+
+#[proc_macro]
+pub fn scope(input: TokenStream) -> TokenStream {
+    let input: router::Scope = parse_macro_input!(input);
+
+    router::scope(input).into()
+}
+
+#[proc_macro]
+pub fn get(input: TokenStream) -> TokenStream {
+    let input: router::Method = parse_macro_input!(input);
+
+    router::get(input).into()
+}
+
+#[proc_macro]
+pub fn post(input: TokenStream) -> TokenStream {
+    let input: router::Method = parse_macro_input!(input);
+
+    router::post(input).into()
 }
