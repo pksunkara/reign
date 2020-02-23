@@ -187,21 +187,21 @@ fn capture(input: Render) -> TokenStream {
 pub fn render(input: Render) -> TokenStream {
     let capture = capture(input);
 
-    if cfg!(feature = "views-gotham") {
+    if cfg!(feature = "views-actix") {
+        quote! {
+            ::reign::view::render_actix(#capture)
+        }
+    } else if cfg!(feature = "views-gotham") {
         quote! {
             ::reign::view::render_gotham(state, #capture)
-        }
-    } else if cfg!(feature = "views-warp") {
-        quote! {
-            ::reign::view::render_warp(#capture)
         }
     } else if cfg!(feature = "views-tide") {
         quote! {
             ::reign::view::render_tide(#capture)
         }
-    } else if cfg!(feature = "views-actix") {
+    } else if cfg!(feature = "views-warp") {
         quote! {
-            ::reign::view::render_actix(#capture)
+            ::reign::view::render_warp(#capture)
         }
     } else {
         quote! {

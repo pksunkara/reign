@@ -1,32 +1,26 @@
 #![feature(proc_macro_hygiene)]
 
-use gotham::{
-    hyper::{Body, Response},
-    init_server,
-    router::{builder::*, Router},
-    state::State,
-};
+use actix_web::{web, App, HttpRequest, HttpServer, Responder};
 use reign::prelude::*;
 
 views!("src", "views");
 
-fn hello(state: State) -> (State, Response<Body>) {
+async fn hello(_: HttpRequest) -> impl Responder {
     let msg = "Hello World!";
 
     render!(app)
 }
 
-fn router() -> Router {
-    build_simple_router(|route| {
-        route.get("/").to(hello);
-    })
-}
-
 async fn server() {
-    init_server("127.0.0.1:8080", router()).await.unwrap()
+    HttpServer::new(|| App::new().route("/", web::get().to(hello)))
+        .bind("127.0.0.1:8080")
+        .unwrap()
+        .run()
+        .await
+        .unwrap()
 }
 
-#[tokio::main]
+#[actix_rt::main]
 async fn main() {
     server().await
 }
@@ -35,9 +29,9 @@ async fn main() {
 mod tests {
     use super::*;
     use std::time::Duration;
-    use tokio::{spawn, time::delay_for};
+    use actix_rt::{spawn, time::delay_for};
 
-    #[tokio::test]
+    #[actix_rt::test]
     async fn test_server() {
         spawn(server());
 
@@ -51,7 +45,7 @@ mod tests {
 
         assert_eq!(
             &body,
-            "<div>\n  <h1>Gotham</h1>\n  <p>Hello World!</p>\n</div>"
+            "<div>\n  <h1>Actix</h1>\n  <p>Hello World!</p>\n</div>"
         );
     }
 }

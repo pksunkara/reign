@@ -4,15 +4,28 @@ use reign::prelude::*;
 
 views!("src", "views");
 
-fn main() {
+fn handler() -> String {
     let page = "Home";
     let content = "Lorem ipsum";
     let count: u8 = 8;
 
-    println!("{}", render!(app));
+    render!(app)
+}
+
+fn main() {
+    println!("{}", handler());
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_handler() {
+        assert_eq!(
+            handler(),
+            "<html>\n  <head>\n    <title>\n      App - Home\n    </title>\n  </head>\n  \
+            <body>\n    \n  \n  <p>Lorem ipsum</p>\n  <span>8</span>\n\n  </body>\n</html>",
+        );
+    }
 }

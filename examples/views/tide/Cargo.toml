@@ -8,4 +8,7 @@ publish = false
 [dependencies]
 reign = { path = "../../../../reign", features = ["views-tide"], default-features = false }
 tide = "0.6"
-tokio = { version = "0.2.11", features = ["full"] }
+tokio = { version = "0.2", features = ["full"] }
+
+[dev-dependencies]
+reqwest = "0.10"
