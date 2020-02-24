@@ -4,6 +4,7 @@ use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use syn::parse_macro_input;
 
+#[cfg(feature = "router")]
 mod router;
 mod views;
 

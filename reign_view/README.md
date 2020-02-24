@@ -14,8 +14,8 @@ used directly with multiple web frameworks like <!--[rocket][],-->
 
 Please refer to [API documentation](https://docs.rs/reign_view) for more details.
 
-> `proc_macro_hygiene` feature is needed making this library needing nightly rust.
-> But it is stabilizing soon which means this can be used on stable rust soon.
+**NOTE**: `proc_macro_hygiene` feature is needed which is supported
+only in `nightly`. It is coming to `stable` soon.
 
 # Table of contents
 
@@ -126,8 +126,8 @@ mod views {
 }
 ```
 
-> The above expansion is approximate. There might be small changes in the
-> way they were expanded or other hidden things that are for internal use.
+The above expansion is approximate. There might be small changes in the
+way they were expanded or other hidden things that are for internal use.
 
 You can read more about template syntax below [here](#template-syntax)
 
@@ -431,25 +431,34 @@ However, you can still wrap default slot content in a `<template>` if you wish t
 There are multiple feature gates to help the user select what he wants from the library.
 By default, none of them are selected and the default rendering results in a plain string.
 
-The following features are available:
-
-* `views-actix`: Enables `render_actix` helper and `render!` to be used for actix's request handler
-* `views-warp`: Enables `render_warp` helper and `render!` to be used for warp's closure
-* `views-tide`: Enables `render_tide` helper and `render!` to be used for tide's endpoint closure
-* `views-gotham`: Enables `render_gotham` helper and `render!` to be used for gotham's handler
-
-> The above features are considered to be mutually exclusive and using them together might
-> have unintended consequences.
+All the features are considered to be mutually exclusive and using them
+together might have unintended consequences.
 
 You can check the [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
 to see how they are used.
+
+##### views-actix
+
+Enables `render_actix` helper and `render!` can be used for actix's request handler
+
+##### views-gotham
+
+Enables `render_gotham` helper and `render!` can be used for gotham's handler
+
+##### views-tide
+
+Enables `render_tide` helper and `render!` can be used for tide's endpoint closure
+
+##### views-warp
+
+Enables `render_warp` helper and `render!` can be used for warp's closure
 
 # Appendix
 
 ### Expressions
 
-Below are the descriptions of what an expression can be with `bop` being a binary
-operator and `uop` being an unary operator. `...` represents possible repetitions.
+Allowed expressions are described below with `bop` being a binary operator and
+`uop` being an unary operator. `...` represents possible repetitions.
 
 * `literal`
 * `ident`
@@ -471,8 +480,8 @@ operator and `uop` being an unary operator. `...` represents possible repetition
 
 ### Patterns
 
-Below are the description of what a pattern can be. `expr` represents the above
-mentioned *expression*. `...` represents possible repetitions.
+Allowed patterns are described below with `expr` represents the above mentioned
+*expression*. `...` represents possible repetitions.
 
 * `ident`
 * `_`
@@ -483,8 +492,8 @@ mentioned *expression*. `...` represents possible repetitions.
 
 ### Annotations
 
-1. Tag names contain `:` which is not completely supported by pure HTML5
-   spec but most of the parsers support it.
+* Tag names contain `:` which is not completely supported by pure HTML5
+  spec but most of the parsers support it.
 
 [gotham]: https://gotham.rs
 [rocket]: https://rocket.rs

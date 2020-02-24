@@ -13,9 +13,11 @@ use std::fmt::{self, write};
 #[doc(hidden)]
 pub use maplit;
 
+#[doc(hidden)]
 pub mod parse;
 mod slots;
 
+#[doc(hidden)]
 pub use slots::{slot_render, Slots};
 
 /// Renders a view for [actix](https://actix.rs) request handler.
