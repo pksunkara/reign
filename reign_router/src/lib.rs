@@ -1,3 +1,5 @@
+pub mod middleware;
+
 #[cfg(feature = "router-gotham")]
 mod redirect;
 

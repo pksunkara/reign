@@ -1,5 +1,5 @@
 use gotham::{
-    helpers::http::response::*,
+    helpers::http::response::create_empty_response,
     hyper::{header, Body, Response, StatusCode},
     state::State,
 };

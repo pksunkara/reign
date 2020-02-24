@@ -56,6 +56,7 @@ pub fn render(input: TokenStream) -> TokenStream {
     views::render(input).into()
 }
 
+#[cfg(feature = "router")]
 #[proc_macro]
 pub fn pipelines(input: TokenStream) -> TokenStream {
     let input: router::Pipelines = parse_macro_input!(input);
@@ -63,6 +64,7 @@ pub fn pipelines(input: TokenStream) -> TokenStream {
     router::pipelines(input).into()
 }
 
+#[cfg(feature = "router")]
 #[proc_macro]
 pub fn scope(input: TokenStream) -> TokenStream {
     let input: router::Scope = parse_macro_input!(input);
@@ -70,6 +72,7 @@ pub fn scope(input: TokenStream) -> TokenStream {
     router::scope(input).into()
 }
 
+#[cfg(feature = "router")]
 #[proc_macro]
 pub fn get(input: TokenStream) -> TokenStream {
     let input: router::Method = parse_macro_input!(input);
@@ -77,6 +80,7 @@ pub fn get(input: TokenStream) -> TokenStream {
     router::get(input).into()
 }
 
+#[cfg(feature = "router")]
 #[proc_macro]
 pub fn post(input: TokenStream) -> TokenStream {
     let input: router::Method = parse_macro_input!(input);

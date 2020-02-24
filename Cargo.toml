@@ -24,7 +24,7 @@ path = "src/lib.rs"
 [dependencies]
 reign_boot = { path = "./reign_boot", version = "0.1.2" }
 reign_derive = { path = "./reign_derive", version = "0.1.2" }
-reign_router = { path = "./reign_router", version = "0.1.2" }
+reign_router = { path = "./reign_router", version = "0.1.2", optional = true }
 reign_view = { path = "./reign_view", version = "0.1.2" }
 log = "0.4.8"
 structopt = { version = "0.3.7", optional = true }
@@ -57,8 +57,11 @@ default-members = [
 [features]
 default = ["views-gotham", "router-gotham"]
 build-binary = ["structopt"]
-views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
-views-warp = ["reign_view/views-warp", "reign_derive/views-warp"]
-views-tide = ["reign_view/views-tide", "reign_derive/views-tide"]
 views-actix = ["reign_view/views-actix", "reign_derive/views-actix"]
-router-gotham = ["reign_router/router-gotham", "reign_derive/router-gotham"]
+views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
+views-tide = ["reign_view/views-tide", "reign_derive/views-tide"]
+views-warp = ["reign_view/views-warp", "reign_derive/views-warp"]
+router = []
+router-actix = ["reign_router/router-actix", "reign_derive/router-actix", "router"]
+router-gotham = ["reign_router/router-gotham", "reign_derive/router-gotham", "router"]
+router-tide  = ["reign_router/router-tide", "reign_derive/router-tide", "router"]

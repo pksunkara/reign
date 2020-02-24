@@ -17,11 +17,18 @@ name = "reign_router"
 path = "src/lib.rs"
 
 [dependencies]
+mime = "0.3"
+futures = { version = "0.3", optional = true }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master", optional = true }
+tide = { version = "0.6", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
+tokio = "0.2"
+reqwest = "0.10"
 
 [features]
 default = []
-router-gotham = ["gotham"]
+router-actix = []
+router-gotham = ["gotham", "futures"]
+router-tide = ["tide"]

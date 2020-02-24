@@ -3,8 +3,7 @@ use gotham::middleware::logger::RequestLogger;
 use gotham::router::Router;
 use gotham_derive::*;
 use gotham_middleware_diesel::{DieselMiddleware, Repo};
-use reign::log::Level;
-use reign::prelude::*;
+use reign::{log::Level, prelude::*, router::middleware::ContentType};
 use serde::Deserialize;
 
 #[derive(Deserialize, StateData, StaticResponseExtender)]
@@ -19,22 +18,24 @@ where
     pipelines!(
         common: [
             RequestLogger::new(Level::Info),
+        ],
+        app: [
+            ContentType::default(),
             DieselMiddleware::new(repo),
         ],
     );
 
-    use ::gotham::router::builder::DefineSingleRoute;
-    use ::gotham::router::builder::DrawRoutes;
+    use ::gotham::router::builder::{DefineSingleRoute, DrawRoutes};
 
     ::gotham::router::builder::build_simple_router(|route| {
-        scope!("/", [common], {
+        scope!("/", [common, app], {
             scope!("/articles", {
                 get!("/", articles::list);
                 post!("/", articles::create);
             });
         });
 
-        scope!("/api", [common], {});
+        scope!("/assets", [common], {});
     })
 
     //         route.associate("/:id", |assoc| {

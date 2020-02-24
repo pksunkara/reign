@@ -13,8 +13,7 @@ jobs:
         - bash test.sh
     - rust: nightly-2020-01-08
       if: tag IS blank
-      env:
-        - SHARD=lint
+      name: Linting (fmt + clippy)
       before_script:
         - rustup component add clippy
         - rustup component add rustfmt

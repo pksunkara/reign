@@ -28,8 +28,8 @@ async fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::Duration;
     use actix_rt::{spawn, time::delay_for};
+    use std::time::Duration;
 
     #[actix_rt::test]
     async fn test_server() {
