@@ -240,15 +240,15 @@ pub fn render_gotham<D: fmt::Display>(
 /// # });
 #[cfg(feature = "views-tide")]
 pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
-    use tide::Response;
+    use tide::{http::StatusCode, Response};
 
     let mut content = String::new();
 
     match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => Response::new(200)
+        Ok(()) => Response::new(StatusCode::OK.as_u16())
             .body_string(content)
             .set_mime(mime::TEXT_HTML_UTF_8),
-        Err(_) => Response::new(500),
+        Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
     }
 }
 

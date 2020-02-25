@@ -19,6 +19,8 @@ path = "src/lib.rs"
 [dependencies]
 mime = "0.3"
 futures = { version = "0.3", optional = true }
+actix-web = { version = "2.0", optional = true }
+actix-service = { version = "1.0", optional = true }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master", optional = true }
 tide = { version = "0.6", optional = true }
 
@@ -26,10 +28,11 @@ tide = { version = "0.6", optional = true }
 reign = { path = "../" }
 version-sync = "0.8.1"
 tokio = "0.2"
+actix-rt = "1.0"
 reqwest = "0.10"
 
 [features]
 default = []
-router-actix = []
+router-actix = ["actix-web", "actix-service", "futures"]
 router-gotham = ["gotham", "futures"]
 router-tide = ["tide", "futures"]
