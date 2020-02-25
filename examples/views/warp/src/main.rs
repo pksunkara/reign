@@ -24,23 +24,23 @@ async fn main() {
 mod tests {
     use super::*;
     use std::time::Duration;
-    use tokio::{spawn, time::delay_for};
+    use tokio::{select, time::delay_for};
 
     #[tokio::test]
     async fn test_server() {
-        spawn(server());
+        let client = async {
+            delay_for(Duration::from_millis(100)).await;
+            let response = reqwest::get("http://localhost:8080").await.unwrap();
 
-        delay_for(Duration::from_millis(100)).await;
-        let body = reqwest::get("http://localhost:8080")
-            .await
-            .unwrap()
-            .text()
-            .await
-            .unwrap();
+            assert_eq!(
+                response.text().await.unwrap(),
+                "<div>\n  <h1>Warp</h1>\n  <p>Hello World!</p>\n</div>"
+            );
+        };
 
-        assert_eq!(
-            &body,
-            "<div>\n  <h1>Warp</h1>\n  <p>Hello World!</p>\n</div>"
-        );
+        select! {
+            _ =  server() => {}
+            _ = client => {}
+        }
     }
 }

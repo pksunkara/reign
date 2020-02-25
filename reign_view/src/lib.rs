@@ -49,7 +49,7 @@ pub use slots::{slot_render, Slots};
 /// #
 /// pub async fn handler() -> impl Responder {
 ///     render_actix(CustomView {
-///         msg: "Hello World!"
+///         msg: "Hello Actix!"
 ///     })
 /// }
 /// #
@@ -73,7 +73,7 @@ pub use slots::{slot_render, Slots};
 /// #       response.headers()["content-type"],
 /// #       "text/html; charset=utf-8"
 /// #   );
-/// #   assert_eq!(response.text().await.unwrap(), "<h1>Hello World!</h1>");
+/// #   assert_eq!(response.text().await.unwrap(), "<h1>Hello Actix!</h1>");
 /// # });
 /// ```
 #[cfg(feature = "views-actix")]
@@ -109,7 +109,7 @@ pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
 /// #   init_server
 /// # };
 /// # use std::time::Duration;
-/// # use tokio::{runtime::Runtime, spawn, time::delay_for};
+/// # use tokio::{runtime::Runtime, select, time::delay_for};
 ///
 /// # struct CustomView<'a> {
 /// #   msg: &'a str
@@ -123,29 +123,36 @@ pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
 /// #
 /// pub fn handler(state: State) -> (State, Response<Body>) {
 ///     render_gotham(state, CustomView {
-///         msg: "Hello World!"
+///         msg: "Hello Gotham!"
 ///     })
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
 /// # rt.block_on(async {
-/// #   spawn(async {
+/// #   let server = async {
 /// #       let router = build_simple_router(|route| {
 /// #           route.get("/").to(handler);
 /// #       });
 /// #
 /// #       init_server("127.0.0.1:8080", router).await.unwrap()
-/// #   });
+/// #   };
 /// #
-/// #   let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #   let client = async {
+/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
-/// #   assert_eq!(response.status(), reqwest::StatusCode::OK);
-/// #   assert!(response.headers().contains_key("content-type"));
-/// #   assert_eq!(
-/// #       response.headers()["content-type"],
-/// #       "text/html; charset=utf-8"
-/// #   );
-/// #   assert_eq!(response.text().await.unwrap(), "<h1>Hello World!</h1>");
+/// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #       assert!(response.headers().contains_key("content-type"));
+/// #       assert_eq!(
+/// #           response.headers()["content-type"],
+/// #           "text/html; charset=utf-8"
+/// #       );
+/// #       assert_eq!(response.text().await.unwrap(), "<h1>Hello Gotham!</h1>");
+/// #   };
+/// #
+/// #   select! {
+/// #       _ = server => {}
+/// #       _ = client => {}
+/// #   }
 /// # });
 /// ```
 #[cfg(feature = "views-gotham")]
@@ -187,7 +194,7 @@ pub fn render_gotham<D: fmt::Display>(
 /// use reign::view::render_tide;
 /// # use std::fmt::{Formatter, Result, Display};
 /// # use std::time::Duration;
-/// # use tokio::{runtime::Runtime, spawn, time::delay_for};
+/// # use tokio::{runtime::Runtime, select, time::delay_for};
 ///
 /// # struct CustomView<'a> {
 /// #   msg: &'a str
@@ -203,26 +210,33 @@ pub fn render_gotham<D: fmt::Display>(
 /// #
 /// app.at("/").get(|_| async move {
 ///     render_tide(CustomView {
-///         msg: "Hello World!"
+///         msg: "Hello Tide!"
 ///     })
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
 /// #
 /// # rt.block_on(async {
-/// #   spawn(async {
+/// #   let server = async {
 /// #       app.listen("127.0.0.1:8080").await.unwrap();
-/// #   });
+/// #   };
 /// #
-/// #   let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #   let client = async {
+/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
-/// #   assert_eq!(response.status(), reqwest::StatusCode::OK);
-/// #   assert!(response.headers().contains_key("content-type"));
-/// #   assert_eq!(
-/// #       response.headers()["content-type"],
-/// #       "text/html; charset=utf-8"
-/// #   );
-/// #   assert_eq!(response.text().await.unwrap(), "<h1>Hello World!</h1>");
+/// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #       assert!(response.headers().contains_key("content-type"));
+/// #       assert_eq!(
+/// #           response.headers()["content-type"],
+/// #           "text/html; charset=utf-8"
+/// #       );
+/// #       assert_eq!(response.text().await.unwrap(), "<h1>Hello Tide!</h1>");
+/// #   };
+/// #
+/// #   select! {
+/// #       _ = server => {}
+/// #       _ = client => {}
+/// #   }
 /// # });
 #[cfg(feature = "views-tide")]
 pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
@@ -252,7 +266,7 @@ pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
 /// # use std::fmt::{Formatter, Result, Display};
 /// use warp::Filter;
 /// # use std::time::Duration;
-/// # use tokio::{runtime::Runtime, spawn, time::delay_for};
+/// # use tokio::{runtime::Runtime, select, time::delay_for};
 ///
 /// # struct CustomView<'a> {
 /// #   msg: &'a str
@@ -266,26 +280,33 @@ pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
 /// #
 /// let app = warp::any().map(|| {
 ///     render_warp(CustomView {
-///         msg: "Hello World!"
+///         msg: "Hello Warp!"
 ///     })
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
 /// #
 /// # rt.block_on(async {
-/// #   spawn(async move {
+/// #   let server = async move {
 /// #       warp::serve(app).run(([127, 0, 0, 1], 8080)).await;
-/// #   });
+/// #   };
 /// #
-/// #   let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #   let client = async {
+/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
-/// #   assert_eq!(response.status(), reqwest::StatusCode::OK);
-/// #   assert!(response.headers().contains_key("content-type"));
-/// #   assert_eq!(
-/// #       response.headers()["content-type"],
-/// #       "text/html; charset=utf-8"
-/// #   );
-/// #   assert_eq!(response.text().await.unwrap(), "<h1>Hello World!</h1>");
+/// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #       assert!(response.headers().contains_key("content-type"));
+/// #       assert_eq!(
+/// #           response.headers()["content-type"],
+/// #           "text/html; charset=utf-8"
+/// #       );
+/// #       assert_eq!(response.text().await.unwrap(), "<h1>Hello Warp!</h1>");
+/// #   };
+/// #
+/// #   select! {
+/// #       _ = server => {}
+/// #       _ = client => {}
+/// #   }
 /// # });
 #[cfg(feature = "views-warp")]
 pub fn render_warp<D: fmt::Display>(view: D) -> warp::hyper::Response<warp::hyper::Body> {

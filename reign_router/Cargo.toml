@@ -24,6 +24,7 @@ tide = { version = "0.6", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
+version-sync = "0.8.1"
 tokio = "0.2"
 reqwest = "0.10"
 
@@ -31,4 +32,4 @@ reqwest = "0.10"
 default = []
 router-actix = []
 router-gotham = ["gotham", "futures"]
-router-tide = ["tide"]
+router-tide = ["tide", "futures"]

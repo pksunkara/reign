@@ -1,3 +1,5 @@
+#[cfg(feature = "router-tide")]
+use futures::future::BoxFuture;
 #[cfg(feature = "router-gotham")]
 use gotham::{
     handler::HandlerFuture,
@@ -6,6 +8,8 @@ use gotham::{
     state::{FromState, State},
 };
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
+#[cfg(feature = "router-tide")]
+use tide::{middleware::Next, Request, Response};
 
 #[derive(Clone)]
 pub struct ContentType<'a> {
@@ -74,98 +78,13 @@ impl<'a> gotham::middleware::NewMiddleware for ContentType<'a> {
     }
 }
 
-// #[cfg(feature = "router-tide")]
-// // impl<'a> tide::middleware::Middleware for ContentType<'a> {
-// //     fn handle<'b>(&'b self, ctx: Request<State>, next: Next<'b, State>) -> BoxFuture<'b, Response> {
-// //         Box::pin(async move {})
-// //     }
-// // }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use reqwest::{header::CONTENT_TYPE, Client, StatusCode};
-    use std::time::Duration;
-    use tokio::{spawn, time::delay_for};
-
-    async fn test() {
-        delay_for(Duration::from_millis(100)).await;
-        let client = Client::new();
-
-        let res = client.post("http://localhost:8080").send().await.unwrap();
-
-        assert_eq!(res.status(), StatusCode::OK);
-        assert_eq!(res.text().await.unwrap(), "hello");
-
-        let res = client
-            .post("http://localhost:8080")
-            .header(CONTENT_TYPE, "")
-            .send()
-            .await
-            .unwrap();
-
-        assert_eq!(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
-        assert_eq!(res.text().await.unwrap(), "");
-
-        let res = client
-            .post("http://localhost:8080")
-            .header(CONTENT_TYPE, "application/json")
-            .send()
-            .await
-            .unwrap();
-
-        assert_eq!(res.status(), StatusCode::OK);
-        assert_eq!(res.text().await.unwrap(), "hello");
-
-        let res = client
-            .post("http://localhost:8080")
-            .header(CONTENT_TYPE, "application/hal+json")
-            .send()
-            .await
-            .unwrap();
-
-        assert_eq!(res.status(), StatusCode::OK);
-        assert_eq!(res.text().await.unwrap(), "hello");
-
-        let res = client
-            .post("http://localhost:8080")
-            .header(CONTENT_TYPE, "a")
-            .send()
-            .await
-            .unwrap();
-
-        assert_eq!(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
-        assert_eq!(res.text().await.unwrap(), "");
-    }
-
-    #[cfg(feature = "router-gotham")]
-    #[tokio::test]
-    async fn test_gotham() {
-        use gotham::{
-            init_server,
-            pipeline::{new_pipeline, single::single_pipeline},
-            router::builder::{build_router, DefineSingleRoute, DrawRoutes},
-            state::State,
-        };
-
-        spawn(async {
-            fn hello(state: State) -> (State, &'static str) {
-                (state, "hello")
-            }
-
-            let (chain, pipelines) = single_pipeline(
-                new_pipeline()
-                    .add(ContentType::default().multipart())
-                    .build(),
-            );
-
-            let router = build_router(chain, pipelines, |route| {
-                route.post("/").to(hello);
-            });
-
-            init_server("127.0.0.1:8080", router).await.unwrap()
-        });
-
-        test().await
+#[cfg(feature = "router-tide")]
+impl<'a, S> tide::middleware::Middleware<S> for ContentType<'a>
+where
+    S: Send + Sync + 'a,
+    'a: 'static,
+{
+    fn handle<'b>(&'b self, ctx: Request<S>, next: Next<'b, S>) -> BoxFuture<'b, Response> {
+        Box::pin(async move { next.run(ctx).await })
     }
 }
