@@ -167,7 +167,7 @@ fn capture(input: Render) -> TokenStream {
     let value = ident_map.get(&input.id());
 
     if value.is_none() {
-        abort_call_site!("expected a string referencing to a view file");
+        abort_call_site!("expected a path referencing to a view file");
     }
 
     let idents: Vec<Ident> = value

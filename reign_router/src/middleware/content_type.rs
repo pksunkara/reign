@@ -26,11 +26,11 @@ pub struct ContentType<'a> {
 
 impl<'a> ContentType<'a> {
     pub fn new(subtypes: Vec<&'a str>) -> Self {
-        ContentType { subtypes }
+        Self { subtypes }
     }
 
     pub fn default() -> Self {
-        ContentType::new(vec![]).json().form()
+        Self::new(vec![]).json().form()
     }
 
     pub fn json(mut self) -> Self {
@@ -39,12 +39,12 @@ impl<'a> ContentType<'a> {
     }
 
     pub fn form(mut self) -> Self {
-        self.subtypes.push(FORM_DATA.as_str());
+        self.subtypes.push(WWW_FORM_URLENCODED.as_str());
         self
     }
 
     pub fn multipart(mut self) -> Self {
-        self.subtypes.push(WWW_FORM_URLENCODED.as_str());
+        self.subtypes.push(FORM_DATA.as_str());
         self
     }
 

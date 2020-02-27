@@ -1,4 +1,4 @@
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
     bracketed,
@@ -31,7 +31,7 @@ impl Parse for Pipeline {
 
 impl ToTokens for Pipeline {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let name = self.name.clone();
+        let name = Ident::new(&format!("{}_pipe", self.name), Span::call_site());
         let middlewares = self.middlewares.iter().map(|i| i);
 
         tokens.append_all(quote! {

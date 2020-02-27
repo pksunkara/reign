@@ -34,8 +34,6 @@ where
                 post!("/", articles::create);
             });
         });
-
-        scope!("/assets", [common], {});
     })
 
     //         route.associate("/:id", |assoc| {

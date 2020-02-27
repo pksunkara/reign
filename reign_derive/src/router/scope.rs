@@ -44,17 +44,18 @@ fn chains(input: Punctuated<Ident, Comma>) -> TokenStream {
     let mut prev = None;
 
     while let Some(i) = iter.next() {
+        let name = Ident::new(&format!("{}_pipe", i), Span::call_site());
         let chain = Ident::new(&format!("{}_chain", i), Span::call_site());
 
         if prev.is_none() {
             chains.push(quote! {
-                let #chain = (#i, ());
+                let #chain = (#name, ());
             });
         } else {
             let prev_chain = Ident::new(&format!("{}_chain", prev.unwrap()), Span::call_site());
 
             chains.push(quote! {
-                let #chain = (#i, #prev_chain);
+                let #chain = (#name, #prev_chain);
             });
         }
 
