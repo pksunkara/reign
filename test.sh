@@ -1,3 +1,5 @@
+set -e
+
 cd examples/basic
 cargo test
 

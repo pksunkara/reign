@@ -18,11 +18,7 @@ async fn test_gotham() {
             (state, "hello")
         }
 
-        let (chain, pipelines) = single_pipeline(
-            new_pipeline()
-                .add(Runtime::default())
-                .build(),
-        );
+        let (chain, pipelines) = single_pipeline(new_pipeline().add(Runtime::default()).build());
 
         let router = build_router(chain, pipelines, |route| {
             route.get("/").to(hello);
