@@ -11,3 +11,10 @@ cd ../tide
 cargo test
 cd ../warp
 cargo test
+
+cd ../../router/actix
+cargo test
+cd ../gotham
+cargo test
+cd ../tide
+cargo test

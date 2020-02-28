@@ -1,0 +1,14 @@
+[package]
+name = "reign_examples_router_gotham"
+version = "0.1.0"
+authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+reign = { path = "../../../../reign", features = ["router-gotham"], default-features = false }
+gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
+tokio = { version = "0.2", features = ["full"] }
+
+[dev-dependencies]
+reqwest = "0.10"

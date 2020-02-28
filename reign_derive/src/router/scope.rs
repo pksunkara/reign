@@ -38,7 +38,25 @@ impl Parse for Scope {
     }
 }
 
-fn chains(input: Punctuated<Ident, Comma>) -> TokenStream {
+fn actix(input: Option<Punctuated<Ident, Comma>>, path: LitStr) -> TokenStream {
+    let app = quote! {
+        ::actix_web::web::scope(#path)
+    };
+
+    if input.is_none() {
+        return app;
+    }
+
+    input.unwrap().into_iter().fold(app, |tokens, i| {
+        let name = Ident::new(&format!("{}_pipe", i), Span::call_site());
+
+        quote! {
+            #name!(#tokens)
+        }
+    })
+}
+
+fn gotham(input: Punctuated<Ident, Comma>) -> TokenStream {
     let mut chains = vec![];
     let mut iter = input.into_iter().map(|i| i);
     let mut prev = None;
@@ -82,26 +100,72 @@ fn chains(input: Punctuated<Ident, Comma>) -> TokenStream {
     }
 }
 
+fn tide(input: Punctuated<Ident, Comma>) -> Vec<TokenStream> {
+    input
+        .into_iter()
+        .map(|i| {
+            let name = Ident::new(&format!("{}_pipe", i), Span::call_site());
+
+            quote! {
+                #name(&mut app);
+            }
+        })
+        .collect()
+}
+
 pub fn scope(input: Scope) -> TokenStream {
     let Scope { path, pipe, rest } = input;
 
-    let pipe_tokens = if pipe.is_none() {
+    if cfg!(feature = "router-actix") {
+        let pipe_tokens = actix(pipe, path);
+
         quote! {
-            ()
+            app = app.service({
+                let mut app = #pipe_tokens;
+
+                #rest
+
+                app
+            })
+        }
+    } else if cfg!(feature = "router-gotham") {
+        let pipe_tokens = if pipe.is_none() {
+            quote! {
+                ()
+            }
+        } else {
+            gotham(pipe.unwrap())
+        };
+
+        quote! {
+            route
+                .delegate(#path)
+                .to_router(::gotham::router::builder::build_router(
+                    #pipe_tokens,
+                    pipeline_set.clone(),
+                    |route| {
+                        #rest
+                    }
+                ))
+        }
+    } else if cfg!(feature = "router-tide") {
+        let pipe_tokens = if pipe.is_none() {
+            vec![]
+        } else {
+            tide(pipe.unwrap())
+        };
+
+        quote! {
+            app.at(#path).nest({
+                let mut app = ::tide::new();
+
+                #(#pipe_tokens)*
+                #rest
+
+                app
+            })
         }
     } else {
-        chains(pipe.unwrap())
-    };
-
-    quote! {
-        route
-            .delegate(#path)
-            .to_router(::gotham::router::builder::build_router(
-                #pipe_tokens,
-                pipeline_set.clone(),
-                |route| {
-                    #rest
-                }
-            ));
+        quote! {}
     }
 }

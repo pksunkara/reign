@@ -40,6 +40,10 @@ members = [
 
 	"examples/basic",
 
+	"examples/router/actix",
+	"examples/router/gotham",
+	"examples/router/tide",
+
 	"examples/views/normal",
 	"examples/views/actix",
 	"examples/views/gotham",

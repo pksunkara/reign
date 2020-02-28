@@ -34,13 +34,33 @@ impl ToTokens for Pipeline {
         let name = Ident::new(&format!("{}_pipe", self.name), Span::call_site());
         let middlewares = self.middlewares.iter().map(|i| i);
 
-        tokens.append_all(quote! {
-            let (pipelines, #name) = pipelines.add(
-                ::gotham::pipeline::new_pipeline()
-                    #(.add(#middlewares))*
-                    .build()
-            );
-        });
+        if cfg!(feature = "router-actix") {
+            tokens.append_all(quote! {
+                macro_rules! #name {
+                    ($app:expr) => {
+                        $app
+                            #(.wrap(#middlewares))*
+                    };
+                }
+            });
+        } else if cfg!(feature = "router-gotham") {
+            tokens.append_all(quote! {
+                let (pipelines, #name) = pipelines.add(
+                    ::gotham::pipeline::new_pipeline()
+                        #(.add(#middlewares))*
+                        .build()
+                );
+            });
+        } else if cfg!(feature = "router-tide") {
+            tokens.append_all(quote! {
+                fn #name<S>(app: &mut ::tide::Server<S>)
+                where
+                    S: Send + Sync + 'static,
+                {
+                    #(app.middleware(#middlewares);)*
+                }
+            });
+        }
     }
 }
 
@@ -59,11 +79,23 @@ impl Parse for Pipelines {
 pub fn pipelines(input: Pipelines) -> TokenStream {
     let items = input.items.into_iter().map(|i| i);
 
-    quote! {
-        let pipelines = ::gotham::pipeline::set::new_pipeline_set();
+    if cfg!(feature = "router-actix") {
+        quote! {
+            #(#items)*
+        }
+    } else if cfg!(feature = "router-gotham") {
+        quote! {
+            let pipelines = ::gotham::pipeline::set::new_pipeline_set();
 
-        #(#items)*
+            #(#items)*
 
-        let pipeline_set = ::gotham::pipeline::set::finalize_pipeline_set(pipelines);
+            let pipeline_set = ::gotham::pipeline::set::finalize_pipeline_set(pipelines);
+        }
+    } else if cfg!(feature = "router-tide") {
+        quote! {
+            #(#items)*
+        }
+    } else {
+        quote! {}
     }
 }

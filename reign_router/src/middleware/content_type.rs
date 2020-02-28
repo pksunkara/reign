@@ -33,6 +33,10 @@ impl<'a> ContentType<'a> {
         Self::new(vec![]).json().form()
     }
 
+    pub fn empty() -> Self {
+        Self::new(vec![])
+    }
+
     pub fn json(mut self) -> Self {
         self.subtypes.push(JSON.as_str());
         self

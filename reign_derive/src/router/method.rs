@@ -26,15 +26,39 @@ impl Parse for Method {
 pub fn get(input: Method) -> TokenStream {
     let Method { path, action } = input;
 
-    quote! {
-        route.get(#path).to(#action);
+    if cfg!(feature = "router-actix") {
+        quote! {
+            app = app.route(#path, ::actix_web::web::get().to(#action))
+        }
+    } else if cfg!(feature = "router-gotham") {
+        quote! {
+            route.get(#path).to(#action)
+        }
+    } else if cfg!(feature = "router-tide") {
+        quote! {
+            app.at(#path).get(#action)
+        }
+    } else {
+        quote! {}
     }
 }
 
 pub fn post(input: Method) -> TokenStream {
     let Method { path, action } = input;
 
-    quote! {
-        route.post(#path).to(#action);
+    if cfg!(feature = "router-actix") {
+        quote! {
+            app = app.route(#path, ::actix_web::web::post().to(#action))
+        }
+    } else if cfg!(feature = "router-gotham") {
+        quote! {
+            route.post(#path).to(#action)
+        }
+    } else if cfg!(feature = "router-tide") {
+        quote! {
+            app.at(#path).post(#action)
+        }
+    } else {
+        quote! {}
     }
 }

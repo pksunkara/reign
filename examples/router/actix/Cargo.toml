@@ -1,0 +1,15 @@
+[package]
+name = "reign_examples_router_actix"
+version = "0.1.0"
+authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+reign = { path = "../../../../reign", features = ["router-actix"], default-features = false }
+actix-web = "2.0"
+actix-rt = "1.0"
+actix-service = "1.0"
+
+[dev-dependencies]
+reqwest = "0.10"
