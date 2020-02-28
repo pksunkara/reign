@@ -3,7 +3,7 @@
 use actix_web::{middleware::Logger, App, HttpRequest, HttpServer, Responder};
 use reign::{
     prelude::*,
-    router::middleware::{ContentType, Runtime},
+    router::middleware::{ContentType, HeadersDefault, Runtime},
 };
 
 async fn root(_: HttpRequest) -> impl Responder {
@@ -22,6 +22,10 @@ async fn orgs(_: HttpRequest) -> impl Responder {
     "orgs"
 }
 
+async fn repos(_: HttpRequest) -> impl Responder {
+    "repos"
+}
+
 async fn users(_: HttpRequest) -> impl Responder {
     "users"
 }
@@ -33,12 +37,13 @@ async fn server() {
         ],
         app: [
             ContentType::empty().form(),
+            HeadersDefault::new().add("x-powered-by", "reign"),
         ],
         timer: [
             Runtime::default(),
         ],
         api: [
-            ContentType::empty().json(),
+            HeadersDefault::new().add("x-version", "1.0"),
         ],
     );
 
@@ -49,11 +54,15 @@ async fn server() {
             post!("/", root);
 
             scope!("/account", {
-                post!("/", account);
+                get!("/", account);
             });
 
             scope!("/orgs", [], {
-                post!("/", orgs);
+                get!("/", orgs);
+
+                scope!("/repos", {
+                    get!("/", repos);
+                });
             });
 
             scope!("/users", [timer], {
@@ -62,7 +71,7 @@ async fn server() {
         });
 
         scope!("/api", [common, api], {
-            post!("/", api);
+            get!("/", api);
         });
 
         app
@@ -99,6 +108,7 @@ mod tests {
             let res = client.post(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
+            assert!(res.headers().contains_key("x-powered-by"));
             assert_eq!(res.text().await.unwrap(), "root");
 
             let res = client
@@ -113,62 +123,44 @@ mod tests {
 
             url = "http://localhost:8080/account";
 
-            let res = client.post(url).send().await.unwrap();
+            let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
+            assert!(res.headers().contains_key("x-powered-by"));
             assert_eq!(res.text().await.unwrap(), "account");
-
-            let res = client
-                .post(url)
-                .header(CONTENT_TYPE, "application/json")
-                .send()
-                .await
-                .unwrap();
-
-            assert_eq!(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
-            assert_eq!(res.text().await.unwrap(), "");
 
             url = "http://localhost:8080/orgs";
 
-            let res = client.post(url).send().await.unwrap();
+            let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
+            assert!(res.headers().contains_key("x-powered-by"));
             assert_eq!(res.text().await.unwrap(), "orgs");
 
-            let res = client
-                .post(url)
-                .header(CONTENT_TYPE, "application/json")
-                .send()
-                .await
-                .unwrap();
+            url = "http://localhost:8080/orgs/repos";
 
-            assert_eq!(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
-            assert_eq!(res.text().await.unwrap(), "");
+            let res = client.get(url).send().await.unwrap();
+
+            assert_eq!(res.status(), StatusCode::OK);
+            assert!(res.headers().contains_key("x-powered-by"));
+            assert_eq!(res.text().await.unwrap(), "repos");
 
             url = "http://localhost:8080/users";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
+            assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-runtime"));
             assert_eq!(res.text().await.unwrap(), "users");
 
             url = "http://localhost:8080/api";
 
-            let res = client.post(url).send().await.unwrap();
+            let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
+            assert!(res.headers().contains_key("x-version"));
             assert_eq!(res.text().await.unwrap(), "api");
-
-            let res = client
-                .post(url)
-                .header(CONTENT_TYPE, "application/x-www-form-urlencoded")
-                .send()
-                .await
-                .unwrap();
-
-            assert_eq!(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
-            assert_eq!(res.text().await.unwrap(), "");
         };
 
         client.await;
