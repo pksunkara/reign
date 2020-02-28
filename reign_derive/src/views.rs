@@ -100,7 +100,7 @@ fn recurse(path: &PathBuf, relative_path: &str) -> Vec<proc_macro2::TokenStream>
             let ident = Ident::new(&cased, Span::call_site());
 
             let (tokens, idents, types) =
-                tokenize(parse(read_to_string(new_path).unwrap()).unwrap());
+                tokenize(parse(read_to_string(new_path).unwrap().replace("\r\n", "\n")).unwrap());
 
             let file_key = format!("{}:{}", relative_path, file_base_name)
                 .trim_start_matches(':')
