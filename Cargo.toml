@@ -22,7 +22,7 @@ name = "reign"
 path = "src/lib.rs"
 
 [dependencies]
-reign_boot = { path = "./reign_boot", version = "0.1.2" }
+reign_boot = { path = "./reign_boot", version = "0.1.2", optional = true }
 reign_derive = { path = "./reign_derive", version = "0.1.2" }
 reign_router = { path = "./reign_router", version = "0.1.2", optional = true }
 reign_view = { path = "./reign_view", version = "0.1.2" }
@@ -59,7 +59,8 @@ default-members = [
 ]
 
 [features]
-default = ["views-gotham", "router-gotham"]
+default = ["views-gotham", "router-gotham", "framework"]
+framework = ["reign_boot"]
 build-binary = ["structopt"]
 views-actix = ["reign_view/views-actix", "reign_derive/views-actix"]
 views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]

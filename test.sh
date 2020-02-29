@@ -1,22 +1,7 @@
 set -e
 
-cd examples/basic
-cargo test
-
-cd ../views/normal
-cargo test
-cd ../actix
-cargo test
-cd ../gotham
-cargo test
-cd ../tide
-cargo test
-cd ../warp
-cargo test
-
-cd ../../router/actix
-cargo test
-cd ../gotham
-cargo test
-cd ../tide
-cargo test
+for dir in $(find examples -maxdepth 2 -mindepth 2 -type d); do
+	cd $dir
+	cargo test
+	cd ../../..
+done
