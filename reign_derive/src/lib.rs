@@ -58,6 +58,14 @@ pub fn render(input: TokenStream) -> TokenStream {
 }
 
 #[cfg(feature = "router")]
+#[proc_macro_attribute]
+pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
+    let input: syn::ItemFn = parse_macro_input!(input);
+
+    router::action(input).into()
+}
+
+#[cfg(feature = "router")]
 #[proc_macro]
 pub fn pipelines(input: TokenStream) -> TokenStream {
     let input: router::Pipelines = parse_macro_input!(input);

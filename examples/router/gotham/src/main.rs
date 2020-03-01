@@ -12,27 +12,33 @@ use reign::{
     router::middleware::{ContentType, HeadersDefault, Runtime},
 };
 
-fn root(state: State) -> (State, &'static str) {
+#[action]
+fn root() {
     (state, "root")
 }
 
-fn api(state: State) -> (State, &'static str) {
+#[action]
+fn api() {
     (state, "api")
 }
 
-fn account(state: State) -> (State, &'static str) {
+#[action]
+fn account() {
     (state, "account")
 }
 
-fn orgs(state: State) -> (State, &'static str) {
+#[action]
+fn orgs() {
     (state, "orgs")
 }
 
-fn repos(state: State) -> (State, &'static str) {
+#[action]
+fn repos() {
     (state, "repos")
 }
 
-fn users(state: State) -> (State, &'static str) {
+#[action]
+fn users() {
     (state, "users")
 }
 
