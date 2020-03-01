@@ -193,7 +193,7 @@ pub fn render(input: Render) -> TokenStream {
         }
     } else if cfg!(feature = "views-gotham") {
         quote! {
-            ::reign::view::render_gotham(state, #capture)
+            ::reign::view::render_gotham(#capture)
         }
     } else if cfg!(feature = "views-tide") {
         quote! {

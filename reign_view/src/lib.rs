@@ -122,9 +122,9 @@ pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
 /// # }
 /// #
 /// pub fn handler(state: State) -> (State, Response<Body>) {
-///     render_gotham(state, CustomView {
+///     (state, render_gotham(CustomView {
 ///         msg: "Hello Gotham!"
-///     })
+///     }))
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
@@ -156,29 +156,33 @@ pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
 /// # });
 /// ```
 #[cfg(feature = "views-gotham")]
-pub fn render_gotham<D: fmt::Display>(
-    state: gotham::state::State,
-    view: D,
-) -> (
-    gotham::state::State,
-    gotham::hyper::Response<gotham::hyper::Body>,
-) {
-    use gotham::helpers::http::response::{create_empty_response, create_response};
-    use gotham::hyper::StatusCode;
+pub fn render_gotham<D: fmt::Display>(view: D) -> gotham::hyper::Response<gotham::hyper::Body> {
+    use gotham::hyper::{header, Body, Response, StatusCode};
 
     let mut content = String::new();
 
     let response = match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => create_response(
-            &state,
-            StatusCode::OK,
-            mime::TEXT_HTML_UTF_8,
-            content.into_bytes(),
-        ),
-        Err(_) => create_empty_response(&state, StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(()) => {
+            let mut response = Response::builder()
+                .status(StatusCode::OK)
+                .body(Body::empty())
+                .expect("Response built from a compatible type");
+
+            response.headers_mut().insert(
+                header::CONTENT_TYPE,
+                mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
+            );
+
+            *response.body_mut() = content.into();
+            response
+        }
+        Err(_) => Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(Body::empty())
+            .expect("Response built from a compatible type"),
     };
 
-    (state, response)
+    response
 }
 
 /// Renders a view for [tide](https://docs.rs/tide) endpoint closure.
@@ -325,6 +329,7 @@ pub fn render_warp<D: fmt::Display>(view: D) -> warp::hyper::Response<warp::hype
                 header::CONTENT_TYPE,
                 mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
             );
+
             *response.body_mut() = content.into();
             response
         }

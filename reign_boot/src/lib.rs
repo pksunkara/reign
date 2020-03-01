@@ -2,6 +2,8 @@ use dotenv;
 use env_logger;
 use std::env;
 
+// TODO:(config) Have a config struct so that it loads envs and all panics happen during boot
+
 fn build_env_file_heirarchy(environment: String) -> Vec<String> {
     let mut heirarchy: Vec<String> = environment.split('.').map(String::from).collect();
     let length = heirarchy.len();

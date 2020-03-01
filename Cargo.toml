@@ -38,7 +38,7 @@ members = [
 	"reign_router",
 	"reign_view",
 
-	"examples/basic",
+	"examples/full/basic",
 
 	"examples/router/actix",
 	"examples/router/gotham",

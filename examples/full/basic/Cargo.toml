@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../reign" }
+reign = { path = "../../../../reign" }
 mime = "0.3.14"
 diesel = { version = "1.4.3", features = ["sqlite"] }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }

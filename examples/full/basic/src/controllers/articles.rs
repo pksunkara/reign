@@ -23,7 +23,7 @@ pub fn list(state: State) -> Pin<Box<HandlerFuture>> {
             Err(e) => return Err((state, e.into_handler_error())),
         };
 
-        Ok(render!(articles::list))
+        Ok((state, render!(articles::list)))
     }
     .boxed()
 }
@@ -44,7 +44,7 @@ pub fn show(state: State) -> Pin<Box<HandlerFuture>> {
             Err(e) => return Err((state, e.into_handler_error())),
         };
 
-        Ok(render!(articles::show))
+        Ok((state, render!(articles::show)))
     }
     .boxed()
 }
