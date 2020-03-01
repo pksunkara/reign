@@ -30,6 +30,7 @@ reign = { path = "../" }
 
 [features]
 default = []
+build-docs = []
 views-actix = ["reign_view/views-actix"]
 views-gotham = ["reign_view/views-gotham"]
 views-tide = ["reign_view/views-tide"]
@@ -38,3 +39,6 @@ router = []
 router-actix = ["router"]
 router-gotham = ["router"]
 router-tide = ["router"]
+
+[package.metadata.docs.rs]
+all-features = true

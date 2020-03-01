@@ -21,3 +21,10 @@ dotenv = "0.15.0"
 env_logger = "0.7.1"
 
 [dev-dependencies]
+
+[features]
+default = []
+build-docs = []
+
+[package.metadata.docs.rs]
+all-features = true

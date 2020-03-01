@@ -1,6 +1,6 @@
-#![feature(external_doc)]
+#![cfg_attr(feature = "build-docs", feature(external_doc))]
 #![doc(html_root_url = "https://docs.rs/reign_view/0.1.2")]
-#![doc(include = "../README.md")]
+#![cfg_attr(feature = "build-docs", doc(include = "../README.md"))]
 
 #[cfg(any(
     feature = "views-gotham",

@@ -62,6 +62,7 @@ default-members = [
 default = ["views-gotham", "router-gotham", "framework"]
 framework = ["reign_boot"]
 build-binary = ["structopt"]
+build-docs = []
 views-actix = ["reign_view/views-actix", "reign_derive/views-actix"]
 views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
 views-tide = ["reign_view/views-tide", "reign_derive/views-tide"]
@@ -70,3 +71,6 @@ router = []
 router-actix = ["reign_router/router-actix", "reign_derive/router-actix", "router"]
 router-gotham = ["reign_router/router-gotham", "reign_derive/router-gotham", "router"]
 router-tide  = ["reign_router/router-tide", "reign_derive/router-tide", "router"]
+
+[package.metadata.docs.rs]
+all-features = true

@@ -34,6 +34,10 @@ reqwest = "0.10"
 
 [features]
 default = []
+build-docs = []
 router-actix = ["actix-web", "actix-service", "futures"]
 router-gotham = ["gotham", "futures"]
 router-tide = ["tide", "futures"]
+
+[package.metadata.docs.rs]
+all-features = true

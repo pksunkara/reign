@@ -40,6 +40,7 @@ reqwest = "0.10"
 
 [features]
 default = []
+build-docs = []
 views-actix = ["actix-web", "mime"]
 views-gotham = ["gotham", "mime"]
 views-tide = ["tide", "mime"]
