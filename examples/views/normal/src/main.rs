@@ -5,7 +5,7 @@ use reign::prelude::*;
 views!("src", "views");
 
 fn handler() -> String {
-    let page = "Home";
+    let page = "Home".to_string();
     let content = "Lorem ipsum";
     let count: u8 = 8;
 

@@ -98,7 +98,7 @@ The library expands the `views!` macro to something like the following:
 mod views {
 
     // Then it will create a module for `pages` subdirectory
-    mod pages {
+    pub mod pages {
 
         // Then it will create a struct for the template file
         pub struct About<'a> {
@@ -148,8 +148,8 @@ The library expands the `render!` macro to something like the following:
 
 ```rust,ignore
 format!("{}", crate::views::pages::About {
-    name: name,
-    age: age,
+    name: name.as_ref(),
+    age,
 });
 ```
 

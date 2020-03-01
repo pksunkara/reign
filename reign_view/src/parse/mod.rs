@@ -96,7 +96,7 @@ where
     }
 }
 
-pub fn tokenize(node: Node) -> (TokenStream, Vec<Ident>, Vec<TokenStream>) {
+pub fn tokenize(node: Node) -> (TokenStream, Vec<(Ident, bool)>, Vec<TokenStream>) {
     let mut tokens = TokenStream::new();
     let mut idents = ViewFields::new();
     let scopes = ViewFields::new();

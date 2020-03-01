@@ -18,7 +18,7 @@ use syn::{
 };
 
 lazy_static! {
-    static ref IDENTMAP: Mutex<HashMap<String, Vec<String>>> = Mutex::new(HashMap::new());
+    static ref IDENTMAP: Mutex<HashMap<String, Vec<(String, bool)>>> = Mutex::new(HashMap::new());
 }
 
 // TODO: Options after the paths (including changing `crate::views`)
@@ -106,10 +106,12 @@ fn recurse(path: &PathBuf, relative_path: &str) -> Vec<proc_macro2::TokenStream>
                 .trim_start_matches(':')
                 .to_string();
 
-            IDENTMAP
-                .lock()
-                .unwrap()
-                .insert(file_key, idents.iter().map(|x| format!("{}", x)).collect());
+            IDENTMAP.lock().unwrap().insert(
+                file_key,
+                idents.iter().map(|x| (format!("{}", x.0), x.1)).collect(),
+            );
+
+            let idents: Vec<Ident> = idents.iter().map(|x| x.0.clone()).collect();
 
             views.push(quote! {
                 pub struct #ident<'a> {
@@ -170,10 +172,24 @@ fn capture(input: Render) -> TokenStream {
         abort_call_site!("expected a path referencing to a view file");
     }
 
-    let idents: Vec<Ident> = value
+    let idents: Vec<TokenStream> = value
         .unwrap()
         .iter()
-        .map(|x| Ident::new(x, Span::call_site()))
+        .map(|x| {
+            let ident = Ident::new(&x.0, Span::call_site());
+
+            let rest = if x.1 {
+                quote! {}
+            } else {
+                quote! {
+                    : #ident.as_ref()
+                }
+            };
+
+            quote! {
+                #ident#rest
+            }
+        })
         .collect();
 
     quote! {

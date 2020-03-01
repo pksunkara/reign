@@ -43,8 +43,11 @@ impl ViewFields {
         self.fields.get(ident).is_some()
     }
 
-    pub fn keys(&self) -> Vec<Ident> {
-        self.fields.keys().cloned().collect()
+    pub fn keys(&self) -> Vec<(Ident, bool)> {
+        self.fields
+            .iter()
+            .map(|(k, v)| (k.clone(), v.is_some()))
+            .collect()
     }
 
     pub fn values(&self) -> Vec<TokenStream> {
