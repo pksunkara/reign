@@ -27,6 +27,7 @@ lazy_static = "1.4.0"
 
 [dev-dependencies]
 reign = { path = "../" }
+version-sync = "0.8"
 
 [features]
 default = []

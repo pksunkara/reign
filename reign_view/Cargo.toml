@@ -32,8 +32,8 @@ warp = { version = "0.2", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
-pretty_assertions = "0.6.1"
-version-sync = "0.8.1"
+pretty_assertions = "0.6"
+version-sync = "0.8"
 actix-rt = "1.0"
 tokio = "0.2"
 reqwest = "0.10"

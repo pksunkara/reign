@@ -30,6 +30,7 @@ log = "0.4.8"
 structopt = { version = "0.3.7", optional = true }
 
 [dev-dependencies]
+version-sync = "0.8"
 
 [workspace]
 members = [

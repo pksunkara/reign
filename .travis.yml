@@ -1,6 +1,10 @@
 os: linux
 language: rust
 cache: cargo
+before_cache:
+  - find target/debug -type f -maxdepth 1 -delete
+  - rm -rf target/.rustc_info.json
+  - rm -rf target/debug/incremental
 jobs:
   include:
     - rust: nightly-2020-01-08

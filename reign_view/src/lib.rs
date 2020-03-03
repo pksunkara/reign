@@ -8,7 +8,7 @@
     feature = "views-tide",
     feature = "views-actix"
 ))]
-use std::fmt::{self, write};
+use std::fmt::{write, Display};
 
 #[doc(hidden)]
 pub use maplit;
@@ -77,7 +77,7 @@ pub use slots::{slot_render, Slots};
 /// # });
 /// ```
 #[cfg(feature = "views-actix")]
-pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
+pub fn render_actix<D: Display>(view: D) -> impl actix_web::Responder {
     use actix_web::{http::header::ContentType, HttpResponse};
 
     let mut content = String::new();
@@ -156,7 +156,7 @@ pub fn render_actix<D: fmt::Display>(view: D) -> impl actix_web::Responder {
 /// # });
 /// ```
 #[cfg(feature = "views-gotham")]
-pub fn render_gotham<D: fmt::Display>(view: D) -> gotham::hyper::Response<gotham::hyper::Body> {
+pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyper::Body> {
     use gotham::hyper::{header, Body, Response, StatusCode};
 
     let mut content = String::new();
@@ -243,7 +243,7 @@ pub fn render_gotham<D: fmt::Display>(view: D) -> gotham::hyper::Response<gotham
 /// #   }
 /// # });
 #[cfg(feature = "views-tide")]
-pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
+pub fn render_tide<D: Display>(view: D) -> tide::Response {
     use tide::{http::StatusCode, Response};
 
     let mut content = String::new();
@@ -313,7 +313,7 @@ pub fn render_tide<D: fmt::Display>(view: D) -> tide::Response {
 /// #   }
 /// # });
 #[cfg(feature = "views-warp")]
-pub fn render_warp<D: fmt::Display>(view: D) -> warp::hyper::Response<warp::hyper::Body> {
+pub fn render_warp<D: Display>(view: D) -> warp::hyper::Response<warp::hyper::Body> {
     use warp::hyper::{header, Body, Response, StatusCode};
 
     let mut content = String::new();
