@@ -40,7 +40,7 @@ impl Tokenize for ExprType {
         if let Expr::Path(path) = &*self.expr {
             if let Some(ident) = path.path.get_ident() {
                 if !scopes.contains(&ident) {
-                    idents.insert(ident.clone(), Some(ty_tokens.clone()));
+                    idents.insert(ident.clone(), Some(ty_tokens));
 
                     tokens.append_all(quote! {
                         self.#ident

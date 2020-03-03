@@ -65,6 +65,7 @@ pub use slots::{slot_render, Slots};
 /// #           .unwrap();
 /// #   });
 /// #
+/// #   delay_for(Duration::from_millis(100)).await;
 /// #   let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
 /// #   assert_eq!(response.status(), reqwest::StatusCode::OK);
@@ -138,6 +139,7 @@ pub fn render_actix<D: Display>(view: D) -> impl actix_web::Responder {
 /// #   };
 /// #
 /// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
 /// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
@@ -161,7 +163,7 @@ pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyp
 
     let mut content = String::new();
 
-    let response = match write(&mut content, format_args!("{}", view)) {
+    match write(&mut content, format_args!("{}", view)) {
         Ok(()) => {
             let mut response = Response::builder()
                 .status(StatusCode::OK)
@@ -180,9 +182,7 @@ pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyp
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::empty())
             .expect("Response built from a compatible type"),
-    };
-
-    response
+    }
 }
 
 /// Renders a view for [tide](https://docs.rs/tide) endpoint closure.
@@ -226,6 +226,7 @@ pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyp
 /// #   };
 /// #
 /// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
 /// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
@@ -296,6 +297,7 @@ pub fn render_tide<D: Display>(view: D) -> tide::Response {
 /// #   };
 /// #
 /// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
 /// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
@@ -373,6 +375,7 @@ pub fn render_warp<D: Display>(view: D) -> warp::hyper::Response<warp::hyper::Bo
 /// #           .unwrap();
 /// #   });
 /// #
+/// #   delay_for(Duration::from_millis(100)).await;
 /// #   let response = Client::builder()
 /// #       .redirect(Policy::none())
 /// #       .build()
@@ -439,6 +442,7 @@ pub fn redirect_actix<L: AsRef<str>>(location: L) -> impl actix_web::Responder {
 /// #   };
 /// #
 /// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
 /// #       let response = Client::builder()
 /// #           .redirect(Policy::none())
 /// #           .build()
@@ -508,6 +512,7 @@ pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<go
 /// #   };
 /// #
 /// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
 /// #       let response = Client::builder()
 /// #           .redirect(Policy::none())
 /// #           .build()
@@ -567,6 +572,7 @@ pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
 /// #   };
 /// #
 /// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
 /// #       let response = Client::builder()
 /// #           .redirect(Policy::none())
 /// #           .build()

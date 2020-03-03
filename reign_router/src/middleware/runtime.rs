@@ -99,12 +99,11 @@ where
             let mut res = fut.await?;
             let duration = Utc::now().signed_duration_since(start).num_microseconds();
 
-            match duration {
-                Some(dur) => res.headers_mut().insert(
+            if let Some(dur) = duration {
+                res.headers_mut().insert(
                     HeaderName::from_lowercase(header).unwrap(),
                     HeaderValue::from_str(&dur_to_string(dur)).unwrap(),
-                ),
-                _ => {}
+                );
             }
 
             Ok(res)
@@ -127,14 +126,11 @@ impl gotham::middleware::Middleware for Runtime {
             .and_then(move |(state, mut response)| {
                 let duration = Utc::now().signed_duration_since(start).num_microseconds();
 
-                match duration {
-                    Some(dur) => {
-                        response.headers_mut().insert(
-                            self.header,
-                            HeaderValue::from_str(&dur_to_string(dur)).unwrap(),
-                        );
-                    }
-                    _ => {}
+                if let Some(dur) = duration {
+                    response.headers_mut().insert(
+                        self.header,
+                        HeaderValue::from_str(&dur_to_string(dur)).unwrap(),
+                    );
                 }
 
                 future::ok((state, response))
@@ -167,11 +163,8 @@ where
             let mut response = next.run(ctx).await;
             let duration = Utc::now().signed_duration_since(start).num_microseconds();
 
-            match duration {
-                Some(dur) => {
-                    response = response.set_header(self.header, dur_to_string(dur));
-                }
-                _ => {}
+            if let Some(dur) = duration {
+                response = response.set_header(self.header, dur_to_string(dur));
             }
 
             response

@@ -20,7 +20,7 @@ async fn test_gotham() {
 
         let (chain, pipelines) = single_pipeline(
             new_pipeline()
-                .add(HeadersDefault::new().add("x-version", "1.0"))
+                .add(HeadersDefault::empty().add("x-version", "1.0"))
                 .build(),
         );
 

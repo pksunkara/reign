@@ -15,7 +15,7 @@ async fn test_actix() {
 
         HttpServer::new(|| {
             App::new()
-                .wrap(HeadersDefault::new().add("x-version", "1.0"))
+                .wrap(HeadersDefault::empty().add("x-version", "1.0"))
                 .route("/", web::get().to(hello))
         })
         .bind("127.0.0.1:8080")

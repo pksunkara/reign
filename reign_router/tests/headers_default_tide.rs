@@ -11,7 +11,7 @@ async fn test_tide() {
 
         app.at("/").get(|_| async move { "hello" });
 
-        app.middleware(HeadersDefault::new().add("x-version", "1.0"));
+        app.middleware(HeadersDefault::empty().add("x-version", "1.0"));
 
         app.listen("127.0.0.1:8080").await.unwrap()
     };

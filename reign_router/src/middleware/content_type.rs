@@ -30,7 +30,7 @@ impl<'a> ContentType<'a> {
     }
 
     pub fn default() -> Self {
-        Self::new(vec![]).json().form()
+        Self::empty().json().form()
     }
 
     pub fn empty() -> Self {
@@ -53,7 +53,7 @@ impl<'a> ContentType<'a> {
     }
 
     fn allow(&self, val: Name) -> bool {
-        self.subtypes.iter().find(|&&x| x == val.as_str()).is_some()
+        self.subtypes.iter().any(|&x| x == val.as_str())
     }
 }
 
