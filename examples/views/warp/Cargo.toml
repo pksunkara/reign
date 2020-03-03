@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["views-warp", "helpers-redirect"], default-features = false }
+reign = { path = "../../../../reign", features = ["views-warp"], default-features = false }
 warp = "0.2"
 tokio = { version = "0.2", features = ["full"] }
 

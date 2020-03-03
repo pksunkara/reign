@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["views-actix", "helpers-redirect"], default-features = false }
+reign = { path = "../../../../reign", features = ["views-actix"], default-features = false }
 actix-web = "2.0"
 actix-rt = "1.0"
 

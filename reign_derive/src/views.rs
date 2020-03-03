@@ -226,7 +226,6 @@ pub fn render(input: Render) -> TokenStream {
     }
 }
 
-#[cfg(feature = "helpers-redirect")]
 pub fn redirect(input: Expr) -> TokenStream {
     if cfg!(feature = "views-actix") {
         quote! {

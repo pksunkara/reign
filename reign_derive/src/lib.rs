@@ -63,8 +63,6 @@ pub fn render(input: TokenStream) -> TokenStream {
 
 /// Shorthand notation for returning a redirect response.
 ///
-/// *This function is available if Reign is built with the `"helpers-redirect"` feature.*
-///
 /// # Examples
 ///
 /// Redirect to the given url
@@ -74,7 +72,6 @@ pub fn render(input: TokenStream) -> TokenStream {
 ///
 /// redirect!("/dashboard")
 /// ```
-#[cfg(feature = "helpers-redirect")]
 #[proc_macro]
 pub fn redirect(input: TokenStream) -> TokenStream {
     let input: Expr = parse_macro_input!(input);

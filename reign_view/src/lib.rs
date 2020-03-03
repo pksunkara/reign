@@ -346,8 +346,7 @@ pub fn render_warp<D: Display>(view: D) -> warp::hyper::Response<warp::hyper::Bo
 ///
 /// The response is sent with status code `303` and `location` header.
 ///
-/// *This function is available if Reign is built with the `"views-actix"`
-/// and `"helpers-redirect"` feature.*
+/// *This function is available if Reign is built with the `"views-actix"` feature.*
 ///
 /// # Examples
 ///
@@ -394,7 +393,7 @@ pub fn render_warp<D: Display>(view: D) -> warp::hyper::Response<warp::hyper::Bo
 /// #   assert_eq!(response.text().await.unwrap(), "");
 /// # });
 /// ```
-#[cfg(all(feature = "helpers-redirect", feature = "views-actix"))]
+#[cfg(feature = "views-actix")]
 pub fn redirect_actix<L: AsRef<str>>(location: L) -> impl actix_web::Responder {
     use actix_web::{
         http::header::{HeaderValue, LOCATION},
@@ -410,8 +409,7 @@ pub fn redirect_actix<L: AsRef<str>>(location: L) -> impl actix_web::Responder {
 ///
 /// The response is sent with status code `303` and `location` header.
 ///
-/// *This function is available if Reign is built with the `"views-gotham"`
-/// and `"helpers-redirect"` feature.*
+/// *This function is available if Reign is built with the `"views-gotham"` feature.*
 ///
 /// # Examples
 ///
@@ -467,7 +465,7 @@ pub fn redirect_actix<L: AsRef<str>>(location: L) -> impl actix_web::Responder {
 /// #   }
 /// # });
 /// ```
-#[cfg(all(feature = "helpers-redirect", feature = "views-gotham"))]
+#[cfg(feature = "views-gotham")]
 pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<gotham::hyper::Body> {
     use gotham::hyper::{header, Body, Response, StatusCode};
 
@@ -487,8 +485,7 @@ pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<go
 ///
 /// The response is sent with status code `303` and `location` header.
 ///
-/// *This function is available if Reign is built with the `"views-tide"`
-/// and `"helpers-redirect"` feature.*
+/// *This function is available if Reign is built with the `"views-tide"` feature.*
 ///
 /// # Examples
 ///
@@ -537,7 +534,7 @@ pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<go
 /// #   }
 /// # });
 /// ```
-#[cfg(all(feature = "helpers-redirect", feature = "views-tide"))]
+#[cfg(feature = "views-tide")]
 pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
     use tide::{http::StatusCode, Response};
 
@@ -548,8 +545,7 @@ pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
 ///
 /// The response is sent with status code `303` and `location` header.
 ///
-/// *This function is available if Reign is built with the `"views-warp"`
-/// and `"helpers-redirect"` feature.*
+/// *This function is available if Reign is built with the `"views-warp"` feature.*
 ///
 /// # Examples
 ///
@@ -597,7 +593,7 @@ pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
 /// #   }
 /// # });
 /// ```
-#[cfg(all(feature = "helpers-redirect", feature = "views-warp"))]
+#[cfg(feature = "views-warp")]
 pub fn redirect_warp<L: AsRef<str>>(location: L) -> warp::hyper::Response<warp::hyper::Body> {
     use warp::hyper::{header, Body, Response, StatusCode};
 

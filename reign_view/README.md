@@ -439,24 +439,23 @@ to see how they are used.
 
 ##### views-actix
 
-Enables `render_actix` helper and `render!` can be used for actix's request handler.
+* Enables `render_actix` helper and `render!` can be used for actix's request handler.
+* Enables `redirect_actix` helper and `redirect!` can be used for actix's request handler.
 
 ##### views-gotham
 
-Enables `render_gotham` helper and `render!` can be used for gotham's handler.
+* Enables `render_gotham` helper and `render!` can be used for gotham's handler.
+* Enables `redirect_gotham` helper and `redirect!` can be used for gotham's handler.
 
 ##### views-tide
 
-Enables `render_tide` helper and `render!` can be used for tide's endpoint closure.
+* Enables `render_tide` helper and `render!` can be used for tide's endpoint closure.
+* Enables `redirect_tide` helper and `redirect!` can be used for tide's endpoint closure.
 
 ##### views-warp
 
-Enables `render_warp` helper and `render!` can be used for warp's closure.
-
-##### helpers-redirect
-
-For each supported micro framework, enables `redirect_*` helper and `redirect!` can be used
-for their respective handlers or closures. Only works if one of the `views-*` feature is enabled.
+* Enables `render_warp` helper and `render!` can be used for warp's closure.
+* Enables `redirect_warp` helper and `redirect!` can be used for warp's closure.
 
 # Appendix
 
