@@ -9,7 +9,7 @@ by future extensibility, modularization and customization.
 
 This library also provides multiple helpers and feature gates
 which an user can use to customize, allowing the library to be
-used directly with multiple web frameworks like <!--[rocket][],-->
+used directly with multiple micro frameworks like <!--[rocket][],-->
 [gotham][], [actix][], [warp][] and [tide][].
 
 Please refer to [API documentation](https://docs.rs/reign_view) for more details.
@@ -431,7 +431,7 @@ However, you can still wrap default slot content in a `<template>` if you wish t
 There are multiple feature gates to help the user select what he wants from the library.
 By default, none of them are selected and the default rendering results in a plain string.
 
-All the features are considered to be mutually exclusive and using them
+All the `views-*` features are considered to be mutually exclusive and using them
 together might have unintended consequences.
 
 You can check the [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
@@ -439,19 +439,24 @@ to see how they are used.
 
 ##### views-actix
 
-Enables `render_actix` helper and `render!` can be used for actix's request handler
+Enables `render_actix` helper and `render!` can be used for actix's request handler.
 
 ##### views-gotham
 
-Enables `render_gotham` helper and `render!` can be used for gotham's handler
+Enables `render_gotham` helper and `render!` can be used for gotham's handler.
 
 ##### views-tide
 
-Enables `render_tide` helper and `render!` can be used for tide's endpoint closure
+Enables `render_tide` helper and `render!` can be used for tide's endpoint closure.
 
 ##### views-warp
 
-Enables `render_warp` helper and `render!` can be used for warp's closure
+Enables `render_warp` helper and `render!` can be used for warp's closure.
+
+##### helpers-redirect
+
+For each supported micro framework, enables `redirect_*` helper and `redirect!` can be used
+for their respective handlers or closures. Only works if one of the `views-*` feature is enabled.
 
 # Appendix
 

@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["views-gotham"], default-features = false }
+reign = { path = "../../../../reign", features = ["views-gotham", "helpers-redirect"], default-features = false }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 futures = "0.3"
 tokio = { version = "0.2", features = ["full"] }

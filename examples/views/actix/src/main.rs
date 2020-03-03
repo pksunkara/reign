@@ -11,13 +11,21 @@ async fn hello(_: HttpRequest) -> impl Responder {
     render!(app)
 }
 
+async fn world(_: HttpRequest) -> impl Responder {
+    redirect!("/")
+}
+
 async fn server() {
-    HttpServer::new(|| App::new().route("/", web::get().to(hello)))
-        .bind("127.0.0.1:8080")
-        .unwrap()
-        .run()
-        .await
-        .unwrap()
+    HttpServer::new(|| {
+        App::new()
+            .route("/", web::get().to(hello))
+            .route("/world", web::get().to(world))
+    })
+    .bind("127.0.0.1:8080")
+    .unwrap()
+    .run()
+    .await
+    .unwrap()
 }
 
 #[actix_rt::main]
@@ -29,6 +37,7 @@ async fn main() {
 mod tests {
     use super::*;
     use actix_rt::{spawn, time::delay_for};
+    use reqwest::{redirect::Policy, Client, StatusCode};
     use std::time::Duration;
 
     #[actix_rt::test]
@@ -36,16 +45,21 @@ mod tests {
         spawn(server());
 
         delay_for(Duration::from_millis(100)).await;
-        let body = reqwest::get("http://localhost:8080")
-            .await
-            .unwrap()
-            .text()
+        let client = Client::builder().redirect(Policy::none()).build().unwrap();
+
+        let response = client.get("http://localhost:8080").send().await.unwrap();
+
+        assert_eq!(
+            response.text().await.unwrap(),
+            "<div>\n  <h1>Actix</h1>\n  <p>Hello World!</p>\n</div>"
+        );
+
+        let response = client
+            .get("http://localhost:8080/world")
+            .send()
             .await
             .unwrap();
 
-        assert_eq!(
-            &body,
-            "<div>\n  <h1>Actix</h1>\n  <p>Hello World!</p>\n</div>"
-        );
+        assert_eq!(response.status(), StatusCode::SEE_OTHER);
     }
 }

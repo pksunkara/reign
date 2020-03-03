@@ -45,6 +45,7 @@ views-actix = ["actix-web", "mime"]
 views-gotham = ["gotham", "mime"]
 views-tide = ["tide", "mime"]
 views-warp = ["warp", "mime"]
+helpers-redirect = []
 
 [package.metadata.docs.rs]
 all-features = true

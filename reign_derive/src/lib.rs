@@ -2,7 +2,7 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
-use syn::parse_macro_input;
+use syn::{parse_macro_input, Expr};
 
 #[cfg(feature = "router")]
 mod router;
@@ -38,7 +38,7 @@ pub fn views(input: TokenStream) -> TokenStream {
     views::views(input).into()
 }
 
-/// Shorthand notation for rendering a view in a controller action.
+/// Shorthand notation for rendering a view.
 ///
 /// # Examples
 ///
@@ -55,6 +55,27 @@ pub fn render(input: TokenStream) -> TokenStream {
     let input: views::Render = parse_macro_input!(input);
 
     views::render(input).into()
+}
+
+/// Shorthand notation for returning a redirect response.
+///
+/// *This function is available if Reign is built with the `"helpers-redirect"` feature.*
+///
+/// # Examples
+///
+/// Redirect to the given url
+///
+/// ```ignore
+/// use reign::prelude::*;
+///
+/// redirect!("/dashboard")
+/// ```
+#[cfg(feature = "helpers-redirect")]
+#[proc_macro]
+pub fn redirect(input: TokenStream) -> TokenStream {
+    let input: Expr = parse_macro_input!(input);
+
+    views::redirect(input).into()
 }
 
 #[cfg(feature = "router")]
