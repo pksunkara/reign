@@ -11,4 +11,4 @@ tide = "0.6"
 tokio = { version = "0.2", features = ["full"] }
 
 [dev-dependencies]
-reqwest = "0.10"
+test_examples = { path = "../../../development/test_examples" }

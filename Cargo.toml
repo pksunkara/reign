@@ -50,6 +50,8 @@ members = [
 	"examples/views/gotham",
 	"examples/views/tide",
 	"examples/views/warp",
+
+	"development/test_examples",
 ]
 default-members = [
 	".",

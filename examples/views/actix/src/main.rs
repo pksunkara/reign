@@ -37,29 +37,18 @@ async fn main() {
 mod tests {
     use super::*;
     use actix_rt::{spawn, time::delay_for};
-    use reqwest::{redirect::Policy, Client, StatusCode};
     use std::time::Duration;
+    use test_examples::views::test;
 
     #[actix_rt::test]
     async fn test_server() {
         spawn(server());
 
-        delay_for(Duration::from_millis(100)).await;
-        let client = Client::builder().redirect(Policy::none()).build().unwrap();
+        let client = async {
+            delay_for(Duration::from_millis(100)).await;
+            test().await
+        };
 
-        let response = client.get("http://localhost:8080").send().await.unwrap();
-
-        assert_eq!(
-            response.text().await.unwrap(),
-            "<div>\n  <h1>Actix</h1>\n  <p>Hello World!</p>\n</div>"
-        );
-
-        let response = client
-            .get("http://localhost:8080/world")
-            .send()
-            .await
-            .unwrap();
-
-        assert_eq!(response.status(), StatusCode::SEE_OTHER);
+        client.await
     }
 }

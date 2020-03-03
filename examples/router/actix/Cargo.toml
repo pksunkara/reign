@@ -12,4 +12,4 @@ actix-rt = "1.0"
 actix-service = "1.0"
 
 [dev-dependencies]
-reqwest = "0.10"
+test_examples = { path = "../../../development/test_examples" }

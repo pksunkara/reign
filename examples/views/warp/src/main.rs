@@ -27,30 +27,15 @@ async fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use reqwest::{redirect::Policy, Client, StatusCode};
     use std::time::Duration;
+    use test_examples::views::test;
     use tokio::{select, time::delay_for};
 
     #[tokio::test]
     async fn test_server() {
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            let client = Client::builder().redirect(Policy::none()).build().unwrap();
-
-            let response = client.get("http://localhost:8080").send().await.unwrap();
-
-            assert_eq!(
-                response.text().await.unwrap(),
-                "<div>\n  <h1>Warp</h1>\n  <p>Hello World!</p>\n</div>"
-            );
-
-            let response = client
-                .get("http://localhost:8080/world")
-                .send()
-                .await
-                .unwrap();
-
-            assert_eq!(response.status(), StatusCode::SEE_OTHER);
+            test().await
         };
 
         select! {
