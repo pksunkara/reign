@@ -2,14 +2,6 @@
 #![doc(html_root_url = "https://docs.rs/reign_view/0.1.2")]
 #![cfg_attr(feature = "build-docs", doc(include = "../README.md"))]
 
-#[cfg(any(
-    feature = "views-gotham",
-    feature = "views-warp",
-    feature = "views-tide",
-    feature = "views-actix"
-))]
-use std::fmt::{write, Display};
-
 #[doc(hidden)]
 pub use maplit;
 
@@ -22,8 +14,7 @@ pub use slots::{slot_render, Slots};
 
 /// Renders a view for [actix](https://actix.rs) request handler.
 ///
-/// The response is sent with status code `200`
-/// and content-type set as `text/html`.
+/// The response is sent with content-type set as `text/html`.
 ///
 /// *This function is available if Reign is built with the `"views-actix"` feature.*
 ///
@@ -50,7 +41,7 @@ pub use slots::{slot_render, Slots};
 /// pub async fn handler() -> impl Responder {
 ///     render_actix(CustomView {
 ///         msg: "Hello Actix!"
-///     })
+///     }, 200)
 /// }
 /// #
 /// # let mut rt = System::new("main");
@@ -78,23 +69,29 @@ pub use slots::{slot_render, Slots};
 /// # });
 /// ```
 #[cfg(feature = "views-actix")]
-pub fn render_actix<D: Display>(view: D) -> impl actix_web::Responder {
-    use actix_web::{http::header::ContentType, HttpResponse};
+pub fn render_actix<D: std::fmt::Display>(view: D, status: u16) -> impl actix_web::Responder {
+    use actix_web::{
+        dev::HttpResponseBuilder,
+        http::{header::ContentType, StatusCode},
+        HttpResponse,
+    };
 
     let mut content = String::new();
 
-    match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => HttpResponse::Ok()
-            .set(ContentType(mime::TEXT_HTML_UTF_8))
-            .body(content),
+    match std::fmt::write(&mut content, format_args!("{}", view)) {
+        Ok(()) => match StatusCode::from_u16(status) {
+            Ok(status) => HttpResponseBuilder::new(status)
+                .set(ContentType(mime::TEXT_HTML_UTF_8))
+                .body(content),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        },
         Err(_) => HttpResponse::InternalServerError().finish(),
     }
 }
 
 /// Renders a view for [gotham](https://gotham.rs) handler.
 ///
-/// The response is sent with status code `200`
-/// and content-type set as `text/html`.
+/// The response is sent with content-type set as `text/html`.
 ///
 /// *This function is available if Reign is built with the `"views-gotham"` feature.*
 ///
@@ -125,7 +122,7 @@ pub fn render_actix<D: Display>(view: D) -> impl actix_web::Responder {
 /// pub fn handler(state: State) -> (State, Response<Body>) {
 ///     (state, render_gotham(CustomView {
 ///         msg: "Hello Gotham!"
-///     }))
+///     }, 200))
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
@@ -158,26 +155,35 @@ pub fn render_actix<D: Display>(view: D) -> impl actix_web::Responder {
 /// # });
 /// ```
 #[cfg(feature = "views-gotham")]
-pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyper::Body> {
+pub fn render_gotham<D: std::fmt::Display>(
+    view: D,
+    status: u16,
+) -> gotham::hyper::Response<gotham::hyper::Body> {
     use gotham::hyper::{header, Body, Response, StatusCode};
 
     let mut content = String::new();
 
-    match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => {
-            let mut response = Response::builder()
-                .status(StatusCode::OK)
+    match std::fmt::write(&mut content, format_args!("{}", view)) {
+        Ok(()) => match StatusCode::from_u16(status) {
+            Ok(status) => {
+                let mut response = Response::builder()
+                    .status(status)
+                    .body(Body::empty())
+                    .expect("Response built from a compatible type");
+
+                response.headers_mut().insert(
+                    header::CONTENT_TYPE,
+                    mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
+                );
+
+                *response.body_mut() = content.into();
+                response
+            }
+            Err(_) => Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(Body::empty())
-                .expect("Response built from a compatible type");
-
-            response.headers_mut().insert(
-                header::CONTENT_TYPE,
-                mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
-            );
-
-            *response.body_mut() = content.into();
-            response
-        }
+                .expect("Response built from a compatible type"),
+        },
         Err(_) => Response::builder()
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::empty())
@@ -187,8 +193,7 @@ pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyp
 
 /// Renders a view for [tide](https://docs.rs/tide) endpoint closure.
 ///
-/// The response is sent with status code `200`
-/// and content-type set as `text/html`.
+/// The response is sent with content-type set as `text/html`.
 ///
 /// *This function is available if Reign is built with the `"views-tide"` feature.*
 ///
@@ -215,7 +220,7 @@ pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyp
 /// app.at("/").get(|_| async move {
 ///     render_tide(CustomView {
 ///         msg: "Hello Tide!"
-///     })
+///     }, 200)
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
@@ -244,23 +249,25 @@ pub fn render_gotham<D: Display>(view: D) -> gotham::hyper::Response<gotham::hyp
 /// #   }
 /// # });
 #[cfg(feature = "views-tide")]
-pub fn render_tide<D: Display>(view: D) -> tide::Response {
+pub fn render_tide<D: std::fmt::Display>(view: D, status: u16) -> tide::Response {
     use tide::{http::StatusCode, Response};
 
     let mut content = String::new();
 
-    match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => Response::new(StatusCode::OK.as_u16())
-            .body_string(content)
-            .set_mime(mime::TEXT_HTML_UTF_8),
+    match std::fmt::write(&mut content, format_args!("{}", view)) {
+        Ok(()) => match StatusCode::from_u16(status.clone()) {
+            Ok(_) => Response::new(status)
+                .body_string(content)
+                .set_mime(mime::TEXT_HTML_UTF_8),
+            Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+        },
         Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
     }
 }
 
 /// Renders a view for [warp](https://docs.rs/warp) closure.
 ///
-/// The response is sent with status code `200`
-/// and content-type set as `text/html`.
+/// The response is sent with content-type set as `text/html`.
 ///
 /// *This function is available if Reign is built with the `"views-warp"` feature.*
 ///
@@ -286,7 +293,7 @@ pub fn render_tide<D: Display>(view: D) -> tide::Response {
 /// let app = warp::any().map(|| {
 ///     render_warp(CustomView {
 ///         msg: "Hello Warp!"
-///     })
+///     }, 200)
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
@@ -315,26 +322,35 @@ pub fn render_tide<D: Display>(view: D) -> tide::Response {
 /// #   }
 /// # });
 #[cfg(feature = "views-warp")]
-pub fn render_warp<D: Display>(view: D) -> warp::hyper::Response<warp::hyper::Body> {
+pub fn render_warp<D: std::fmt::Display>(
+    view: D,
+    status: u16,
+) -> warp::hyper::Response<warp::hyper::Body> {
     use warp::hyper::{header, Body, Response, StatusCode};
 
     let mut content = String::new();
 
-    match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => {
-            let mut response = Response::builder()
-                .status(StatusCode::OK)
+    match std::fmt::write(&mut content, format_args!("{}", view)) {
+        Ok(()) => match StatusCode::from_u16(status) {
+            Ok(status) => {
+                let mut response = Response::builder()
+                    .status(status)
+                    .body(Body::empty())
+                    .expect("Response built from a compatible type");
+
+                response.headers_mut().insert(
+                    header::CONTENT_TYPE,
+                    mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
+                );
+
+                *response.body_mut() = content.into();
+                response
+            }
+            Err(_) => Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(Body::empty())
-                .expect("Response built from a compatible type");
-
-            response.headers_mut().insert(
-                header::CONTENT_TYPE,
-                mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
-            );
-
-            *response.body_mut() = content.into();
-            response
-        }
+                .expect("Response built from a compatible type"),
+        },
         Err(_) => Response::builder()
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::empty())

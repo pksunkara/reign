@@ -437,6 +437,9 @@ together might have unintended consequences.
 You can check the [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
 to see how they are used.
 
+Please refer to [reign_derive](https://docs.rs/reign_derive) for more information about the
+usage of helper macros.
+
 ##### views-actix
 
 * Enables `render_actix` helper and `render!` can be used for actix's request handler.

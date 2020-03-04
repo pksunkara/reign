@@ -1,3 +1,4 @@
+use super::utils::Options;
 use inflector::cases::pascalcase::to_pascal_case;
 use lazy_static::lazy_static;
 use proc_macro2::{Span, TokenStream};
@@ -12,6 +13,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 use syn::{
     parse::{Parse, ParseStream, Result},
+    parse_str,
     punctuated::Punctuated,
     token::{Colon2, Comma},
     Expr, Ident, LitStr,
@@ -22,6 +24,7 @@ lazy_static! {
 }
 
 // TODO: Options after the paths (including changing `crate::views`)
+// Can't use parse_separated_non_empty here
 pub struct Views {
     paths: Punctuated<LitStr, Comma>,
 }
@@ -36,6 +39,7 @@ impl Parse for Views {
 
 pub struct Render {
     path: Punctuated<Ident, Colon2>,
+    options: Options,
 }
 
 impl Render {
@@ -51,7 +55,8 @@ impl Render {
 impl Parse for Render {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Render {
-            path: input.parse_terminated(|i| i.parse::<Ident>())?,
+            path: Punctuated::<Ident, Colon2>::parse_separated_nonempty(input)?,
+            options: input.parse()?,
         })
     }
 }
@@ -163,8 +168,8 @@ fn view_path(input: &Render) -> TokenStream {
     }
 }
 
-fn capture(input: Render) -> TokenStream {
-    let path = view_path(&input);
+fn capture(input: &Render) -> TokenStream {
+    let path = view_path(input);
     let ident_map = IDENTMAP.lock().unwrap();
     let value = ident_map.get(&input.id());
 
@@ -200,24 +205,29 @@ fn capture(input: Render) -> TokenStream {
     }
 }
 
-pub fn render(input: Render) -> TokenStream {
-    let capture = capture(input);
+pub fn render(mut input: Render) -> TokenStream {
+    let capture = capture(&input);
+
+    let status: Expr = input
+        .options
+        .remove("status")
+        .unwrap_or_else(|| parse_str("200").unwrap());
 
     if cfg!(feature = "views-actix") {
         quote! {
-            ::reign::view::render_actix(#capture)
+            ::reign::view::render_actix(#capture, #status)
         }
     } else if cfg!(feature = "views-gotham") {
         quote! {
-            ::reign::view::render_gotham(#capture)
+            ::reign::view::render_gotham(#capture, #status)
         }
     } else if cfg!(feature = "views-tide") {
         quote! {
-            ::reign::view::render_tide(#capture)
+            ::reign::view::render_tide(#capture, #status)
         }
     } else if cfg!(feature = "views-warp") {
         quote! {
-            ::reign::view::render_warp(#capture)
+            ::reign::view::render_warp(#capture, #status)
         }
     } else {
         quote! {

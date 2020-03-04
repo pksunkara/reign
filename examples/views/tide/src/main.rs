@@ -15,6 +15,12 @@ async fn server() {
 
     app.at("/world").get(|_| async move { redirect!("/") });
 
+    app.at("/hey").get(|_| async move {
+        let msg = "Hey!";
+
+        render!(app, status = 404)
+    });
+
     app.listen("127.0.0.1:8080").await.unwrap();
 }
 

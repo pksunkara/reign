@@ -20,10 +20,17 @@ fn world(state: State) -> (State, Response<Body>) {
     (state, redirect!("/"))
 }
 
+fn hey(state: State) -> (State, Response<Body>) {
+    let msg = "Hey!";
+
+    (state, render!(app, status = 404))
+}
+
 fn router() -> Router {
     build_simple_router(|route| {
         route.get("/").to(hello);
         route.get("/world").to(world);
+        route.get("/hey").to(hey);
     })
 }
 

@@ -14,7 +14,13 @@ async fn server() {
 
     let world = warp::path("world").map(|| redirect!("/"));
 
-    let app = hello.or(world);
+    let hey = warp::path("hey").map(|| {
+        let msg = "Hey!";
+
+        render!(app, status = 404)
+    });
+
+    let app = hello.or(world.or(hey));
 
     warp::serve(app).run(([127, 0, 0, 1], 8080)).await
 }

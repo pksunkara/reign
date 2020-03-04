@@ -15,11 +15,18 @@ async fn world(_: HttpRequest) -> impl Responder {
     redirect!("/")
 }
 
+async fn hey(_: HttpRequest) -> impl Responder {
+    let msg = "Hey!";
+
+    render!(app, status = 404)
+}
+
 async fn server() {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(hello))
             .route("/world", web::get().to(world))
+            .route("/hey", web::get().to(hey))
     })
     .bind("127.0.0.1:8080")
     .unwrap()

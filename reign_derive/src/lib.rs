@@ -12,6 +12,8 @@ use syn::{parse_macro_input, Expr};
 mod router;
 mod views;
 
+mod utils;
+
 /// Auto load the views from the given directory.
 ///
 /// Folder names should start with an alphabet and end with alphanumeric
