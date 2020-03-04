@@ -6,9 +6,10 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["views-warp"], default-features = false }
+reign = { path = "../../../../reign", features = ["views-warp", "json"], default-features = false }
 warp = "0.2"
 tokio = { version = "0.2", features = ["full"] }
+serde = "1.0"
 
 [dev-dependencies]
 test_examples = { path = "../../../development/test_examples" }

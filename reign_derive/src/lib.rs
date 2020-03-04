@@ -39,9 +39,9 @@ mod utils;
 /// ```
 #[proc_macro]
 pub fn views(input: TokenStream) -> TokenStream {
-    let input: views::Views = parse_macro_input!(input);
+    let input: views::render::Views = parse_macro_input!(input);
 
-    views::views(input).into()
+    views::render::views(input).into()
 }
 
 /// Shorthand notation for rendering a view.
@@ -58,9 +58,9 @@ pub fn views(input: TokenStream) -> TokenStream {
 #[proc_macro]
 #[proc_macro_error]
 pub fn render(input: TokenStream) -> TokenStream {
-    let input: views::Render = parse_macro_input!(input);
+    let input: views::render::Render = parse_macro_input!(input);
 
-    views::render(input).into()
+    views::render::render(input).into()
 }
 
 /// Shorthand notation for returning a redirect response.
@@ -78,7 +78,31 @@ pub fn render(input: TokenStream) -> TokenStream {
 pub fn redirect(input: TokenStream) -> TokenStream {
     let input: Expr = parse_macro_input!(input);
 
-    views::redirect(input).into()
+    views::redirect::redirect(input).into()
+}
+
+/// Shorthand notation for returning a json response.
+///
+/// # Examples
+///
+/// Serialize into JSON and send the given value
+///
+/// ```ignore
+/// use reign::prelude::*;
+///
+/// // User implements serde::Serialize
+/// let user = User {
+///     name: "John"
+/// };
+///
+/// json!(user)
+/// ```
+#[cfg(feature = "json")]
+#[proc_macro]
+pub fn json(input: TokenStream) -> TokenStream {
+    let input: views::json::Json = parse_macro_input!(input);
+
+    views::json::json(input).into()
 }
 
 #[cfg(feature = "router")]

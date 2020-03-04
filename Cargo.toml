@@ -74,6 +74,7 @@ router = []
 router-actix = ["reign_router/router-actix", "reign_derive/router-actix", "router"]
 router-gotham = ["reign_router/router-gotham", "reign_derive/router-gotham", "router"]
 router-tide  = ["reign_router/router-tide", "reign_derive/router-tide", "router"]
+json = ["reign_view/json", "reign_derive/json"]
 
 [package.metadata.docs.rs]
 all-features = true

@@ -1,4 +1,4 @@
-use super::utils::Options;
+use crate::utils::Options;
 use inflector::cases::pascalcase::to_pascal_case;
 use lazy_static::lazy_static;
 use proc_macro2::{Span, TokenStream};
@@ -233,27 +233,5 @@ pub fn render(mut input: Render) -> TokenStream {
         quote! {
             format!("{}", #capture)
         }
-    }
-}
-
-pub fn redirect(input: Expr) -> TokenStream {
-    if cfg!(feature = "views-actix") {
-        quote! {
-            ::reign::view::redirect_actix(#input)
-        }
-    } else if cfg!(feature = "views-gotham") {
-        quote! {
-            ::reign::view::redirect_gotham(#input)
-        }
-    } else if cfg!(feature = "views-tide") {
-        quote! {
-            ::reign::view::redirect_tide(#input)
-        }
-    } else if cfg!(feature = "views-warp") {
-        quote! {
-            ::reign::view::redirect_warp(#input)
-        }
-    } else {
-        quote! {}
     }
 }

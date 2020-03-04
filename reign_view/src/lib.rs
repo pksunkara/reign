@@ -624,3 +624,325 @@ pub fn redirect_warp<L: AsRef<str>>(location: L) -> warp::hyper::Response<warp::
 
     response
 }
+
+/// Serializes and sends JSON for [actix](https://actix.rs) request handler.
+///
+/// The response is sent with content-type set as `application/json`.
+///
+/// *This function is available if Reign is built with the `"views-actix"`
+/// and `"json"` feature.*
+///
+/// # Examples
+///
+/// ```
+/// use reign::view::json_actix;
+/// use actix_web::Responder;
+/// # use actix_web::{web, App, HttpServer};
+/// # use actix_rt::{System, spawn, time::delay_for};
+/// # use std::time::Duration;
+/// # use serde::Serialize;
+///
+/// # #[derive(Serialize)]
+/// # struct User<'a> {
+/// #   name: &'a str
+/// # }
+/// #
+/// pub async fn handler() -> impl Responder {
+///     json_actix(User {
+///         name: "Actix"
+///     }, 200)
+/// }
+/// #
+/// # let mut rt = System::new("main");
+/// #
+/// # rt.block_on(async {
+/// #   spawn(async {
+/// #       HttpServer::new(|| App::new().route("/", web::get().to(handler)))
+/// #           .bind("127.0.0.1:8080")
+/// #           .unwrap()
+/// #           .run()
+/// #           .await
+/// #           .unwrap();
+/// #   });
+/// #
+/// #   delay_for(Duration::from_millis(100)).await;
+/// #   let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #
+/// #   assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #   assert!(response.headers().contains_key("content-type"));
+/// #   assert_eq!(
+/// #       response.headers()["content-type"],
+/// #       "application/json"
+/// #   );
+/// #   assert_eq!(response.text().await.unwrap(), r#"{"name":"Actix"}"#);
+/// # });
+/// ```
+#[cfg(all(feature = "json", feature = "views-actix"))]
+pub fn json_actix<S: serde::Serialize>(value: S, status: u16) -> impl actix_web::Responder {
+    use actix_web::{
+        dev::HttpResponseBuilder,
+        http::{header::ContentType, StatusCode},
+        HttpResponse,
+    };
+
+    match serde_json::to_string::<S>(&value) {
+        Ok(content) => match StatusCode::from_u16(status) {
+            Ok(status) => HttpResponseBuilder::new(status)
+                .set(ContentType(mime::APPLICATION_JSON))
+                .body(content),
+            Err(_) => HttpResponse::InternalServerError().finish(),
+        },
+        Err(_) => HttpResponse::InternalServerError().finish(),
+    }
+}
+
+/// Serializes and sends JSON for [gotham](https://gotham.rs) handler.
+///
+/// The response is sent with content-type set as `application/json`.
+///
+/// *This function is available if Reign is built with the `"views-gotham"`
+/// and `"json"` feature.*
+///
+/// # Examples
+///
+/// ```
+/// use reign::view::json_gotham;
+/// use gotham::state::State;
+/// use gotham::hyper::{Body, Response};
+/// # use gotham::{
+/// #   router::builder::{build_simple_router, DrawRoutes, DefineSingleRoute},
+/// #   init_server
+/// # };
+/// # use serde::Serialize;
+/// # use std::time::Duration;
+/// # use tokio::{runtime::Runtime, select, time::delay_for};
+///
+/// # #[derive(Serialize)]
+/// # struct User<'a> {
+/// #   name: &'a str
+/// # }
+/// #
+/// pub fn handler(state: State) -> (State, Response<Body>) {
+///     (state, json_gotham(User {
+///         name: "Gotham"
+///     }, 200))
+/// }
+/// # let mut rt = Runtime::new().unwrap();
+/// #
+/// # rt.block_on(async {
+/// #   let server = async {
+/// #       let router = build_simple_router(|route| {
+/// #           route.get("/").to(handler);
+/// #       });
+/// #
+/// #       init_server("127.0.0.1:8080", router).await.unwrap()
+/// #   };
+/// #
+/// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
+/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #
+/// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #       assert!(response.headers().contains_key("content-type"));
+/// #       assert_eq!(
+/// #           response.headers()["content-type"],
+/// #           "application/json"
+/// #       );
+/// #       assert_eq!(response.text().await.unwrap(), r#"{"name":"Gotham"}"#);
+/// #   };
+/// #
+/// #   select! {
+/// #       _ = server => {}
+/// #       _ = client => {}
+/// #   }
+/// # });
+/// ```
+#[cfg(all(feature = "json", feature = "views-gotham"))]
+pub fn json_gotham<S: serde::Serialize>(
+    value: S,
+    status: u16,
+) -> gotham::hyper::Response<gotham::hyper::Body> {
+    use gotham::hyper::{header, Body, Response, StatusCode};
+
+    match serde_json::to_string::<S>(&value) {
+        Ok(content) => match StatusCode::from_u16(status) {
+            Ok(status) => {
+                let mut response = Response::builder()
+                    .status(status)
+                    .body(Body::empty())
+                    .expect("Response built from a compatible type");
+
+                response.headers_mut().insert(
+                    header::CONTENT_TYPE,
+                    mime::APPLICATION_JSON.as_ref().parse().unwrap(),
+                );
+
+                *response.body_mut() = content.into();
+                response
+            }
+            Err(_) => Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::empty())
+                .expect("Response built from a compatible type"),
+        },
+        Err(_) => Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(Body::empty())
+            .expect("Response built from a compatible type"),
+    }
+}
+
+/// Serializes and sends JSON for [tide](https://docs.rs/tide) endpoint closure.
+///
+/// The response is sent with content-type set as `application/json`.
+///
+/// *This function is available if Reign is built with the `"views-tide"`
+/// and `"json"` feature.*
+///
+/// # Examples
+///
+/// ```
+/// use reign::view::json_tide;
+/// # use serde::Serialize;
+/// # use std::time::Duration;
+/// # use tokio::{runtime::Runtime, select, time::delay_for};
+///
+/// # #[derive(Serialize)]
+/// # struct User<'a> {
+/// #   name: &'a str
+/// # }
+/// #
+/// # let mut app = tide::new();
+/// #
+/// app.at("/").get(|_| async move {
+///     json_tide(User {
+///         name: "Tide"
+///     }, 200)
+/// });
+/// #
+/// # let mut rt = Runtime::new().unwrap();
+/// #
+/// # rt.block_on(async {
+/// #   let server = async {
+/// #       app.listen("127.0.0.1:8080").await.unwrap();
+/// #   };
+/// #
+/// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
+/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #
+/// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #       assert!(response.headers().contains_key("content-type"));
+/// #       assert_eq!(
+/// #           response.headers()["content-type"],
+/// #           "application/json"
+/// #       );
+/// #       assert_eq!(response.text().await.unwrap(), r#"{"name":"Tide"}"#);
+/// #   };
+/// #
+/// #   select! {
+/// #       _ = server => {}
+/// #       _ = client => {}
+/// #   }
+/// # });
+#[cfg(all(feature = "json", feature = "views-tide"))]
+pub fn json_tide<S: serde::Serialize>(value: S, status: u16) -> tide::Response {
+    use tide::{http::StatusCode, Response};
+
+    match serde_json::to_string::<S>(&value) {
+        Ok(content) => match StatusCode::from_u16(status.clone()) {
+            Ok(_) => Response::new(status)
+                .body_string(content)
+                .set_mime(mime::APPLICATION_JSON),
+            Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+        },
+        Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+    }
+}
+
+/// Serializes and sends JSON for [warp](https://docs.rs/warp) closure.
+///
+/// The response is sent with content-type set as `application/json`.
+///
+/// *This function is available if Reign is built with the `"views-warp"`
+/// and `"json"` feature.*
+///
+/// # Examples
+///
+/// ```
+/// use reign::view::json_warp;
+/// use warp::Filter;
+/// # use serde::Serialize;
+/// # use std::time::Duration;
+/// # use tokio::{runtime::Runtime, select, time::delay_for};
+///
+/// # #[derive(Serialize)]
+/// # struct User<'a> {
+/// #   name: &'a str
+/// # }
+/// #
+/// let app = warp::any().map(|| {
+///     json_warp(User {
+///         name: "Warp"
+///     }, 200)
+/// });
+/// #
+/// # let mut rt = Runtime::new().unwrap();
+/// #
+/// # rt.block_on(async {
+/// #   let server = async move {
+/// #       warp::serve(app).run(([127, 0, 0, 1], 8080)).await;
+/// #   };
+/// #
+/// #   let client = async {
+/// #       delay_for(Duration::from_millis(100)).await;
+/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #
+/// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
+/// #       assert!(response.headers().contains_key("content-type"));
+/// #       assert_eq!(
+/// #           response.headers()["content-type"],
+/// #           "application/json"
+/// #       );
+/// #       assert_eq!(response.text().await.unwrap(), r#"{"name":"Warp"}"#);
+/// #   };
+/// #
+/// #   select! {
+/// #       _ = server => {}
+/// #       _ = client => {}
+/// #   }
+/// # });
+#[cfg(all(feature = "json", feature = "views-warp"))]
+pub fn json_warp<S: serde::Serialize>(
+    value: S,
+    status: u16,
+) -> warp::hyper::Response<warp::hyper::Body> {
+    use warp::hyper::{header, Body, Response, StatusCode};
+
+    match serde_json::to_string::<S>(&value) {
+        Ok(content) => match StatusCode::from_u16(status) {
+            Ok(status) => {
+                let mut response = Response::builder()
+                    .status(status)
+                    .body(Body::empty())
+                    .expect("Response built from a compatible type");
+
+                response.headers_mut().insert(
+                    header::CONTENT_TYPE,
+                    mime::APPLICATION_JSON.as_ref().parse().unwrap(),
+                );
+
+                *response.body_mut() = content.into();
+                response
+            }
+            Err(_) => Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::empty())
+                .expect("Response built from a compatible type"),
+        },
+        Err(_) => Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(Body::empty())
+            .expect("Response built from a compatible type"),
+    }
+}

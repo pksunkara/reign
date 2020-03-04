@@ -6,9 +6,10 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["views-actix"], default-features = false }
+reign = { path = "../../../../reign", features = ["views-actix", "json"], default-features = false }
 actix-web = "2.0"
 actix-rt = "1.0"
+serde = "1.0"
 
 [dev-dependencies]
 test_examples = { path = "../../../development/test_examples" }
