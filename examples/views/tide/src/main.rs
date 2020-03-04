@@ -1,6 +1,12 @@
 #![feature(proc_macro_hygiene)]
 
 use reign::prelude::*;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct User {
+    name: String,
+}
 
 views!("src", "views");
 
@@ -8,7 +14,7 @@ async fn server() {
     let mut app = tide::new();
 
     app.at("/").get(|_| async move {
-        let msg = "Hello World!";
+        let msg = "Hello Tide!";
 
         render!(app)
     });
@@ -16,9 +22,25 @@ async fn server() {
     app.at("/world").get(|_| async move { redirect!("/") });
 
     app.at("/hey").get(|_| async move {
-        let msg = "Hey!";
+        let msg = "Hey Tide!";
 
         render!(app, status = 404)
+    });
+
+    app.at("/json").get(|_| async move {
+        let user = User {
+            name: "Tide".to_string(),
+        };
+
+        json!(user)
+    });
+
+    app.at("/json_err").get(|_| async move {
+        let user = User {
+            name: "Tide".to_string(),
+        };
+
+        json!(user, status = 422)
     });
 
     app.listen("127.0.0.1:8080").await.unwrap();
@@ -40,7 +62,7 @@ mod tests {
     async fn test_server() {
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            test().await
+            test("Tide").await
         };
 
         select! {

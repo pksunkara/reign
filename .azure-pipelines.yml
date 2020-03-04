@@ -41,7 +41,7 @@ stages:
             displayName: Caching compiled
           - script: rustup default $(rust)-$(target)
             displayName: Install rust
-          - script: cargo test --all-features
+          - script: cargo test --all-features -- --test-threads 1
             displayName: Run cargo tests
           - task: Bash@3
             inputs:

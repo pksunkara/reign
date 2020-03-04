@@ -9,7 +9,7 @@ publish = false
 reign = { path = "../../../../reign", features = ["views-gotham", "json"], default-features = false }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 tokio = { version = "0.2", features = ["full"] }
-serde = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
 test_examples = { path = "../../../development/test_examples" }

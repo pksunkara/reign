@@ -2,11 +2,17 @@
 
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
 use reign::prelude::*;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct User {
+    name: String,
+}
 
 views!("src", "views");
 
 async fn hello(_: HttpRequest) -> impl Responder {
-    let msg = "Hello World!";
+    let msg = "Hello Actix!";
 
     render!(app)
 }
@@ -16,9 +22,25 @@ async fn world(_: HttpRequest) -> impl Responder {
 }
 
 async fn hey(_: HttpRequest) -> impl Responder {
-    let msg = "Hey!";
+    let msg = "Hey Actix!";
 
     render!(app, status = 404)
+}
+
+async fn json(_: HttpRequest) -> impl Responder {
+    let user = User {
+        name: "Actix".to_string(),
+    };
+
+    json!(user)
+}
+
+async fn json_err(_: HttpRequest) -> impl Responder {
+    let user = User {
+        name: "Actix".to_string(),
+    };
+
+    json!(user, status = 422)
 }
 
 async fn server() {
@@ -27,6 +49,8 @@ async fn server() {
             .route("/", web::get().to(hello))
             .route("/world", web::get().to(world))
             .route("/hey", web::get().to(hey))
+            .route("/json", web::get().to(json))
+            .route("/json_err", web::get().to(json_err))
     })
     .bind("127.0.0.1:8080")
     .unwrap()
@@ -53,7 +77,7 @@ mod tests {
 
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            test().await
+            test("Actix").await
         };
 
         client.await

@@ -10,7 +10,7 @@ jobs:
     - rust: nightly-2020-01-08
       name: Run cargo tests
       script:
-        - cargo test --all-features
+        - cargo test --all-features -- --test-threads 1
     - rust: nightly-2020-01-08
       name: Run cargo examples tests
       script:

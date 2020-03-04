@@ -7,11 +7,17 @@ use gotham::{
     state::State,
 };
 use reign::prelude::*;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct User {
+    name: String,
+}
 
 views!("src", "views");
 
 fn hello(state: State) -> (State, Response<Body>) {
-    let msg = "Hello World!";
+    let msg = "Hello Gotham!";
 
     (state, render!(app))
 }
@@ -21,9 +27,25 @@ fn world(state: State) -> (State, Response<Body>) {
 }
 
 fn hey(state: State) -> (State, Response<Body>) {
-    let msg = "Hey!";
+    let msg = "Hey Gotham!";
 
     (state, render!(app, status = 404))
+}
+
+fn json(state: State) -> (State, Response<Body>) {
+    let user = User {
+        name: "Gotham".to_string(),
+    };
+
+    (state, json!(user))
+}
+
+fn json_err(state: State) -> (State, Response<Body>) {
+    let user = User {
+        name: "Gotham".to_string(),
+    };
+
+    (state, json!(user, status = 422))
 }
 
 fn router() -> Router {
@@ -31,6 +53,8 @@ fn router() -> Router {
         route.get("/").to(hello);
         route.get("/world").to(world);
         route.get("/hey").to(hey);
+        route.get("/json").to(json);
+        route.get("/json_err").to(json_err);
     })
 }
 
@@ -54,7 +78,7 @@ mod tests {
     async fn test_server() {
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            test().await
+            test("Gotham").await
         };
 
         select! {

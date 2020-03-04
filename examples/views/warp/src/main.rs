@@ -1,13 +1,19 @@
 #![feature(proc_macro_hygiene)]
 
 use reign::prelude::*;
+use serde::Serialize;
 use warp::Filter;
+
+#[derive(Serialize)]
+struct User {
+    name: String,
+}
 
 views!("src", "views");
 
 async fn server() {
     let hello = warp::path::end().map(|| {
-        let msg = "Hello World!";
+        let msg = "Hello Warp!";
 
         render!(app)
     });
@@ -15,12 +21,28 @@ async fn server() {
     let world = warp::path("world").map(|| redirect!("/"));
 
     let hey = warp::path("hey").map(|| {
-        let msg = "Hey!";
+        let msg = "Hey Warp!";
 
         render!(app, status = 404)
     });
 
-    let app = hello.or(world.or(hey));
+    let json = warp::path("json").map(|| {
+        let user = User {
+            name: "Warp".to_string(),
+        };
+
+        json!(user)
+    });
+
+    let json_err = warp::path("json_err").map(|| {
+        let user = User {
+            name: "Warp".to_string(),
+        };
+
+        json!(user, status = 422)
+    });
+
+    let app = hello.or(world).or(hey).or(json).or(json_err);
 
     warp::serve(app).run(([127, 0, 0, 1], 8080)).await
 }
@@ -41,7 +63,7 @@ mod tests {
     async fn test_server() {
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            test().await
+            test("Warp").await
         };
 
         select! {
