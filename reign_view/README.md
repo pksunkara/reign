@@ -460,6 +460,10 @@ usage of helper macros.
 * Enables `render_warp` helper and `render!` can be used for warp's closure.
 * Enables `redirect_warp` helper and `redirect!` can be used for warp's closure.
 
+##### json
+
+* Enable `json_*` helper and `json!` can be used for each respective router that's been enabled.
+
 # Appendix
 
 ### Expressions
