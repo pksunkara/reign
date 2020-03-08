@@ -1,7 +1,7 @@
 #![feature(proc_macro_hygiene)]
 
-use futures::*;
 use gotham::{
+    hyper::{Body, Response, StatusCode},
     init_server,
     middleware::logger::RequestLogger,
     router::{builder::*, Router},
@@ -12,35 +12,44 @@ use reign::{
     prelude::*,
     router::middleware::{ContentType, HeadersDefault, Runtime},
 };
+use serde_json::{from_str, to_string, Value};
+
+mod errors;
 
 #[action]
 fn root() {
-    Ok((state, "root"))
+    Ok(Response::new("root".into()))
 }
 
 #[action]
 fn api() {
-    Ok((state, "api"))
+    Ok(Response::new("api".into()))
 }
 
 #[action]
 fn account() {
-    Ok((state, "account"))
+    Ok(Response::new("account".into()))
 }
 
 #[action]
 fn orgs() {
-    Ok((state, "orgs"))
+    Ok(Response::new("orgs".into()))
 }
 
 #[action]
 fn repos() {
-    Ok((state, "repos"))
+    Ok(Response::new("repos".into()))
 }
 
 #[action]
 fn users() {
-    Ok((state, "users"))
+    Ok(Response::new("users".into()))
+}
+
+#[action]
+fn error() {
+    let value = from_str::<Value>("{name}")?;
+    Ok(Response::new(to_string(&value)?.into()))
 }
 
 fn router() -> Router {
@@ -63,6 +72,7 @@ fn router() -> Router {
     build_simple_router(|route| {
         scope!("/", [common, app], {
             post!("/", root);
+            get!("/error", error);
 
             scope!("/account", {
                 get!("/", account);

@@ -4,30 +4,45 @@ use reign::{
     prelude::*,
     router::middleware::{ContentType, HeadersDefault, Runtime},
 };
-use tide::{middleware::RequestLogger, Request, Server};
+use serde_json::{from_str, to_string, Value};
+use tide::{middleware::RequestLogger, Response, Server};
 
-async fn root(_: Request<()>) -> &'static str {
-    "root"
+mod errors;
+
+#[action]
+fn root() {
+    Ok(Response::new(200).body_string("root".to_string()))
 }
 
-async fn api(_: Request<()>) -> &'static str {
-    "api"
+#[action]
+fn api() {
+    Ok(Response::new(200).body_string("api".to_string()))
 }
 
-async fn account(_: Request<()>) -> &'static str {
-    "account"
+#[action]
+fn account() {
+    Ok(Response::new(200).body_string("account".to_string()))
 }
 
-async fn orgs(_: Request<()>) -> &'static str {
-    "orgs"
+#[action]
+fn orgs() {
+    Ok(Response::new(200).body_string("orgs".to_string()))
 }
 
-async fn repos(_: Request<()>) -> &'static str {
-    "repos"
+#[action]
+fn repos() {
+    Ok(Response::new(200).body_string("repos".to_string()))
 }
 
-async fn users(_: Request<()>) -> &'static str {
-    "users"
+#[action]
+fn users() {
+    Ok(Response::new(200).body_string("users".to_string()))
+}
+
+#[action]
+fn error() {
+    let value = from_str::<Value>("{name}")?;
+    Ok(Response::new(200).body_string(to_string(&value)?))
 }
 
 fn router() -> Server<()> {
@@ -51,6 +66,7 @@ fn router() -> Server<()> {
 
     scope!("/", [common, app], {
         post!("/", root);
+        get!("/error", error);
 
         scope!("/account", {
             get!("/", account);

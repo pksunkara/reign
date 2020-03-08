@@ -9,6 +9,9 @@ publish = false
 reign = { path = "../../../../reign", features = ["router-tide"], default-features = false }
 tide = "0.6"
 tokio = { version = "0.2", features = ["full"] }
+anyhow = "1"
+thiserror = "1"
+serde_json = "1"
 
 [dev-dependencies]
 test_examples = { path = "../../../development/test_examples" }

@@ -1,33 +1,48 @@
 #![feature(proc_macro_hygiene)]
 
-use actix_web::{middleware::Logger, App, HttpRequest, HttpServer, Responder};
+use actix_web::{middleware::Logger, App, HttpServer};
 use reign::{
     prelude::*,
     router::middleware::{ContentType, HeadersDefault, Runtime},
 };
+use serde_json::{from_str, to_string, Value};
 
-async fn root(_: HttpRequest) -> impl Responder {
-    "root"
+mod errors;
+
+#[action]
+fn root() {
+    Ok("root")
 }
 
-async fn api(_: HttpRequest) -> impl Responder {
-    "api"
+#[action]
+fn api() {
+    Ok("api")
 }
 
-async fn account(_: HttpRequest) -> impl Responder {
-    "account"
+#[action]
+fn account() {
+    Ok("account")
 }
 
-async fn orgs(_: HttpRequest) -> impl Responder {
-    "orgs"
+#[action]
+fn orgs() {
+    Ok("orgs")
 }
 
-async fn repos(_: HttpRequest) -> impl Responder {
-    "repos"
+#[action]
+fn repos() {
+    Ok("repos")
 }
 
-async fn users(_: HttpRequest) -> impl Responder {
-    "users"
+#[action]
+fn users() {
+    Ok("users")
+}
+
+#[action]
+fn error() {
+    let value = from_str::<Value>("{name}")?;
+    Ok(to_string(&value)?)
 }
 
 async fn server() {
@@ -52,6 +67,7 @@ async fn server() {
 
         scope!("/", [common, app], {
             post!("/", root);
+            get!("/", error);
 
             scope!("/account", {
                 get!("/", account);

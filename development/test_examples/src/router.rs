@@ -22,6 +22,13 @@ pub async fn test() {
     assert_eq!(res.status(), StatusCode::UNSUPPORTED_MEDIA_TYPE);
     assert_eq!(res.text().await.unwrap(), "");
 
+    url = "http://localhost:8080/error";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(res.text().await.unwrap(), "");
+
     url = "http://localhost:8080/account";
 
     let res = client.get(url).send().await.unwrap();

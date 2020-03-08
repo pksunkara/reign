@@ -10,6 +10,9 @@ reign = { path = "../../../../reign", features = ["router-gotham"], default-feat
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 futures = "0.3"
 tokio = { version = "0.2", features = ["full"] }
+anyhow = "1"
+thiserror = "1"
+serde_json = "1"
 
 [dev-dependencies]
 test_examples = { path = "../../../development/test_examples" }
