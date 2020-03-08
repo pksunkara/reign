@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, Responder};
+use actix_web::HttpResponse;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -10,7 +10,7 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn respond(&self) -> impl Responder {
+    pub fn respond(&self) -> HttpResponse {
         match self {
             Self::Serde(_) => HttpResponse::UnprocessableEntity().finish(),
             _ => HttpResponse::InternalServerError().finish(),

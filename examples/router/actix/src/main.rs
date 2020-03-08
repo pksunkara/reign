@@ -1,6 +1,6 @@
 #![feature(proc_macro_hygiene)]
 
-use actix_web::{middleware::Logger, App, HttpServer};
+use actix_web::{middleware::Logger, App, HttpResponse, HttpServer};
 use reign::{
     prelude::*,
     router::middleware::{ContentType, HeadersDefault, Runtime},
@@ -16,7 +16,7 @@ fn root() {
 
 #[action]
 fn api() {
-    Ok("api")
+    Ok("api".to_string())
 }
 
 #[action]
@@ -36,7 +36,7 @@ fn repos() {
 
 #[action]
 fn users() {
-    Ok("users")
+    Ok(HttpResponse::Ok().body("users"))
 }
 
 #[action]
@@ -67,7 +67,7 @@ async fn server() {
 
         scope!("/", [common, app], {
             post!("/", root);
-            get!("/", error);
+            get!("/error", error);
 
             scope!("/account", {
                 get!("/", account);

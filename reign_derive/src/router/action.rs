@@ -13,15 +13,20 @@ pub fn action(input: ItemFn) -> TokenStream {
             #(#attrs)*
             pub async fn #name(
                 req: ::actix_web::HttpRequest,
-            ) -> impl ::actix_web::Responder {
-                async fn _call(
-                    req: ::actix_web::HttpRequest,
-                ) -> Result<impl ::actix_web::Responder, crate::errors::Error> #block
+            ) -> ::actix_web::HttpResponse {
+                use ::actix_web::Responder;
 
-                let _called = _call(req).await;
+                async fn _call(
+                    req: &::actix_web::HttpRequest,
+                ) -> Result<impl Responder, crate::errors::Error> #block
+
+                let _called = _call(&req).await;
 
                 match _called {
-                    Ok(r) => r,
+                    Ok(r) => match r.respond_to(&req).await {
+                        Ok(r) => r,
+                        Err(e) => ::actix_web::HttpResponse::from_error(e.into()),
+                    },
                     Err(e) => e.respond(),
                 }
             }
@@ -33,16 +38,20 @@ pub fn action(input: ItemFn) -> TokenStream {
                 mut state: ::gotham::state::State,
             ) -> std::pin::Pin<Box<::gotham::handler::HandlerFuture>> {
                 use ::futures::prelude::*;
+                use ::gotham::handler::IntoResponse;
 
                 async fn _call(
                     state: &mut State,
-                ) -> Result<::gotham::hyper::Response<::gotham::hyper::Body>, crate::errors::Error> #block
+                ) -> Result<impl IntoResponse, crate::errors::Error> #block
 
                 async move {
                     let _called = _call(&mut state).await;
 
                     match _called {
-                        Ok(r) => Ok((state, r)),
+                        Ok(r) => {
+                            let r = r.into_response(&state);
+                            Ok((state, r))
+                        },
                         Err(e) => Ok((state, e.respond())),
                     }
                 }.boxed()
@@ -54,14 +63,16 @@ pub fn action(input: ItemFn) -> TokenStream {
             pub async fn #name(
                 req: ::tide::Request<()>,
             ) -> ::tide::Response {
+                use ::tide::IntoResponse;
+
                 async fn _call(
-                    req: ::tide::Request<()>
-                ) -> Result<::tide::Response, crate::errors::Error> #block
+                    req: ::tide::Request<()>,
+                ) -> Result<impl IntoResponse, crate::errors::Error> #block
 
                 let _called = _call(req).await;
 
                 match _called {
-                    Ok(r) => r,
+                    Ok(r) => r.into_response(),
                     Err(e) => e.respond(),
                 }
             }

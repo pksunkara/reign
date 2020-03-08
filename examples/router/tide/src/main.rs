@@ -11,27 +11,27 @@ mod errors;
 
 #[action]
 fn root() {
-    Ok(Response::new(200).body_string("root".to_string()))
+    Ok("root")
 }
 
 #[action]
 fn api() {
-    Ok(Response::new(200).body_string("api".to_string()))
+    Ok("api".to_string())
 }
 
 #[action]
 fn account() {
-    Ok(Response::new(200).body_string("account".to_string()))
+    Ok("account")
 }
 
 #[action]
 fn orgs() {
-    Ok(Response::new(200).body_string("orgs".to_string()))
+    Ok("orgs")
 }
 
 #[action]
 fn repos() {
-    Ok(Response::new(200).body_string("repos".to_string()))
+    Ok("repos")
 }
 
 #[action]
@@ -42,7 +42,7 @@ fn users() {
 #[action]
 fn error() {
     let value = from_str::<Value>("{name}")?;
-    Ok(Response::new(200).body_string(to_string(&value)?))
+    Ok(to_string(&value)?)
 }
 
 fn router() -> Server<()> {

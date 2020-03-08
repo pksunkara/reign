@@ -1,7 +1,7 @@
 #![feature(proc_macro_hygiene)]
 
 use gotham::{
-    hyper::{Body, Response, StatusCode},
+    hyper::Response,
     init_server,
     middleware::logger::RequestLogger,
     router::{builder::*, Router},
@@ -18,27 +18,27 @@ mod errors;
 
 #[action]
 fn root() {
-    Ok(Response::new("root".into()))
+    Ok("root")
 }
 
 #[action]
 fn api() {
-    Ok(Response::new("api".into()))
+    Ok("api".to_string())
 }
 
 #[action]
 fn account() {
-    Ok(Response::new("account".into()))
+    Ok("account")
 }
 
 #[action]
 fn orgs() {
-    Ok(Response::new("orgs".into()))
+    Ok("orgs")
 }
 
 #[action]
 fn repos() {
-    Ok(Response::new("repos".into()))
+    Ok("repos")
 }
 
 #[action]
