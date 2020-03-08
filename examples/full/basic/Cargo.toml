@@ -13,4 +13,5 @@ gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 gotham_derive = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 gotham_middleware_diesel = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 futures = "0.3"
-serde = { version = "1.0.104", features = ["derive"] }
+tokio = { version = "0.2", features = ["full"] }
+serde = { version = "1", features = ["derive"] }

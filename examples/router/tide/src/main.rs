@@ -5,7 +5,7 @@ use reign::{
     router::middleware::{ContentType, HeadersDefault, Runtime},
 };
 use serde_json::{from_str, to_string, Value};
-use tide::{middleware::RequestLogger, Response, Server};
+use tide::{middleware::RequestLogger, Response};
 
 mod errors;
 
@@ -45,7 +45,7 @@ fn error() {
     Ok(to_string(&value)?)
 }
 
-fn router() -> Server<()> {
+router!(
     pipelines!(
         common: [
             RequestLogger::new(),
@@ -61,8 +61,6 @@ fn router() -> Server<()> {
             HeadersDefault::empty().add("x-version", "1.0"),
         ],
     );
-
-    let mut app = tide::new();
 
     scope!("/", [common, app], {
         post!("/", root);
@@ -88,12 +86,10 @@ fn router() -> Server<()> {
     scope!("/api", [common, api], {
         get!("/", api);
     });
-
-    app
-}
+);
 
 async fn server() {
-    router().listen("127.0.0.1:8080").await.unwrap();
+    router("127.0.0.1:8080").await.unwrap();
 }
 
 #[tokio::main]

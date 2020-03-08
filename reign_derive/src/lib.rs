@@ -56,6 +56,14 @@ pub fn views(input: TokenStream) -> TokenStream {
 ///
 /// render!(pages::home)
 /// ```
+///
+/// You can also specify a status code
+///
+/// ```ignore
+/// use reign::prelude::*;
+///
+/// render!(pages::home, status = 201)
+/// ```
 #[proc_macro]
 #[proc_macro_error]
 pub fn render(input: TokenStream) -> TokenStream {
@@ -98,6 +106,14 @@ pub fn redirect(input: TokenStream) -> TokenStream {
 ///
 /// json!(user)
 /// ```
+///
+/// You can also specify a status code
+///
+/// ```ignore
+/// use reign::prelude::*;
+///
+/// json!(user, status = 201)
+/// ```
 #[cfg(feature = "json")]
 #[proc_macro]
 pub fn json(input: TokenStream) -> TokenStream {
@@ -112,6 +128,12 @@ pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::ItemFn = parse_macro_input!(input);
 
     router::action(input).into()
+}
+
+#[cfg(feature = "router")]
+#[proc_macro]
+pub fn router(input: TokenStream) -> TokenStream {
+    router::router(input.into()).into()
 }
 
 #[cfg(feature = "router")]

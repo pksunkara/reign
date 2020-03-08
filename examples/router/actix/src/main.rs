@@ -1,6 +1,6 @@
 #![feature(proc_macro_hygiene)]
 
-use actix_web::{middleware::Logger, App, HttpResponse, HttpServer};
+use actix_web::{middleware::Logger, HttpResponse};
 use reign::{
     prelude::*,
     router::middleware::{ContentType, HeadersDefault, Runtime},
@@ -45,7 +45,7 @@ fn error() {
     Ok(to_string(&value)?)
 }
 
-async fn server() {
+router!(
     pipelines!(
         common: [
             // Logger::default(),
@@ -62,41 +62,34 @@ async fn server() {
         ],
     );
 
-    HttpServer::new(|| {
-        let mut app = App::new();
+    scope!("/", [common, app], {
+        post!("/", root);
+        get!("/error", error);
 
-        scope!("/", [common, app], {
-            post!("/", root);
-            get!("/error", error);
+        scope!("/account", {
+            get!("/", account);
+        });
 
-            scope!("/account", {
-                get!("/", account);
-            });
+        scope!("/orgs", [], {
+            get!("/", orgs);
 
-            scope!("/orgs", [], {
-                get!("/", orgs);
-
-                scope!("/repos", {
-                    get!("/", repos);
-                });
-            });
-
-            scope!("/users", [timer], {
-                get!("/", users);
+            scope!("/repos", {
+                get!("/", repos);
             });
         });
 
-        scope!("/api", [common, api], {
-            get!("/", api);
+        scope!("/users", [timer], {
+            get!("/", users);
         });
+    });
 
-        app
-    })
-    .bind("127.0.0.1:8080")
-    .unwrap()
-    .run()
-    .await
-    .unwrap()
+    scope!("/api", [common, api], {
+        get!("/", api);
+    });
+);
+
+async fn server() {
+    router("127.0.0.1:8080").await.unwrap();
 }
 
 #[actix_rt::main]

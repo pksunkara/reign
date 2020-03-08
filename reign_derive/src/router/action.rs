@@ -41,7 +41,7 @@ pub fn action(input: ItemFn) -> TokenStream {
                 use ::gotham::handler::IntoResponse;
 
                 async fn _call(
-                    state: &mut State,
+                    state: &mut ::gotham::state::State,
                 ) -> Result<impl IntoResponse, crate::errors::Error> #block
 
                 async move {

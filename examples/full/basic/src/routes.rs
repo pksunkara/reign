@@ -1,6 +1,5 @@
 use crate::controllers::*;
 use gotham::middleware::logger::RequestLogger;
-use gotham::router::Router;
 use gotham_derive::*;
 use gotham_middleware_diesel::{DieselMiddleware, Repo};
 use reign::{log::Level, prelude::*, router::middleware::ContentType};
@@ -11,10 +10,7 @@ pub struct IdExtractor {
     pub id: i32,
 }
 
-pub fn router<T>(repo: Repo<T>) -> Router
-where
-    T: diesel::Connection,
-{
+router!(
     pipelines!(
         common: [
             RequestLogger::new(Level::Info),
@@ -25,16 +21,12 @@ where
         ],
     );
 
-    use ::gotham::router::builder::{DefineSingleRoute, DrawRoutes};
-
-    ::gotham::router::builder::build_simple_router(|route| {
-        scope!("/", [common, app], {
-            scope!("/articles", {
-                get!("/", articles::list);
-                post!("/", articles::create);
-            });
+    scope!("/", [common, app], {
+        scope!("/articles", {
+            get!("/", articles::list);
+            post!("/", articles::create);
         });
-    })
+    });
 
     //         route.associate("/:id", |assoc| {
     //             assoc
@@ -42,4 +34,4 @@ where
     //                 .with_path_extractor::<IdExtractor>()
     //                 .to(articles::show);
     //         });
-}
+);

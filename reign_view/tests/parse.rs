@@ -84,8 +84,3 @@ fn test_slot() {
 // fn test_else_without_if() {
 //     common::parse_fail("else_without_if");
 // }
-
-// #[test]
-// fn test_interpolation_bad() {
-//     common::parse_fail("interpolation_bad");
-// }

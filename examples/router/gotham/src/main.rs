@@ -1,12 +1,6 @@
 #![feature(proc_macro_hygiene)]
 
-use gotham::{
-    hyper::Response,
-    init_server,
-    middleware::logger::RequestLogger,
-    router::{builder::*, Router},
-    state::State,
-};
+use gotham::{hyper::Response, middleware::logger::RequestLogger};
 use reign::{
     log::Level,
     prelude::*,
@@ -52,7 +46,7 @@ fn error() {
     Ok(Response::new(to_string(&value)?.into()))
 }
 
-fn router() -> Router {
+router!(
     pipelines!(
         common: [
             RequestLogger::new(Level::Info),
@@ -69,36 +63,34 @@ fn router() -> Router {
         ],
     );
 
-    build_simple_router(|route| {
-        scope!("/", [common, app], {
-            post!("/", root);
-            get!("/error", error);
+    scope!("/", [common, app], {
+        post!("/", root);
+        get!("/error", error);
 
-            scope!("/account", {
-                get!("/", account);
-            });
+        scope!("/account", {
+            get!("/", account);
+        });
 
-            scope!("/orgs", [], {
-                get!("/", orgs);
+        scope!("/orgs", [], {
+            get!("/", orgs);
 
-                scope!("/repos", {
-                    get!("/", repos);
-                });
-            });
-
-            scope!("/users", [timer], {
-                get!("/", users);
+            scope!("/repos", {
+                get!("/", repos);
             });
         });
 
-        scope!("/api", [common, api], {
-            get!("/", api);
+        scope!("/users", [timer], {
+            get!("/", users);
         });
-    })
-}
+    });
+
+    scope!("/api", [common, api], {
+        get!("/", api);
+    });
+);
 
 async fn server() {
-    init_server("127.0.0.1:8080", router()).await.unwrap()
+    router("127.0.0.1:8080").await.unwrap()
 }
 
 #[tokio::main]
