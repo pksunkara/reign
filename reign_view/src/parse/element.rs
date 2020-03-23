@@ -92,6 +92,16 @@ impl Element {
         (names, templates)
     }
 
+    // TODO: Build a DAG out of the views, and use default() if the attrs are not defined
+    // It would be even better if we could compile each html file into `.rs` file and use
+    // it to speed up compile times.
+    //
+    // If we have the DAG, and we see an html file was changed, we rebuild that view, and
+    // if any of it fields have changed, we need to go up in the DAG and recompile all the
+    // views that depend on this.
+    //
+    // After having DAG, we can also look into intelligently forwarding the types of the
+    // view fields into each components.
     fn component_attrs(&self, idents: &mut ViewFields, scopes: &ViewFields) -> Vec<TokenStream> {
         let mut attrs = vec![];
 

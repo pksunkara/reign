@@ -27,7 +27,10 @@ pub fn action(input: ItemFn) -> TokenStream {
                         Ok(r) => r,
                         Err(e) => ::actix_web::HttpResponse::from_error(e.into()),
                     },
-                    Err(e) => e.respond(),
+                    Err(e) => {
+                        ::reign::log::error!("{}", e);
+                        e.respond()
+                    },
                 }
             }
         }
@@ -52,7 +55,10 @@ pub fn action(input: ItemFn) -> TokenStream {
                             let r = r.into_response(&state);
                             Ok((state, r))
                         },
-                        Err(e) => Ok((state, e.respond())),
+                        Err(e) => {
+                            ::reign::log::error!("{}", e);
+                            Ok((state, e.respond()))
+                        },
                     }
                 }.boxed()
             }
@@ -73,7 +79,10 @@ pub fn action(input: ItemFn) -> TokenStream {
 
                 match _called {
                     Ok(r) => r.into_response(),
-                    Err(e) => e.respond(),
+                    Err(e) => {
+                        ::reign::log::error!("{}", e);
+                        e.respond()
+                    },
                 }
             }
         }
