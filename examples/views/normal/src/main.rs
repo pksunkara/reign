@@ -25,7 +25,7 @@ mod tests {
         assert_eq!(
             handler(),
             "<html>\n  <head>\n    <title>\n      App - Home\n    </title>\n  </head>\n  \
-            <body>\n    \n  \n  <p>Lorem ipsum</p>\n  <span>8</span>\n\n  </body>\n</html>",
+            <body>\n    \n  \n  <p>Lorem ipsum</p>\n  <span>8</span>\n  <i></i>\n\n  </body>\n</html>",
         );
     }
 }

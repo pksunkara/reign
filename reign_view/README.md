@@ -3,7 +3,8 @@ inspired by [Vue.js](https://vuejs.org) templates.
 
 This library makes using templates as easy as pie.
 It uses HTML based template syntax that are valid and can
-be parsed by spec-compliant browsers and HTML parsers<sup>[[1][ann]]</sup>.
+be parsed by spec-compliant browsers and HTML parsers
+<sup>[[1][ann]]</sup><sup>[[2][ann]]</sup>.
 It has been developed foremost with ease of use in mind followed
 by future extensibility, modularization and customization.
 
@@ -314,6 +315,12 @@ The above template can be used in other templates using the following syntax:
 The attributes on a component work just like the attirbutes on a normal HTML element
 described [above](#attributes).
 
+Any template can be used as a component. We can refer to the template by using it's
+tag reference. Tag reference can be achieved by joining all the parts in the path of the
+component with `:` after converting them to kebab case. A template at
+`src/views/users/avatar.html` can be used with `users:avatar`, and similarily a template
+at `src/views/common/simple/small_icon.html` can be used with `common:simple:small-icon`.
+
 ### Slots
 
 Just like with HTML elements, it’s often useful to be able to pass content to a
@@ -336,12 +343,12 @@ Fortunately, this is possible by using our custom `slot` element in the `button.
 </button>
 ```
 
-The `<slot></slot>` above will be replaced by the elements you described inside
+The `<slot></slot>` above will be replaced by the elements we described inside
 `shared:button` element when it's used.
 
 ### Scope
 
-When you use a variable inside a component's slot, such as:
+When we use a variable inside a component's slot, such as:
 
 ```html
 <div>
@@ -424,7 +431,7 @@ providing the name of the slot:
 Now everything inside the `<template>` elements will be passed to the corresponding
 slots. Any content not wrapped in a `<template>` is assumed to be for the default slot.
 
-However, you can still wrap default slot content in a `<template>` if you wish to be explicit.
+However, we can still wrap default slot content in a `<template>` if you wish to be explicit.
 
 # Helpers & Feature Gates
 
@@ -434,7 +441,7 @@ By default, none of them are selected and the default rendering results in a pla
 All the `views-*` features are considered to be mutually exclusive and using them
 together might have unintended consequences.
 
-You can check the [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
+Please refer to [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
 to see how they are used.
 
 Please refer to [reign_derive](https://docs.rs/reign_derive) for more information about the
@@ -503,8 +510,9 @@ Allowed patterns are described below with `expr` represents the above mentioned
 
 ### Annotations
 
-* Tag names contain `:` which is not completely supported by pure HTML5
-  spec but most of the parsers support it.
+1. Tag names can contain `:` which is not completely supported by pure HTML5
+   spec but most of the parsers support it.
+2. We also assume the parsers are made with Web Components specification in mind.
 
 [gotham]: https://gotham.rs
 [rocket]: https://rocket.rs

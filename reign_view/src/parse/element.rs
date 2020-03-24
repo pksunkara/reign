@@ -3,7 +3,7 @@ use super::{
     attribute::{ControlAttribute, NormalAttribute},
     tag_name_regex, Attribute, Code, Error, Node, Parse, ParseStream, Tokenize, ViewFields,
 };
-use inflector::cases::pascalcase::to_pascal_case;
+use inflector::cases::{pascalcase::to_pascal_case, snakecase::to_snake_case};
 use proc_macro2::{Punct, Spacing, Span, TokenStream};
 use quote::{quote, TokenStreamExt};
 use syn::{Ident, LitStr};
@@ -446,7 +446,7 @@ fn clean_if_else_group(group: Vec<&Node>, has_else: bool, has_else_if: bool) -> 
 fn convert_tag_name(tag: Vec<&str>) -> Vec<Ident> {
     let mut idents: Vec<Ident> = tag
         .into_iter()
-        .map(|t| Ident::new(t, Span::call_site()))
+        .map(|t| Ident::new(&to_snake_case(t), Span::call_site()))
         .collect();
 
     if let Some(ident) = idents.pop() {
