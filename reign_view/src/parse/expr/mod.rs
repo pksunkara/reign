@@ -10,6 +10,8 @@ use syn::{
     MethodTurbofish, Path, PathArguments, RangeLimits, Token, Type,
 };
 
+pub const KEYWORDS: [&str; 4] = ["Some", "None", "Ok", "Err"];
+
 mod array;
 mod binary;
 mod call;
@@ -157,7 +159,7 @@ impl Tokenize for Expr {
             Expr::Paren(e) => e.tokenize(tokens, idents, scopes),
             Expr::Path(path) => {
                 if let Some(ident) = path.path.get_ident() {
-                    if !scopes.contains(&ident) {
+                    if !scopes.contains(&ident) && !KEYWORDS.contains(&ident.to_string().as_str()) {
                         idents.push(ident.clone());
                         tokens.append_all(quote! {
                             self.#ident
