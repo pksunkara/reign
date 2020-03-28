@@ -151,16 +151,38 @@ pub fn scope(input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro]
-pub fn get(input: TokenStream) -> TokenStream {
-    let input: router::Method = parse_macro_input!(input);
+pub fn methods(input: TokenStream) -> TokenStream {
+    let input: router::Methods = parse_macro_input!(input);
 
-    router::get(input).into()
+    router::methods(input).into()
+}
+
+#[cfg(feature = "router")]
+#[proc_macro]
+pub fn get(input: TokenStream) -> TokenStream {
+    router::get(input.into()).into()
 }
 
 #[cfg(feature = "router")]
 #[proc_macro]
 pub fn post(input: TokenStream) -> TokenStream {
-    let input: router::Method = parse_macro_input!(input);
+    router::post(input.into()).into()
+}
 
-    router::post(input).into()
+#[cfg(feature = "router")]
+#[proc_macro]
+pub fn put(input: TokenStream) -> TokenStream {
+    router::put(input.into()).into()
+}
+
+#[cfg(feature = "router")]
+#[proc_macro]
+pub fn patch(input: TokenStream) -> TokenStream {
+    router::patch(input.into()).into()
+}
+
+#[cfg(feature = "router")]
+#[proc_macro]
+pub fn delete(input: TokenStream) -> TokenStream {
+    router::delete(input.into()).into()
 }

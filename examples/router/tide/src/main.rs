@@ -2,41 +2,26 @@
 
 use reign::{
     prelude::*,
-    router::middleware::{ContentType, HeadersDefault, Runtime},
+    router::middleware::{HeadersDefault, Runtime},
 };
 use serde_json::{from_str, to_string, Value};
-use tide::{middleware::RequestLogger, Response};
+use tide::Response;
 
 mod errors;
 
 #[action]
-fn root() {
-    Ok("root")
+fn str_() {
+    Ok("str")
 }
 
 #[action]
-fn api() {
-    Ok("api".to_string())
+fn string() {
+    Ok("string".to_string())
 }
 
 #[action]
-fn account() {
-    Ok("account")
-}
-
-#[action]
-fn orgs() {
-    Ok("orgs")
-}
-
-#[action]
-fn repos() {
-    Ok("repos")
-}
-
-#[action]
-fn users() {
-    Ok(Response::new(200).body_string("users".to_string()))
+fn response() {
+    Ok(Response::new(200).body_string("response".to_string()))
 }
 
 #[action]
@@ -45,46 +30,61 @@ fn error() {
     Ok(to_string(&value)?)
 }
 
+#[action]
+fn post() {
+    Ok("post")
+}
+
+#[action]
+fn put() {
+    Ok("put")
+}
+
+#[action]
+fn patch() {
+    Ok("patch")
+}
+
+#[action]
+fn delete() {
+    Ok("delete")
+}
+
+#[action]
+fn methods() {
+    Ok("methods")
+}
+
 router!(
     pipelines!(
         common: [
-            RequestLogger::new(),
+            HeadersDefault::empty().add("x-powered-by", "reign"),
         ],
         app: [
-            ContentType::empty().form(),
-            HeadersDefault::empty().add("x-powered-by", "reign"),
+            HeadersDefault::empty().add("x-content-type-options", "nosniff"),
         ],
         timer: [
             Runtime::default(),
         ],
         api: [
             HeadersDefault::empty().add("x-version", "1.0"),
+            HeadersDefault::empty().add("content-type", "application/json"),
         ],
     );
 
     scope!("/", [common, app], {
-        post!("/", root);
+        get!("/str", str_);
+        get!("/string", string);
+        get!("/response", response);
+
         get!("/error", error);
 
-        scope!("/account", {
-            get!("/", account);
-        });
+        post!("/post", post);
+        put!("/put", put);
+        patch!("/patch", patch);
+        delete!("/delete", delete);
 
-        scope!("/orgs", [], {
-            get!("/", orgs);
-
-            scope!("/repos", {
-                get!("/", repos);
-            });
-        });
-
-        scope!("/users", [timer], {
-            get!("/", users);
-        });
-    });
-
-    scope!("/api", [common, api], {
-        get!("/", api);
+        methods!([post, put], "/methods", methods);
     });
 );
 
@@ -101,14 +101,14 @@ async fn main() {
 mod tests {
     use super::*;
     use std::time::Duration;
-    use test_examples::router::test;
+    use test_examples::router::{test, StatusCode};
     use tokio::{select, time::delay_for};
 
     #[tokio::test]
     async fn test_server() {
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            test().await
+            test(StatusCode::METHOD_NOT_ALLOWED).await
         };
 
         select! {

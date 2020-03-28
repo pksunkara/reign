@@ -11,6 +11,7 @@ keywords = ["isomorphic", "web", "framework", "reign"]
 categories = []
 license = "MIT"
 readme = "README.md"
+autoexamples = false
 
 [[bin]]
 name = "reign"
