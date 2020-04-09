@@ -26,8 +26,9 @@ Inflector = "0.11.4"
 lazy_static = "1.4.0"
 
 [dev-dependencies]
-reign = { path = "../" }
+reign = { path = "../", features = ["json"] }
 version-sync = "0.8"
+trybuild = "1.0"
 
 [features]
 default = []

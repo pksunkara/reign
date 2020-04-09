@@ -4,7 +4,7 @@ stages:
     jobs:
       - job:
         variables:
-          rust: nightly-2020-01-08
+          rust: nightly-2020-03-19
         strategy:
           matrix:
             Windows 32-bit (MSVC):
