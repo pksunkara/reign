@@ -2,10 +2,11 @@ name: Windows
 on:
   push:
     branches: [master]
+    paths-ignore: ["docs/**"]
   pull_request:
     branches: [master]
     types: [opened, reopened, synchronize]
-  # TODO:(ci) paths
+    paths-ignore: ["docs/**"]
 jobs:
   test:
     strategy:
