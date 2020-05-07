@@ -118,21 +118,29 @@ router!(
         methods!([post, put], "/methods", methods);
 
         // get!("/param/{foo}", param);
-        // get!("/param/{foo:u16}", param_typed);
-        // get!("/param/{foo:[a-f]{6}}/{bar:\\d+}", param_regex);
-        // TODO:(router) param_optional
+        // / "param" / foo
+        // get!("/param_optional/{foo?}", param_optional);
+        // "param" / foo?
+        // "param" / foo: Option<String>
+        // get!("/param_typed/{foo:u16}", param_typed);
+        // get!("/param_regex/{foo:[a-f]{6}}/{bar:\\d+}", param_regex);
+        // get!("/param_glob/{foo*}", param_glob);
+        // "param" / foo*
+        // "param" / foo: Vec<String>
 
-        // scope!("/scope-static", {
-        //     get!("/", scope_static);
-        // });
+        // TODO: Trailing slashes
 
-        // scope!("/pipe", [timer], {
-        //     get!("/", pipe);
-        // });
+        scope!("/scope-static", {
+            get!("", scope_static);
+        });
 
-        // scope!("/pipe-empty", [], {
-        //     get!("/", pipe_empty);
-        // });
+        scope!("/pipe", [timer], {
+            get!("", pipe);
+        });
+
+        scope!("/pipe-empty", [], {
+            get!("", pipe_empty);
+        });
 
         // TODO:(router) any
         // TODO:(router) 301, 302

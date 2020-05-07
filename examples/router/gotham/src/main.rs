@@ -55,6 +55,21 @@ fn methods() {
     Ok("methods")
 }
 
+#[action]
+fn scope_static() {
+    Ok("scope_static")
+}
+
+#[action]
+fn pipe() {
+    Ok("pipe")
+}
+
+#[action]
+fn pipe_empty() {
+    Ok("pipe_empty")
+}
+
 router!(
     pipelines!(
         common: [
@@ -85,6 +100,18 @@ router!(
         delete!("/delete", delete);
 
         methods!([post, put], "/methods", methods);
+
+        scope!("/scope-static", {
+            get!("/", scope_static);
+        });
+
+        scope!("/pipe", [timer], {
+            get!("/", pipe);
+        });
+
+        scope!("/pipe-empty", [], {
+            get!("/", pipe_empty);
+        });
     });
 );
 
