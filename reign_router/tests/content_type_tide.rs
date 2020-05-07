@@ -9,7 +9,7 @@ async fn test_tide() {
     let server = async {
         let mut app = tide::new();
 
-        app.at("/").post(|_| async move { "hello" });
+        app.at("/").post(|_| async move { Ok("hello") });
 
         app.middleware(ContentType::default().multipart());
 

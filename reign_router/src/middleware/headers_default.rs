@@ -12,9 +12,9 @@ use std::pin::Pin;
 #[cfg(feature = "router-actix")]
 use std::task::{Context, Poll};
 #[cfg(feature = "router-tide")]
-use tide::{middleware::Next, Request, Response};
+use tide::{Next, Request, Response};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct HeadersDefault {
     headers: Vec<(&'static str, &'static str)>,
 }
@@ -145,7 +145,7 @@ impl gotham::middleware::NewMiddleware for HeadersDefault {
 }
 
 #[cfg(feature = "router-tide")]
-impl<S> tide::middleware::Middleware<S> for HeadersDefault
+impl<S> tide::Middleware<S> for HeadersDefault
 where
     S: Send + Sync + 'static,
 {
@@ -153,15 +153,18 @@ where
         &'b self,
         ctx: Request<S>,
         next: Next<'b, S>,
-    ) -> Pin<Box<dyn Future<Output = Response> + Send + 'b>> {
+    ) -> Pin<Box<dyn Future<Output = tide::Result<Response>> + Send + 'b>> {
+        use tide::http::headers::HeaderName;
+
         async move {
-            let mut response = next.run(ctx).await;
+            let mut response = next.run(ctx).await?;
 
             for (name, value) in &self.headers {
-                response = response.set_header(name, value);
+                response =
+                    response.set_header(HeaderName::from_ascii(name.as_bytes().to_vec())?, value);
             }
 
-            response
+            Ok(response)
         }
         .boxed()
     }

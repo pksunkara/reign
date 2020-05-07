@@ -250,18 +250,19 @@ pub fn render_gotham<D: std::fmt::Display>(
 /// # });
 #[cfg(feature = "views-tide")]
 pub fn render_tide<D: std::fmt::Display>(view: D, status: u16) -> tide::Response {
+    use std::convert::TryFrom;
     use tide::{http::StatusCode, Response};
 
     let mut content = String::new();
 
     match std::fmt::write(&mut content, format_args!("{}", view)) {
-        Ok(()) => match StatusCode::from_u16(status.clone()) {
-            Ok(_) => Response::new(status)
+        Ok(()) => match StatusCode::try_from(status) {
+            Ok(status) => Response::new(status)
                 .body_string(content)
                 .set_mime(mime::TEXT_HTML_UTF_8),
-            Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+            Err(_) => Response::new(StatusCode::InternalServerError),
         },
-        Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+        Err(_) => Response::new(StatusCode::InternalServerError),
     }
 }
 
@@ -552,9 +553,15 @@ pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<go
 /// ```
 #[cfg(feature = "views-tide")]
 pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
-    use tide::{http::StatusCode, Response};
+    use tide::{
+        http::{headers::HeaderName, StatusCode},
+        Response,
+    };
 
-    Response::new(StatusCode::SEE_OTHER.as_u16()).set_header("location", location)
+    Response::new(StatusCode::SeeOther).set_header(
+        HeaderName::from_ascii("location".as_bytes().to_vec()).unwrap(),
+        location,
+    )
 }
 
 /// Sends a redirect for [warp](https://docs.rs/warp) closure.
@@ -847,16 +854,17 @@ pub fn json_gotham<S: serde::Serialize>(
 /// # });
 #[cfg(all(feature = "json", feature = "views-tide"))]
 pub fn json_tide<S: serde::Serialize>(value: S, status: u16) -> tide::Response {
+    use std::convert::TryFrom;
     use tide::{http::StatusCode, Response};
 
     match serde_json::to_string::<S>(&value) {
-        Ok(content) => match StatusCode::from_u16(status.clone()) {
-            Ok(_) => Response::new(status)
+        Ok(content) => match StatusCode::try_from(status) {
+            Ok(status) => Response::new(status)
                 .body_string(content)
                 .set_mime(mime::APPLICATION_JSON),
-            Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+            Err(_) => Response::new(StatusCode::InternalServerError),
         },
-        Err(_) => Response::new(StatusCode::INTERNAL_SERVER_ERROR.as_u16()),
+        Err(_) => Response::new(StatusCode::InternalServerError),
     }
 }
 

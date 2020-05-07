@@ -16,15 +16,15 @@ async fn server() {
     app.at("/").get(|_| async move {
         let msg = "Hello Tide!";
 
-        render!(app)
+        Ok(render!(app))
     });
 
-    app.at("/world").get(|_| async move { redirect!("/") });
+    app.at("/world").get(|_| async move { Ok(redirect!("/")) });
 
     app.at("/hey").get(|_| async move {
         let msg = "Hey Tide!";
 
-        render!(app, status = 404)
+        Ok(render!(app, status = 404))
     });
 
     app.at("/json").get(|_| async move {
@@ -32,7 +32,7 @@ async fn server() {
             name: "Tide".to_string(),
         };
 
-        json!(user)
+        Ok(json!(user))
     });
 
     app.at("/json_err").get(|_| async move {
@@ -40,7 +40,7 @@ async fn server() {
             name: "Tide".to_string(),
         };
 
-        json!(user, status = 422)
+        Ok(json!(user, status = 415))
     });
 
     app.listen("127.0.0.1:8080").await.unwrap();

@@ -68,22 +68,22 @@ pub fn action(input: ItemFn) -> TokenStream {
             #(#attrs)*
             pub async fn #name(
                 req: ::tide::Request<()>,
-            ) -> ::tide::Response {
-                use ::tide::IntoResponse;
-
+            ) -> ::tide::Result<::tide::Response> {
                 async fn _call(
                     req: ::tide::Request<()>,
-                ) -> Result<impl IntoResponse, crate::errors::Error> #block
+                ) -> Result<impl Into<::tide::Response>, crate::errors::Error> #block
 
                 let _called = _call(req).await;
 
-                match _called {
-                    Ok(r) => r.into_response(),
+                let response = match _called {
+                    Ok(r) => r.into(),
                     Err(e) => {
                         ::reign::log::error!("{}", e);
                         e.respond()
                     },
-                }
+                };
+
+                Ok(response)
             }
         }
     } else {

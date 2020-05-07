@@ -13,11 +13,11 @@ use std::pin::Pin;
 #[cfg(feature = "router-actix")]
 use std::task::{Context, Poll};
 #[cfg(feature = "router-tide")]
-use tide::{middleware::Next, Request, Response};
+use tide::{Next, Request, Response};
 
 fn dur_to_string(i: i64) -> String {
     if i < 1000 {
-        format!("{}μs", i)
+        format!("{}us", i)
     } else if i < 1_000_000 {
         format!("{:.2}ms", (i as f32) / 1000.0)
     } else {
@@ -25,7 +25,7 @@ fn dur_to_string(i: i64) -> String {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Runtime {
     header: &'static str,
 }
@@ -149,7 +149,7 @@ impl gotham::middleware::NewMiddleware for Runtime {
 }
 
 #[cfg(feature = "router-tide")]
-impl<S> tide::middleware::Middleware<S> for Runtime
+impl<S> tide::Middleware<S> for Runtime
 where
     S: Send + Sync + 'static,
 {
@@ -157,17 +157,22 @@ where
         &'b self,
         ctx: Request<S>,
         next: Next<'b, S>,
-    ) -> Pin<Box<dyn Future<Output = Response> + Send + 'b>> {
+    ) -> Pin<Box<dyn Future<Output = tide::Result<Response>> + Send + 'b>> {
+        use tide::http::headers::HeaderName;
+
         async move {
             let start = Utc::now();
-            let mut response = next.run(ctx).await;
+            let mut response = next.run(ctx).await?;
             let duration = Utc::now().signed_duration_since(start).num_microseconds();
 
             if let Some(dur) = duration {
-                response = response.set_header(self.header, dur_to_string(dur));
+                response = response.set_header(
+                    HeaderName::from_ascii(self.header.as_bytes().to_vec())?,
+                    dur_to_string(dur),
+                );
             }
 
-            response
+            Ok(response)
         }
         .boxed()
     }
@@ -179,7 +184,7 @@ mod test {
 
     #[test]
     fn test_dur_to_string_micro_seconds() {
-        assert_eq!(&dur_to_string(193), "193μs");
+        assert_eq!(&dur_to_string(193), "193us");
     }
 
     #[test]

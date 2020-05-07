@@ -5,7 +5,7 @@ use reign::{
     router::middleware::{HeadersDefault, Runtime},
 };
 use serde_json::{from_str, to_string, Value};
-use tide::Response;
+use tide::{http::StatusCode, Response};
 
 mod errors;
 
@@ -21,7 +21,7 @@ fn string() {
 
 #[action]
 fn response() {
-    Ok(Response::new(200).body_string("response".to_string()))
+    Ok(Response::new(StatusCode::Ok).body_string("response".to_string()))
 }
 
 #[action]

@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 reign = { path = "../../../../reign", features = ["views-tide", "json"], default-features = false }
-tide = "0.6"
+tide = "0.8"
 tokio = { version = "0.2", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 

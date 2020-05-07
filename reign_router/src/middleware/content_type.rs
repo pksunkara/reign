@@ -17,11 +17,11 @@ use std::pin::Pin;
 #[cfg(feature = "router-actix")]
 use std::task::{Context, Poll};
 #[cfg(feature = "router-tide")]
-use tide::{middleware::Next, Request, Response};
+use tide::{Next, Request, Response};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ContentType<'a> {
-    subtypes: Vec<&'a str>,
+    subtypes: Vec<&'a str>, // TODO:(lifetime) Do I need the lifetime here?
 }
 
 impl<'a> ContentType<'a> {
@@ -178,7 +178,7 @@ impl<'a> gotham::middleware::NewMiddleware for ContentType<'a> {
 }
 
 #[cfg(feature = "router-tide")]
-impl<'a, S> tide::middleware::Middleware<S> for ContentType<'a>
+impl<'a, S> tide::Middleware<S> for ContentType<'a>
 where
     S: Send + Sync + 'a,
     'a: 'static,
@@ -187,19 +187,21 @@ where
         &'b self,
         ctx: Request<S>,
         next: Next<'b, S>,
-    ) -> Pin<Box<dyn Future<Output = Response> + Send + 'b>> {
-        use tide::http::{header::CONTENT_TYPE, StatusCode};
+    ) -> Pin<Box<dyn Future<Output = tide::Result<Response>> + Send + 'b>> {
+        use tide::http::{headers::CONTENT_TYPE, StatusCode};
 
-        match ctx.header(CONTENT_TYPE.as_str()) {
+        match ctx.header(&CONTENT_TYPE) {
             Some(content_type) => {
-                if let Ok(val) = content_type.parse::<Mime>() {
-                    if self.allow(val.subtype()) {
-                        return next.run(ctx);
-                    }
-
-                    if let Some(suffix) = val.suffix() {
-                        if self.allow(suffix) {
+                if content_type.len() == 1 {
+                    if let Ok(val) = content_type.get(0).unwrap().as_str().parse::<Mime>() {
+                        if self.allow(val.subtype()) {
                             return next.run(ctx);
+                        }
+
+                        if let Some(suffix) = val.suffix() {
+                            if self.allow(suffix) {
+                                return next.run(ctx);
+                            }
                         }
                     }
                 }
@@ -209,7 +211,7 @@ where
             }
         };
 
-        let response = Response::new(StatusCode::UNSUPPORTED_MEDIA_TYPE.as_u16());
-        async { response }.boxed()
+        let response = Response::new(StatusCode::UnsupportedMediaType);
+        async { Ok(response) }.boxed()
     }
 }

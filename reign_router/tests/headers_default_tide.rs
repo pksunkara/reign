@@ -9,7 +9,7 @@ async fn test_tide() {
     let server = async {
         let mut app = tide::new();
 
-        app.at("/").get(|_| async move { "hello" });
+        app.at("/").get(|_| async move { Ok("hello") });
 
         app.middleware(HeadersDefault::empty().add("x-version", "1.0"));
 
