@@ -23,7 +23,7 @@ use struct_::PatStruct;
 use tuple::PatTuple;
 use tuple_struct::PatTupleStruct;
 
-// TODO: Slice, Range
+// TODO:(view:pat) Slice, Range
 pub enum Pat {
     Ident(PatIdent),
     Reference(PatReference),

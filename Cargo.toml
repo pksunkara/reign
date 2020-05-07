@@ -5,11 +5,11 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Isomorphic Web Framework in Rust"
+description = "Opinionated Isomorphic Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
 keywords = ["isomorphic", "web", "framework", "reign"]
 categories = []
-license = "MIT"
+license = "MIT OR Apache-2.0"
 readme = "README.md"
 autoexamples = false
 

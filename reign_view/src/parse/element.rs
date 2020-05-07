@@ -109,14 +109,13 @@ impl Element {
             let mut tokens = TokenStream::new();
 
             match attr {
-                // TODO: snake case (for normal & variable)
                 Attribute::Normal(n) => {
-                    tokens.append(Ident::new(&n.name, Span::call_site()));
+                    tokens.append(Ident::new(&to_snake_case(&n.name), Span::call_site()));
                     tokens.append(Punct::new(':', Spacing::Alone));
                     n.value.tokenize(&mut tokens, idents, scopes);
                 }
                 Attribute::Variable(v) => {
-                    tokens.append(Ident::new(&v.name, Span::call_site()));
+                    tokens.append(Ident::new(&to_snake_case(&v.name), Span::call_site()));
                     tokens.append(Punct::new(':', Spacing::Alone));
                     v.value.tokenize(&mut tokens, idents, scopes);
                 }

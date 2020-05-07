@@ -1,2 +1,2 @@
 # reign
-Isomorphic Web Framework in Rust
+Opinionated Isomorphic Web Framework in Rust

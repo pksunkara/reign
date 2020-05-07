@@ -1,11 +1,11 @@
 [package]
 name = "reign_view"
-version = "0.1.2" # Also change html_root_url in lib.rs
+version = "0.1.2"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Isomorphic Web Framework in Rust"
+description = "Opinionated Isomorphic Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
 keywords = ["isomorphic", "web", "framework", "reign"]
 categories = []

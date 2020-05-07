@@ -102,6 +102,7 @@ router!(
         ],
     );
 
+    // TODO:(router) make path optional here
     scope!("/", [common, app], {
         get!("/str", str_);
         get!("/string", string);
