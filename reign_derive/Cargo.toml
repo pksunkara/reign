@@ -41,6 +41,7 @@ router = []
 router-actix = ["router"]
 router-gotham = ["router"]
 router-tide = ["router"]
+router-warp = ["router"]
 json = ["reign_view/json"]
 
 [package.metadata.docs.rs]

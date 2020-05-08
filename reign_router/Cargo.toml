@@ -38,6 +38,7 @@ build-docs = []
 router-actix = ["actix-web", "actix-service", "futures"]
 router-gotham = ["gotham", "futures"]
 router-tide = ["tide", "futures"]
+router-warp = ["futures"]
 
 [package.metadata.docs.rs]
 all-features = true

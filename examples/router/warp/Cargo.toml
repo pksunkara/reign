@@ -1,0 +1,17 @@
+[package]
+name = "examples_router_warp"
+version = "0.0.0"
+authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+reign = { path = "../../../../reign", features = ["router-warp"], default-features = false }
+warp = "0.2"
+tokio = { version = "0.2", features = ["full"] }
+anyhow = "1"
+thiserror = "1"
+serde_json = "1"
+
+[dev-dependencies]
+test_examples = { path = "../../../development/test_examples" }
