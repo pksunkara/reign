@@ -89,7 +89,7 @@ where
     }
 
     fn call(&mut self, req: ServiceRequest) -> Self::Future {
-        use actix_web::http::{HeaderName, HeaderValue};
+        use actix_web::http::{Error as HttpError, HeaderName, HeaderValue};
 
         let start = Utc::now();
         let fut = self.service.call(req);
@@ -101,8 +101,8 @@ where
 
             if let Some(dur) = duration {
                 res.headers_mut().insert(
-                    HeaderName::from_lowercase(header).unwrap(),
-                    HeaderValue::from_str(&dur_to_string(dur)).unwrap(),
+                    HeaderName::from_lowercase(header).map_err(|x| HttpError::from(x))?,
+                    HeaderValue::from_str(&dur_to_string(dur)).map_err(|x| HttpError::from(x))?,
                 );
             }
 

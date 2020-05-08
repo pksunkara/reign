@@ -87,7 +87,7 @@ where
     }
 
     fn call(&mut self, req: ServiceRequest) -> Self::Future {
-        use actix_web::http::{HeaderName, HeaderValue};
+        use actix_web::http::{Error as HttpError, HeaderName, HeaderValue};
 
         let fut = self.service.call(req);
         let headers: Vec<(&[u8], &str)> = self
@@ -102,8 +102,8 @@ where
 
             for (name, value) in &headers {
                 res.headers_mut().insert(
-                    HeaderName::from_lowercase(name).unwrap(),
-                    HeaderValue::from_str(value).unwrap(),
+                    HeaderName::from_lowercase(name).map_err(|x| HttpError::from(x))?,
+                    HeaderValue::from_str(value).map_err(|x| HttpError::from(x))?,
                 )
             }
 
