@@ -12,7 +12,7 @@ pub enum Error {
 impl Error {
     pub fn respond(&self) -> Response {
         match self {
-            Self::Serde(_) => Response::new(StatusCode::UnprocessableEntity),
+            Self::Serde(_) => Response::new(StatusCode::InternalServerError),
             _ => Response::new(StatusCode::InternalServerError),
         }
     }

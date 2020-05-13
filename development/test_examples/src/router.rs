@@ -114,6 +114,33 @@ pub async fn test(bad_method_status: StatusCode) {
 
     assert_eq!(res.status(), bad_method_status);
 
+    url = "http://localhost:8080/param/foobar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "param foobar");
+
+    url = "http://localhost:8080/param_optional/foobar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "param_optional foobar");
+
+    url = "http://localhost:8080/param_optional";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "param_optional ");
+
     url = "http://localhost:8080/scope-static";
 
     let res = client.get(url).send().await.unwrap();
