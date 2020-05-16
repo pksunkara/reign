@@ -5,9 +5,9 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Opinionated Isomorphic Web Framework in Rust"
+description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["isomorphic", "web", "framework", "reign"]
+keywords = ["fullstack", "web", "framework", "reign"]
 categories = []
 license = "MIT"
 readme = "README.md"
@@ -25,10 +25,10 @@ regex = "1.3.1"
 Inflector = "0.11.4"
 maplit = "1.0.2"
 mime = { version = "0.3", optional = true }
-actix-web = { version = "3.0.0-alpha.1", optional = true }
+actix-web = { version = "3.0.0-alpha.2", optional = true }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master", optional = true }
-tide = { version = "0.8", optional = true }
-warp = { version = "0.2", optional = true }
+tide = { version = "0.8.1", optional = true }
+warp = { version = "0.2.2", optional = true }
 serde = { version = "1", optional = true }
 serde_json = { version = "1", optional = true }
 
@@ -42,11 +42,12 @@ reqwest = "0.10"
 
 [features]
 default = []
-build-docs = []
-views-actix = ["actix-web", "mime"]
-views-gotham = ["gotham", "mime"]
-views-tide = ["tide", "mime"]
-views-warp = ["warp", "mime"]
+doc = []
+parser = []
+view-actix = ["actix-web", "mime"]
+view-gotham = ["gotham", "mime"]
+view-tide = ["tide", "mime"]
+view-warp = ["warp", "mime"]
 json = ["serde", "serde_json"]
 
 [package.metadata.docs.rs]

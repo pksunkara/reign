@@ -5,9 +5,9 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Opinionated Isomorphic Web Framework in Rust"
+description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["isomorphic", "web", "framework", "reign"]
+keywords = ["fullstack", "web", "framework", "reign"]
 categories = []
 license = "MIT OR Apache-2.0"
 readme = "README.md"
@@ -15,20 +15,25 @@ autoexamples = false
 
 [[bin]]
 name = "reign"
-path = "src/main.rs"
-required-features = ["build-binary"]
+path = "src/cli/main.rs"
+required-features = ["cli"] # remove the need for this
 
 [lib]
 name = "reign"
 path = "src/lib.rs"
 
 [dependencies]
-reign_boot = { path = "./reign_boot", version = "0.1.2", optional = true }
-reign_derive = { path = "./reign_derive", version = "0.1.2" }
-reign_router = { path = "./reign_router", version = "0.1.2", optional = true }
-reign_view = { path = "./reign_view", version = "0.1.2" }
+# common deps
 log = "0.4.8"
-structopt = { version = "0.3.7", optional = true }
+
+# lib deps
+reign_boot = { path = "./reign_boot", version = "0.1.2", optional = true }
+reign_derive = { path = "./reign_derive", version = "0.1.2", optional = true }
+reign_router = { path = "./reign_router", version = "0.1.2", optional = true }
+reign_view = { path = "./reign_view", version = "0.1.2", optional = true }
+
+# cli deps
+clap = { version = "3.0.0-beta.1", optional = true }
 
 [dev-dependencies]
 version-sync = "0.8"
@@ -51,20 +56,21 @@ default-members = [
 ]
 
 [features]
-default = ["views-gotham", "router-gotham", "framework"]
+default = ["view-gotham", "router-gotham", "framework"]
+cli = ["clap"]
+doc = []
 framework = ["reign_boot"]
-build-binary = ["structopt"]
-build-docs = []
-views-actix = ["reign_view/views-actix", "reign_derive/views-actix"]
-views-gotham = ["reign_view/views-gotham", "reign_derive/views-gotham"]
-views-tide = ["reign_view/views-tide", "reign_derive/views-tide"]
-views-warp = ["reign_view/views-warp", "reign_derive/views-warp"]
-router = []
+view = ["reign_view", "reign_derive/view"]
+view-actix = ["reign_view/view-actix", "reign_derive/view-actix", "view"]
+view-gotham = ["reign_view/view-gotham", "reign_derive/view-gotham", "view"]
+view-tide = ["reign_view/view-tide", "reign_derive/view-tide", "view"]
+view-warp = ["reign_view/view-warp", "reign_derive/view-warp", "view"]
+json = ["reign_view/json", "reign_derive/json", "view"]
+router = ["reign_router", "reign_derive/router"]
 router-actix = ["reign_router/router-actix", "reign_derive/router-actix", "router"]
 router-gotham = ["reign_router/router-gotham", "reign_derive/router-gotham", "router"]
 router-tide  = ["reign_router/router-tide", "reign_derive/router-tide", "router"]
 router-warp = ["reign_router/router-warp", "reign_derive/router-warp", "router"]
-json = ["reign_view/json", "reign_derive/json"]
 
 [package.metadata.docs.rs]
 all-features = true

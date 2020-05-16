@@ -1,2 +1,8 @@
 # reign
-Opinionated Isomorphic Web Framework in Rust
+Opinionated Fullstack Web Framework in Rust
+
+## Installation
+
+```
+cargo install reign --features cli --no-default-features
+```

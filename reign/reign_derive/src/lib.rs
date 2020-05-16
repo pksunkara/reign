@@ -1,6 +1,6 @@
-#![cfg_attr(feature = "build-docs", feature(external_doc))]
+#![cfg_attr(feature = "doc", feature(external_doc))]
 #![doc(html_root_url = "https://docs.rs/reign_derive/0.1.2")]
-#![cfg_attr(feature = "build-docs", doc(include = "../README.md"))]
+#![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
@@ -8,6 +8,7 @@ use syn::{parse_macro_input, Expr};
 
 #[cfg(feature = "router")]
 mod router;
+#[cfg(feature = "view")]
 mod views;
 
 mod utils;
@@ -35,6 +36,7 @@ mod utils;
 ///
 /// views!("src", "views");
 /// ```
+#[cfg(feature = "view")]
 #[proc_macro]
 pub fn views(input: TokenStream) -> TokenStream {
     let input: views::render::Views = parse_macro_input!(input);
@@ -61,8 +63,9 @@ pub fn views(input: TokenStream) -> TokenStream {
 ///
 /// render!(pages::home, status = 201)
 /// ```
+#[cfg(feature = "view")]
 #[proc_macro]
-#[proc_macro_error]
+#[cfg_attr(feature = "view", proc_macro_error)]
 pub fn render(input: TokenStream) -> TokenStream {
     let input: views::render::Render = parse_macro_input!(input);
 
@@ -80,6 +83,7 @@ pub fn render(input: TokenStream) -> TokenStream {
 ///
 /// redirect!("/dashboard")
 /// ```
+#[cfg(feature = "view")]
 #[proc_macro]
 pub fn redirect(input: TokenStream) -> TokenStream {
     let input: Expr = parse_macro_input!(input);

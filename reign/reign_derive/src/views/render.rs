@@ -213,19 +213,19 @@ pub fn render(mut input: Render) -> TokenStream {
         .remove("status")
         .unwrap_or_else(|| parse_str("200").unwrap());
 
-    if cfg!(feature = "views-actix") {
+    if cfg!(feature = "view-actix") {
         quote! {
             ::reign::view::render_actix(#capture, #status)
         }
-    } else if cfg!(feature = "views-gotham") {
+    } else if cfg!(feature = "view-gotham") {
         quote! {
             ::reign::view::render_gotham(#capture, #status)
         }
-    } else if cfg!(feature = "views-tide") {
+    } else if cfg!(feature = "view-tide") {
         quote! {
             ::reign::view::render_tide(#capture, #status)
         }
-    } else if cfg!(feature = "views-warp") {
+    } else if cfg!(feature = "view-warp") {
         quote! {
             ::reign::view::render_warp(#capture, #status)
         }

@@ -5,9 +5,9 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Opinionated Isomorphic Web Framework in Rust"
+description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["isomorphic", "web", "framework", "reign"]
+keywords = ["fullstack", "web", "framework", "reign"]
 categories = []
 license = "MIT"
 readme = "README.md"
@@ -25,7 +25,7 @@ version-sync = "0.8"
 
 [features]
 default = []
-build-docs = []
+doc = []
 
 [package.metadata.docs.rs]
 all-features = true

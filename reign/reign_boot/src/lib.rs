@@ -1,6 +1,6 @@
-#![cfg_attr(feature = "build-docs", feature(external_doc))]
+#![cfg_attr(feature = "doc", feature(external_doc))]
 #![doc(html_root_url = "https://docs.rs/reign_boot/0.1.2")]
-#![cfg_attr(feature = "build-docs", doc(include = "../README.md"))]
+#![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
 use dotenv;
 use env_logger;

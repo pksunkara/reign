@@ -33,7 +33,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features --target ${{ matrix.target }} -- --test-threads 1
+          args: --all-features --manifest-path reign\Cargo.toml --target ${{ matrix.target }} -- --test-threads 1
       # - name: Install sqlite
       #   run: |
       #     choco install 7zip

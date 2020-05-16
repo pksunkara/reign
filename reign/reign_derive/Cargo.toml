@@ -5,9 +5,9 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Opinionated Isomorphic Web Framework in Rust"
+description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["isomorphic", "web", "framework", "reign"]
+keywords = ["fullstack", "web", "framework", "reign"]
 categories = []
 license = "MIT"
 readme = "README.md"
@@ -16,7 +16,7 @@ readme = "README.md"
 proc-macro = true
 
 [dependencies]
-reign_view = { path = "../reign_view", version = "0.1.2" }
+reign_view = { path = "../reign_view", version = "0.1.2", features = ["parser"] }
 syn = { version = "1", features = ["full"] }
 quote = "1"
 proc-macro-error = "0.4"
@@ -32,17 +32,18 @@ trybuild = "1.0"
 
 [features]
 default = []
-build-docs = []
-views-actix = ["reign_view/views-actix"]
-views-gotham = ["reign_view/views-gotham"]
-views-tide = ["reign_view/views-tide"]
-views-warp = ["reign_view/views-warp"]
+doc = []
+view = []
+view-actix = ["view"]
+view-gotham = ["view"]
+view-tide = ["view"]
+view-warp = ["view"]
+json = ["view"]
 router = []
 router-actix = ["router"]
 router-gotham = ["router"]
 router-tide = ["router"]
 router-warp = ["router"]
-json = ["reign_view/json"]
 
 [package.metadata.docs.rs]
 all-features = true

@@ -5,9 +5,9 @@ authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Opinionated Isomorphic Web Framework in Rust"
+description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["isomorphic", "web", "framework", "reign"]
+keywords = ["fullstack", "web", "framework", "reign"]
 categories = []
 license = "MIT"
 readme = "README.md"
@@ -18,11 +18,11 @@ path = "src/lib.rs"
 
 [dependencies]
 mime = "0.3"
-futures = { version = "0.3", optional = true }
-actix-web = { version = "3.0.0-alpha.1", optional = true }
+futures = "0.3"
+actix-web = { version = "3.0.0-alpha.2", optional = true }
 actix-service = { version = "1.0", optional = true }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master", optional = true }
-tide = { version = "0.8", optional = true }
+tide = { version = "0.8.1", optional = true }
 chrono = "0.4"
 
 [dev-dependencies]
@@ -34,11 +34,11 @@ reqwest = "0.10"
 
 [features]
 default = []
-build-docs = []
-router-actix = ["actix-web", "actix-service", "futures"]
-router-gotham = ["gotham", "futures"]
-router-tide = ["tide", "futures"]
-router-warp = ["futures"]
+doc = []
+router-actix = ["actix-web", "actix-service"]
+router-gotham = ["gotham"]
+router-tide = ["tide"]
+router-warp = []
 
 [package.metadata.docs.rs]
 all-features = true

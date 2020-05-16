@@ -1,2 +1,2 @@
 # reign_derive
-Opinionated Isomorphic Web Framework in Rust
+Opinionated Fullstack Web Framework in Rust

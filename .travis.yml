@@ -1,16 +1,12 @@
 os: linux
 language: rust
 cache: cargo
-before_cache:
-  - find target/debug -type f -maxdepth 1 -delete
-  - rm -rf target/.rustc_info.json
-  - rm -rf target/debug/incremental
 jobs:
   include:
     - rust: nightly-2020-03-19
       name: Run cargo tests
       script:
-        - cargo test --all-features -- --test-threads 1
+        - cargo test --all-features --manifest-path reign/Cargo.toml -- --test-threads 1
     - rust: nightly-2020-03-19
       name: Run cargo examples tests
       script:

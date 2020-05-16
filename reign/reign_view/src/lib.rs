@@ -1,12 +1,14 @@
-#![cfg_attr(feature = "build-docs", feature(external_doc))]
+#![cfg_attr(feature = "doc", feature(external_doc))]
 #![doc(html_root_url = "https://docs.rs/reign_view/0.1.2")]
-#![cfg_attr(feature = "build-docs", doc(include = "../README.md"))]
+#![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
 #[doc(hidden)]
 pub use maplit;
 
-#[doc(hidden)]
+#[cfg(feature = "parser")]
+#[cfg_attr(feature = "parser", doc(hidden))]
 pub mod parse;
+
 mod slots;
 
 #[doc(hidden)]
@@ -68,7 +70,7 @@ pub use slots::{slot_render, Slots};
 /// #   assert_eq!(response.text().await.unwrap(), "<h1>Hello Actix!</h1>");
 /// # });
 /// ```
-#[cfg(feature = "views-actix")]
+#[cfg(feature = "view-actix")]
 pub fn render_actix<D: std::fmt::Display>(view: D, status: u16) -> impl actix_web::Responder {
     use actix_web::{
         dev::HttpResponseBuilder,
@@ -154,7 +156,7 @@ pub fn render_actix<D: std::fmt::Display>(view: D, status: u16) -> impl actix_we
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "views-gotham")]
+#[cfg(feature = "view-gotham")]
 pub fn render_gotham<D: std::fmt::Display>(
     view: D,
     status: u16,
@@ -248,7 +250,7 @@ pub fn render_gotham<D: std::fmt::Display>(
 /// #       _ = client => {}
 /// #   }
 /// # });
-#[cfg(feature = "views-tide")]
+#[cfg(feature = "view-tide")]
 pub fn render_tide<D: std::fmt::Display>(view: D, status: u16) -> tide::Response {
     use std::convert::TryFrom;
     use tide::{http::StatusCode, Response};
@@ -322,7 +324,7 @@ pub fn render_tide<D: std::fmt::Display>(view: D, status: u16) -> tide::Response
 /// #       _ = client => {}
 /// #   }
 /// # });
-#[cfg(feature = "views-warp")]
+#[cfg(feature = "view-warp")]
 pub fn render_warp<D: std::fmt::Display>(
     view: D,
     status: u16,
@@ -410,7 +412,7 @@ pub fn render_warp<D: std::fmt::Display>(
 /// #   assert_eq!(response.text().await.unwrap(), "");
 /// # });
 /// ```
-#[cfg(feature = "views-actix")]
+#[cfg(feature = "view-actix")]
 pub fn redirect_actix<L: AsRef<str>>(location: L) -> impl actix_web::Responder {
     use actix_web::{
         http::header::{HeaderValue, LOCATION},
@@ -482,7 +484,7 @@ pub fn redirect_actix<L: AsRef<str>>(location: L) -> impl actix_web::Responder {
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "views-gotham")]
+#[cfg(feature = "view-gotham")]
 pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<gotham::hyper::Body> {
     use gotham::hyper::{header, Body, Response, StatusCode};
 
@@ -551,7 +553,7 @@ pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<go
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "views-tide")]
+#[cfg(feature = "view-tide")]
 pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
     use tide::{
         http::{headers::HeaderName, StatusCode},
@@ -616,7 +618,7 @@ pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "views-warp")]
+#[cfg(feature = "view-warp")]
 pub fn redirect_warp<L: AsRef<str>>(location: L) -> warp::hyper::Response<warp::hyper::Body> {
     use warp::hyper::{header, Body, Response, StatusCode};
 
@@ -684,7 +686,7 @@ pub fn redirect_warp<L: AsRef<str>>(location: L) -> warp::hyper::Response<warp::
 /// #   assert_eq!(response.text().await.unwrap(), r#"{"name":"Actix"}"#);
 /// # });
 /// ```
-#[cfg(all(feature = "json", feature = "views-actix"))]
+#[cfg(all(feature = "json", feature = "view-actix"))]
 pub fn json_actix<S: serde::Serialize>(value: S, status: u16) -> impl actix_web::Responder {
     use actix_web::{
         dev::HttpResponseBuilder,
@@ -764,7 +766,7 @@ pub fn json_actix<S: serde::Serialize>(value: S, status: u16) -> impl actix_web:
 /// #   }
 /// # });
 /// ```
-#[cfg(all(feature = "json", feature = "views-gotham"))]
+#[cfg(all(feature = "json", feature = "view-gotham"))]
 pub fn json_gotham<S: serde::Serialize>(
     value: S,
     status: u16,
@@ -852,7 +854,7 @@ pub fn json_gotham<S: serde::Serialize>(
 /// #       _ = client => {}
 /// #   }
 /// # });
-#[cfg(all(feature = "json", feature = "views-tide"))]
+#[cfg(all(feature = "json", feature = "view-tide"))]
 pub fn json_tide<S: serde::Serialize>(value: S, status: u16) -> tide::Response {
     use std::convert::TryFrom;
     use tide::{http::StatusCode, Response};
@@ -920,7 +922,7 @@ pub fn json_tide<S: serde::Serialize>(value: S, status: u16) -> tide::Response {
 /// #       _ = client => {}
 /// #   }
 /// # });
-#[cfg(all(feature = "json", feature = "views-warp"))]
+#[cfg(all(feature = "json", feature = "view-warp"))]
 pub fn json_warp<S: serde::Serialize>(
     value: S,
     status: u16,
