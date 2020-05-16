@@ -40,19 +40,6 @@ members = [
 	"reign_router",
 	"reign_view",
 
-	"examples/full/basic",
-
-	"examples/router/actix",
-	"examples/router/gotham",
-	"examples/router/tide",
-	"examples/router/warp",
-
-	"examples/views/normal",
-	"examples/views/actix",
-	"examples/views/gotham",
-	"examples/views/tide",
-	"examples/views/warp",
-
 	"development/test_examples",
 ]
 default-members = [

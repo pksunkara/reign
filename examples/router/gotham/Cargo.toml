@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["router-gotham"], default-features = false }
+reign = { path = "../../../reign", features = ["router-gotham"], default-features = false }
 gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 gotham_derive = { git = "git://github.com/gotham-rs/gotham", branch = "master" }
 futures = "0.3"
@@ -17,4 +17,4 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 [dev-dependencies]
-test_examples = { path = "../../../development/test_examples" }
+test_examples = { path = "../../../reign/development/test_examples" }

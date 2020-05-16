@@ -6,8 +6,8 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../../../reign", features = ["router-warp"], default-features = false }
-warp = "0.2"
+reign = { path = "../../../reign", features = ["router-warp"], default-features = false }
+warp = "0.2.2"
 tokio = { version = "0.2", features = ["full"] }
 anyhow = "1"
 thiserror = "1"
@@ -15,4 +15,4 @@ serde_json = "1"
 regex = "1.3"
 
 [dev-dependencies]
-test_examples = { path = "../../../development/test_examples" }
+test_examples = { path = "../../../reign/development/test_examples" }

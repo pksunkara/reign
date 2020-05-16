@@ -218,9 +218,9 @@ pub fn render_gotham<D: std::fmt::Display>(
 /// # let mut app = tide::new();
 /// #
 /// app.at("/").get(|_| async move {
-///     render_tide(CustomView {
+///     Ok(render_tide(CustomView {
 ///         msg: "Hello Tide!"
-///     }, 200)
+///     }, 200))
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
@@ -515,7 +515,7 @@ pub fn redirect_gotham<L: AsRef<str>>(location: L) -> gotham::hyper::Response<go
 /// # let mut app = tide::new();
 /// #
 /// app.at("/").get(|_| async move {
-///     redirect_tide("/dashboard")
+///     Ok(redirect_tide("/dashboard"))
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
@@ -822,9 +822,9 @@ pub fn json_gotham<S: serde::Serialize>(
 /// # let mut app = tide::new();
 /// #
 /// app.at("/").get(|_| async move {
-///     json_tide(User {
+///     Ok(json_tide(User {
 ///         name: "Tide"
-///     }, 200)
+///     }, 200))
 /// });
 /// #
 /// # let mut rt = Runtime::new().unwrap();
