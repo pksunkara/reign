@@ -34,7 +34,7 @@ only in `nightly`. It is coming to `stable` soon.
 
     ```toml
     [dependencies]
-    reign = { version = "*", default-features = false }
+    reign = { version = "*", features = ["view"], default-features = false }
     ```
 
 2. Initiate the templates in your `main.rs`
@@ -447,22 +447,22 @@ to see how they are used.
 Please refer to [reign_derive](https://docs.rs/reign_derive) for more information about the
 usage of helper macros.
 
-##### views-actix
+##### view-actix
 
 * Enables `render_actix` helper and `render!` can be used for actix's request handler.
 * Enables `redirect_actix` helper and `redirect!` can be used for actix's request handler.
 
-##### views-gotham
+##### view-gotham
 
 * Enables `render_gotham` helper and `render!` can be used for gotham's handler.
 * Enables `redirect_gotham` helper and `redirect!` can be used for gotham's handler.
 
-##### views-tide
+##### view-tide
 
 * Enables `render_tide` helper and `render!` can be used for tide's endpoint closure.
 * Enables `redirect_tide` helper and `redirect!` can be used for tide's endpoint closure.
 
-##### views-warp
+##### view-warp
 
 * Enables `render_warp` helper and `render!` can be used for warp's closure.
 * Enables `redirect_warp` helper and `redirect!` can be used for warp's closure.

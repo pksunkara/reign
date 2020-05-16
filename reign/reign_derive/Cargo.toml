@@ -26,7 +26,7 @@ Inflector = "0.11.4"
 lazy_static = "1.4.0"
 
 [dev-dependencies]
-reign = { path = "../", features = ["json"] }
+reign = { path = "../", features = ["view-actix", "json"] }
 version-sync = "0.8"
 trybuild = "1.0"
 
