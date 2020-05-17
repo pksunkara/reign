@@ -1,4 +1,4 @@
-use crate::router::utils::subty_if_name;
+use crate::router::scope::ty::subty_if_name;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
