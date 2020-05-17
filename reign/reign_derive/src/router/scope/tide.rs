@@ -1,7 +1,11 @@
-use crate::router::scope::Scope;
+use crate::router::{path::Path, Scope};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
+
+fn gen_path(path: Path) -> TokenStream {
+    quote! {}
+}
 
 pub fn tide(input: Scope) -> TokenStream {
     let Scope { path, pipe, rest } = input;
@@ -19,6 +23,8 @@ pub fn tide(input: Scope) -> TokenStream {
     } else {
         vec![]
     };
+
+    let path = gen_path(path);
 
     quote! {
         app.at(#path).nest({

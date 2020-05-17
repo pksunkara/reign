@@ -1,4 +1,4 @@
-use crate::router::scope::ty::subty_if_name;
+use crate::router::ty::subty_if_name;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
@@ -89,7 +89,9 @@ pub struct Path {
 impl Parse for Path {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Path {
-            segments: input.parse_terminated(|i| i.parse::<PathSegment>())?,
+            segments: Punctuated::parse_separated_nonempty_with(input, |i| {
+                i.parse::<PathSegment>()
+            })?,
         })
     }
 }

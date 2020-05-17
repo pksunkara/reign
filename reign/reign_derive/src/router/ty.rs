@@ -39,7 +39,7 @@ fn only_last_segment(ty: Type) -> Option<PathSegment> {
     }
 }
 
-fn only_one<I, T>(mut iter: I) -> Option<T>
+pub fn only_one<I, T>(mut iter: I) -> Option<T>
 where
     I: Iterator<Item = T>,
 {

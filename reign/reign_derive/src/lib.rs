@@ -133,6 +133,7 @@ pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro_attribute]
+#[proc_macro_error]
 pub fn router(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::ItemFn = parse_macro_input!(input);
 

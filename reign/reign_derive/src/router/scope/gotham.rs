@@ -1,68 +1,50 @@
-use crate::router::scope::Scope;
+use crate::router::{path::Path, Scope};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
+fn gen_path(path: Path) -> TokenStream {
+    quote! {
+        ""
+    }
+}
+
 pub fn gotham(input: Scope) -> TokenStream {
     let Scope { path, pipe, rest } = input;
+
+    let path = gen_path(path);
 
     let pipes = if let Some(pipe) = pipe {
         let mut chains = vec![];
         let mut iter = pipe.into_iter().map(|i| i);
-        let mut prev = None;
+        let mut prev = Ident::new("__chain", Span::call_site());
 
         while let Some(i) = iter.next() {
             let name = Ident::new(&format!("{}_pipe", i), Span::call_site());
             let chain = Ident::new(&format!("{}_chain", i), Span::call_site());
 
-            if let Some(inside) = prev {
-                let prev_chain = Ident::new(&format!("{}_chain", inside), Span::call_site());
+            chains.push(quote! {
+                let #chain = (#name, #prev);
+            });
 
-                chains.push(quote! {
-                    let #chain = (#name, #prev_chain);
-                });
-            } else {
-                chains.push(quote! {
-                    let #chain = (#name, ());
-                });
-            }
-
-            prev = Some(i);
+            prev = chain;
         }
 
-        let chain = if let Some(inside) = prev {
-            let prev_chain = Ident::new(&format!("{}_chain", inside), inside.span());
-
-            quote! {
-                #prev_chain
-            }
-        } else {
-            quote! {
-                ()
-            }
-        };
-
         quote! {
-            {
-                #(#chains)*
-                #chain
-            }
+            #(#chains)*
+            let __chain = #prev
         }
     } else {
-        quote! {
-            ()
-        }
+        quote! {}
     };
 
     quote! {
-        route
-            .delegate(#path)
-            .to_router(::gotham::router::builder::build_router(
-                #pipes,
-                pipeline_set.clone(),
-                |route| {
-                    #rest
-                }
-            ))
+        route.scope(#path, |route| {
+            #pipes;
+
+            route.with_pipeline_chain(__chain, |route| {
+                #rest
+            });
+        })
     }
 }

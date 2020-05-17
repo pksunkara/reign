@@ -163,11 +163,6 @@ fn param_optional_glob_after() {
 }
 
 #[action]
-fn double_slashes() {
-    Ok("double_slashes")
-}
-
-#[action]
 fn scope_static() {
     Ok("scope_static")
 }
@@ -414,7 +409,7 @@ fn router() {
         ],
     );
 
-    scope!("/", [common, app], {
+    scope!("", [common, app], {
         get!("str", str_);
         get!("string", string);
         get!("response", response);
@@ -447,8 +442,6 @@ fn router() {
 
         route.get("param_optional_glob_after/b").with_path_extractor::<OptPathExtractor>().to(param_optional_glob_after);
         route.get("param_optional_glob_after/*/b").with_path_extractor::<OptPathExtractor>().to(param_optional_glob_after);
-
-        get!("double//slashes", double_slashes);
 
         route.scope("scope_static", |route| {
             route.get("b").to(scope_static_b);
@@ -534,15 +527,15 @@ fn router() {
             route.get("").to(sibling_scope_lower);
         });
 
-        scope!("/scope-static", {
+        scope!("scope-static", {
             get!("/", scope_static);
         });
 
-        scope!("/pipe", [timer], {
+        scope!("pipe", [timer], {
             get!("/", pipe);
         });
 
-        scope!("/pipe-empty", [], {
+        scope!("pipe-empty", [], {
             get!("/", pipe_empty);
         });
     });

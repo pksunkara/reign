@@ -1,11 +1,12 @@
-use proc_macro2::{Span, TokenStream};
+use crate::router::path::Path;
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
     braced, bracketed,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Bracket, Comma},
-    Ident, LitStr,
+    Ident,
 };
 
 mod actix;
@@ -13,13 +14,8 @@ mod gotham;
 mod tide;
 mod warp;
 
-mod path;
-mod ty;
-
-use path::Path;
-
 pub struct Scope {
-    path: LitStr,
+    path: Path,
     pipe: Option<Punctuated<Ident, Comma>>,
     rest: TokenStream,
 }

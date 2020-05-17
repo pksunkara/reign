@@ -1,10 +1,16 @@
-use crate::router::scope::Scope;
+use crate::router::{path::Path, Scope};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
+fn gen_path(path: Path) -> TokenStream {
+    quote! {}
+}
+
 pub fn actix(input: Scope) -> TokenStream {
     let Scope { path, pipe, rest } = input;
+
+    let path = gen_path(path);
 
     let app = quote! {
         ::actix_web::web::scope(#path)

@@ -1,6 +1,7 @@
+use crate::router::ty::only_one;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::ItemFn;
+use syn::{Expr, ItemFn, Stmt};
 
 pub fn router(input: ItemFn) -> TokenStream {
     let ItemFn {
@@ -8,7 +9,25 @@ pub fn router(input: ItemFn) -> TokenStream {
     } = input;
 
     let name = sig.ident;
+    let mut saw_pipelines = false;
     let stmts = block.stmts;
+
+    let (scopes, pipes) = stmts.into_iter().partition::<Vec<_>, _>(move |stmt| {
+        let ret = saw_pipelines;
+
+        match stmt {
+            Stmt::Expr(Expr::Macro(e)) | Stmt::Semi(Expr::Macro(e), _) => {
+                if let Some(name) = only_one(e.mac.path.segments.iter()) {
+                    if name.ident == "pipelines" {
+                        saw_pipelines = true;
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        return ret;
+    });
 
     if cfg!(feature = "router-actix") {
         quote! {
@@ -20,7 +39,8 @@ pub fn router(input: ItemFn) -> TokenStream {
                 ::actix_web::HttpServer::new(|| {
                     let mut app = ::actix_web::App::new();
 
-                    #(#stmts)*
+                    #(#pipes)*
+                    #(#scopes)*
 
                     app
                 })
@@ -42,7 +62,13 @@ pub fn router(input: ItemFn) -> TokenStream {
                 ::gotham::init_server(
                     addr,
                     build_simple_router(|route| {
-                        #(#stmts)*
+                        #(#pipes)*
+
+                        route.delegate("").to_router(build_router((), pipeline_set, |route| {
+                            let __chain = ();
+
+                            #(#scopes)*
+                        }));
                     })
                 ).await
             }
@@ -56,7 +82,8 @@ pub fn router(input: ItemFn) -> TokenStream {
             {
                 let mut app = ::tide::new();
 
-                #(#stmts)*
+                #(#pipes)*
+                #(#scopes)*
 
                 app.listen(addr).await
             }
@@ -68,7 +95,8 @@ pub fn router(input: ItemFn) -> TokenStream {
             where
                 A: ::async_std::net::ToSocketAddrs + 'static
             {
-                #(#stmts)*
+                #(#pipes)*
+                #(#scopes)*
             }
         }
     }
