@@ -6,7 +6,7 @@
 pub use maplit;
 
 #[cfg(feature = "parser")]
-#[cfg_attr(feature = "parser", doc(hidden))]
+#[doc(hidden)]
 pub mod parse;
 
 mod slots;

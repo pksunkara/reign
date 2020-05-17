@@ -65,7 +65,7 @@ pub fn views(input: TokenStream) -> TokenStream {
 /// ```
 #[cfg(feature = "view")]
 #[proc_macro]
-#[cfg_attr(feature = "view", proc_macro_error)]
+#[proc_macro_error]
 pub fn render(input: TokenStream) -> TokenStream {
     let input: views::render::Render = parse_macro_input!(input);
 
