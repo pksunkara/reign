@@ -1,17 +1,26 @@
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::ItemFn;
 
-pub fn router(input: TokenStream) -> TokenStream {
+pub fn router(input: ItemFn) -> TokenStream {
+    let ItemFn {
+        attrs, sig, block, ..
+    } = input;
+
+    let name = sig.ident;
+    let stmts = block.stmts;
+
     if cfg!(feature = "router-actix") {
         quote! {
-            pub async fn router<A>(addr: A) -> std::io::Result<()>
+            #(#attrs)*
+            pub async fn #name<A>(addr: A) -> std::io::Result<()>
             where
                 A: std::net::ToSocketAddrs + Send + 'static
             {
                 ::actix_web::HttpServer::new(|| {
                     let mut app = ::actix_web::App::new();
 
-                    #input
+                    #(#stmts)*
 
                     app
                 })
@@ -23,7 +32,8 @@ pub fn router(input: TokenStream) -> TokenStream {
         }
     } else if cfg!(feature = "router-gotham") {
         quote! {
-            pub async fn router<A>(addr: A) -> Result<(), ()>
+            #(#attrs)*
+            pub async fn #name<A>(addr: A) -> Result<(), ()>
             where
                 A: std::net::ToSocketAddrs + Send + 'static
             {
@@ -32,25 +42,34 @@ pub fn router(input: TokenStream) -> TokenStream {
                 ::gotham::init_server(
                     addr,
                     build_simple_router(|route| {
-                        #input
+                        #(#stmts)*
                     })
                 ).await
             }
         }
     } else if cfg!(feature = "router-tide") {
         quote! {
-            pub async fn router<A>(addr: A) -> std::io::Result<()>
+            #(#attrs)*
+            pub async fn #name<A>(addr: A) -> std::io::Result<()>
             where
-                A: ::async_std::net::ToSocketAddrs + 'static
+                A: std::net::ToSocketAddrs + Send + 'static
             {
                 let mut app = ::tide::new();
 
-                #input
+                #(#stmts)*
 
                 app.listen(addr).await
             }
         }
     } else {
-        quote! {}
+        quote! {
+            #(#attrs)*
+            pub async fn #name<A>(addr: A) -> std::io::Result<()>
+            where
+                A: ::async_std::net::ToSocketAddrs + 'static
+            {
+                #(#stmts)*
+            }
+        }
     }
 }

@@ -272,7 +272,8 @@ fn pipe_empty() {
     Ok("pipe_empty")
 }
 
-router!(
+#[router]
+fn router() {
     pipelines!(
         common: [
             HeadersDefault::empty().add("x-powered-by", "reign"),
@@ -455,7 +456,7 @@ router!(
             get!("/", pipe_empty);
         });
     });
-);
+}
 
 async fn server() {
     router("127.0.0.1:8300").await.unwrap();

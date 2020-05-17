@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use proc_macro2::Span;
+use std::collections::BTreeMap as Map;
 use syn::{
     parse::{Parse, ParseStream, Result},
     token::{Comma, Eq},
@@ -6,25 +7,30 @@ use syn::{
 };
 
 pub struct Options {
-    pub inner: HashMap<String, Expr>,
+    pub inner: Map<Ident, Expr>,
 }
 
 impl Options {
     pub fn remove(&mut self, key: &'static str) -> Option<Expr> {
-        self.inner.remove(key)
+        self.inner.remove(&Ident::new(key, Span::call_site()))
+    }
+
+    #[allow(unused)]
+    pub fn find(&self, key: &str) -> Option<(&Ident, &Expr)> {
+        self.inner.iter().find(|x| x.0.to_string() == key)
     }
 }
 
 impl Parse for Options {
     fn parse(input: ParseStream) -> Result<Self> {
-        let mut inner = HashMap::new();
+        let mut inner = Map::new();
 
-        while input.peek(Comma) {
+        while !input.is_empty() {
             input.parse::<Comma>()?;
             let ident: Ident = input.parse()?;
             input.parse::<Eq>()?;
 
-            inner.insert(ident.to_string(), input.parse()?);
+            inner.insert(ident, input.parse()?);
         }
 
         Ok(Options { inner })

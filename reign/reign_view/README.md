@@ -30,7 +30,7 @@ only in `nightly`. It is coming to `stable` soon.
 # Quickstart
 
 1. Add [reign](https://docs.rs/reign) to your code base with
-   default features ommitted
+   default features ommitted and `view` feature enabled
 
     ```toml
     [dependencies]
@@ -134,7 +134,7 @@ You can read more about template syntax below [here](#template-syntax)
 
 ### Rendering
 
-When no default features are enabled and when you try to render a template
+When the plain view feature is enabled and when you try to render a template
 like the following:
 
 ```rust,ignore

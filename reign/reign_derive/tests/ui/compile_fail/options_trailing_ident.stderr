@@ -1,0 +1,7 @@
+error: expected `=`
+ --> $DIR/options_trailing_ident.rs:5:5
+  |
+5 |     json!(200, status);
+  |     ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)

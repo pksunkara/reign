@@ -10,7 +10,8 @@ pub struct IdExtractor {
     pub id: i32,
 }
 
-router!(
+#[router]
+fn router() {
     pipelines!(
         common: [
             RequestLogger::new(Level::Info),
@@ -34,4 +35,4 @@ router!(
     //                 .with_path_extractor::<IdExtractor>()
     //                 .to(articles::show);
     //         });
-);
+}
