@@ -150,6 +150,7 @@ pub fn pipelines(input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn scope(input: TokenStream) -> TokenStream {
     let input: router::Scope = parse_macro_input!(input);
 

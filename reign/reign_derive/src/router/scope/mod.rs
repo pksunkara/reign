@@ -27,8 +27,11 @@ impl Parse for Scope {
         Ok(Scope {
             path: input.parse()?,
             pipe: {
-                if input.peek2(Bracket) {
+                if input.peek(Comma) {
                     input.parse::<Comma>()?;
+                }
+
+                if input.peek(Bracket) {
                     bracketed!(content in input);
                     Some(content.parse_terminated(|i| i.parse::<Ident>())?)
                 } else {
@@ -36,7 +39,10 @@ impl Parse for Scope {
                 }
             },
             rest: {
-                input.parse::<Comma>()?;
+                if input.peek(Comma) {
+                    input.parse::<Comma>()?;
+                }
+
                 braced!(content in input);
                 content.parse()?
             },

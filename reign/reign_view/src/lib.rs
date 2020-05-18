@@ -5,10 +5,8 @@
 #[doc(hidden)]
 pub use maplit;
 
-#[cfg(feature = "parser")]
 #[doc(hidden)]
 pub mod parse;
-
 mod slots;
 
 #[doc(hidden)]

@@ -2,7 +2,7 @@ use crate::router::ty::subty_if_name;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::{At, Colon, Div, Question, Star},
+    token::{At, Brace, Bracket, Colon, Div, Question, Star},
     Ident, LitStr, Type,
 };
 
@@ -34,7 +34,9 @@ pub enum PathSegment {
 impl Parse for PathSegment {
     fn parse(input: ParseStream) -> Result<Self> {
         if input.peek(LitStr) {
-            Ok(PathSegment::Static(input.parse()?))
+            let lit: LitStr = input.parse()?;
+            // TODO:(router) only allow url encoded strings
+            Ok(PathSegment::Static(lit))
         } else {
             let mut dynamic = PathSegmentDynamic::new(input.parse()?);
 
@@ -89,9 +91,13 @@ pub struct Path {
 impl Parse for Path {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Path {
-            segments: Punctuated::parse_separated_nonempty_with(input, |i| {
-                i.parse::<PathSegment>()
-            })?,
+            segments: {
+                if input.peek(Brace) || input.peek(Bracket) {
+                    Punctuated::new()
+                } else {
+                    Punctuated::parse_separated_nonempty_with(input, |i| i.parse::<PathSegment>())?
+                }
+            },
         })
     }
 }

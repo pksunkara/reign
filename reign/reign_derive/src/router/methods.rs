@@ -1,3 +1,4 @@
+use crate::router::path::Path;
 use inflector::cases::screamingsnakecase::to_screaming_snake_case;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -6,13 +7,13 @@ use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::Comma,
-    Ident, LitStr, Path,
+    Ident, LitStr, Path as SynPath,
 };
 
 pub struct Methods {
     methods: Punctuated<Ident, Comma>,
     path: LitStr,
-    action: Path,
+    action: SynPath,
 }
 
 impl Parse for Methods {

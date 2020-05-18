@@ -55,6 +55,21 @@ fn methods() {
     Ok("methods")
 }
 
+#[action]
+fn scope_static() {
+    Ok("scope_static")
+}
+
+#[action]
+fn pipe() {
+    Ok("pipe")
+}
+
+#[action]
+fn pipe_empty() {
+    Ok("pipe_empty")
+}
+
 use gotham::state::FromState;
 use gotham_derive::*;
 use serde::Deserialize;
@@ -160,11 +175,6 @@ fn param_optional_glob_after() {
             None => "".to_string(),
         }
     ))
-}
-
-#[action]
-fn scope_static() {
-    Ok("scope_static")
 }
 
 #[action]
@@ -381,16 +391,6 @@ fn sibling_scope_lower() {
     Ok("sibling_scope_lower")
 }
 
-#[action]
-fn pipe() {
-    Ok("pipe")
-}
-
-#[action]
-fn pipe_empty() {
-    Ok("pipe_empty")
-}
-
 #[router]
 fn router() {
     pipelines!(
@@ -442,11 +442,6 @@ fn router() {
 
         route.get("param_optional_glob_after/b").with_path_extractor::<OptPathExtractor>().to(param_optional_glob_after);
         route.get("param_optional_glob_after/*/b").with_path_extractor::<OptPathExtractor>().to(param_optional_glob_after);
-
-        route.scope("scope_static", |route| {
-            route.get("b").to(scope_static_b);
-            route.get("").to(scope_static);
-        });
 
         route.scope("scope_param/:id", |route| {
             route.get("b").with_path_extractor::<IdExtractor>().to(scope_param_b);
@@ -527,22 +522,22 @@ fn router() {
             route.get("").to(sibling_scope_lower);
         });
 
-        scope!("scope-static", {
-            get!("/", scope_static);
+        scope!("scope_static", {
+            get!("", scope_static);
         });
 
         scope!("pipe", [timer], {
-            get!("/", pipe);
+            get!("", pipe);
         });
 
-        scope!("pipe-empty", [], {
-            get!("/", pipe_empty);
+        scope!("pipe_empty", [], {
+            get!("", pipe_empty);
         });
     });
 }
 
 async fn server() {
-    router("127.0.0.1:8200").await.unwrap()
+    router("127.0.0.1:8080").await.unwrap()
 }
 
 #[tokio::main]

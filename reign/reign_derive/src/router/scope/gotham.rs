@@ -1,12 +1,20 @@
-use crate::router::{path::Path, Scope};
+use crate::router::{
+    path::{Path, PathSegment},
+    Scope,
+};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
-fn gen_path(path: Path) -> TokenStream {
-    quote! {
-        ""
-    }
+fn gen_path(path: Path) -> String {
+    path.segments
+        .iter()
+        .map(|x| match x {
+            PathSegment::Static(s) => s.value(),
+            PathSegment::Dynamic(d) => "".to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join("/")
 }
 
 pub fn gotham(input: Scope) -> TokenStream {
