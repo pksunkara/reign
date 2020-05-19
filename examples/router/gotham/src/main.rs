@@ -51,8 +51,8 @@ fn delete() {
 }
 
 #[action]
-fn methods() {
-    Ok("methods")
+fn multi_methods() {
+    Ok("multi_methods")
 }
 
 #[action]
@@ -233,90 +233,90 @@ fn router() {
     );
 
     scope!("", [common, app], {
-        get!("str", str_);
-        get!("string", string);
-        get!("response", response);
+        to!(get, "str", str_);
+        to!(get, "string", string);
+        to!(get, "response", response);
 
-        get!("error", error);
+        to!(get, "error", error);
 
-        post!("post", post);
-        put!("put", put);
-        patch!("patch", patch);
-        delete!("delete", delete);
+        to!(post, "post", post);
+        to!(put, "put", put);
+        to!(patch, "patch", patch);
+        to!(delete, "delete", delete);
 
-        methods!([post, put], "methods", methods);
+        to!([post, put], "multi_methods", multi_methods);
 
         scope!("scope_static", {
-            get!("", scope_static);
+            to!(get, "", scope_static);
         });
 
         scope!("pipe", [timer], {
-            get!("", pipe);
+            to!(get, "", pipe);
         });
 
         scope!("pipe_empty", [], {
-            get!("", pipe_empty);
+            to!(get, "", pipe_empty);
         });
 
-        get!("param" / id, param);
-        get!("param_optional" / id: Option<String>, param_optional);
+        to!(get, "param" / id, param);
+        to!(get, "param_optional" / id: Option<String>, param_optional);
 
-        get!("param_regex" / id @ "[0-9]+", param_regex);
-        get!("param_optional_regex" / id: Option<String> @ "[0-9]+", param_optional_regex);
+        to!(get, "param_regex" / id @ "[0-9]+", param_regex);
+        to!(get, "param_optional_regex" / id: Option<String> @ "[0-9]+", param_optional_regex);
 
-        get!("param_glob" / id: Vec<String>, param_glob);
-        get!(
+        to!(get, "param_glob" / id: Vec<String>, param_glob);
+        to!(get,
             "param_optional_glob" / id: Option<Vec<String>>,
             param_optional_glob
         );
 
-        get!(
+        to!(get,
             "param_glob_middle" / id: Vec<String> / "foo",
             param_glob_middle
         );
-        get!(
+        to!(get,
             "param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
             param_optional_glob_middle
         );
 
         scope!("scope_param" / id, {
-            get!("bar", scope_param);
+            to!(get, "bar", scope_param);
         });
         scope!("scope_param_optional" / id: Option<String>, {
-            get!("bar", scope_param_optional);
+            to!(get, "bar", scope_param_optional);
         });
 
         scope!("scope_param_regex" / id @ "[0-9]+", {
-            get!("bar", scope_param_regex);
+            to!(get, "bar", scope_param_regex);
         });
         scope!("scope_param_optional_regex" / id: Option<String> @ "[0-9]+", {
-            get!("bar", scope_param_optional_regex);
+            to!(get, "bar", scope_param_optional_regex);
         });
 
         scope!("scope_param_glob" / id: Vec<String>, {
-            get!("bar", scope_param_glob);
+            to!(get, "bar", scope_param_glob);
         });
         scope!("scope_param_optional_glob" / id: Option<Vec<String>>, {
-            get!("bar", scope_param_optional_glob);
+            to!(get, "bar", scope_param_optional_glob);
         });
 
         scope!("scope_param_glob_middle" / id: Vec<String> / "foo", {
-            get!("bar", scope_param_glob_middle);
+            to!(get, "bar", scope_param_glob_middle);
         });
         scope!(
             "scope_param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
             {
-                get!("bar", scope_param_optional_glob_middle);
+                to!(get, "bar", scope_param_optional_glob_middle);
             }
         );
 
         scope!("nested_scope" / foo, {
             scope!("foo" / bar, {
-                get!("bar", nested_scope);
+                to!(get, "bar", nested_scope);
             });
         });
 
-        get!("multi_params" / foo / "foo" / bar, multi_params);
+        to!(get, "multi_params" / foo / "foo" / bar, multi_params);
 
         // route.scope("sibling_scope/higher", |route| {
         //     route.get("").to(sibling_scope_higher);

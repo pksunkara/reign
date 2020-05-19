@@ -15,7 +15,7 @@ mod tide;
 
 pub struct Scope {
     path: Path,
-    pipe: Option<Punctuated<Ident, Comma>>,
+    pipe: Punctuated<Ident, Comma>,
     block: Block,
     prev: Option<Path>,
 }
@@ -32,9 +32,9 @@ impl Parse for Scope {
                 if input.peek(Bracket) {
                     let content;
                     bracketed!(content in input);
-                    Some(content.parse_terminated(|i| i.parse::<Ident>())?)
+                    content.parse_terminated(|i| i.parse::<Ident>())?
                 } else {
-                    None
+                    Punctuated::new()
                 }
             },
             block: {

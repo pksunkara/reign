@@ -51,8 +51,8 @@ fn delete() {
 }
 
 #[action]
-fn methods() {
-    Ok("methods")
+fn multi_methods() {
+    Ok("multi_methods")
 }
 
 async fn param(req: actix_web::web::Path<String>) -> impl actix_web::Responder {
@@ -312,20 +312,19 @@ fn router() {
         ],
     );
 
-    // TODO:(router) make path optional here
-    scope!("/", [common, app], {
-        get!("str", str_);
-        get!("string", string);
-        get!("response", response);
+    scope!("", [common, app], {
+        to!(get, "str", str_);
+        to!(get, "string", string);
+        to!(get, "response", response);
 
-        get!("error", error);
+        to!(get, "error", error);
 
-        post!("post", post);
-        put!("put", put);
-        patch!("patch", patch);
-        delete!("delete", delete);
+        to!(post, "post", post);
+        to!(put, "put", put);
+        to!(patch, "patch", patch);
+        to!(delete, "delete", delete);
 
-        methods!([post, put], "methods", methods);
+        to!([post, put], "multi_methods", multi_methods);
 
         app = app.route("param/{id}", actix_web::web::get().to(param));
 
@@ -351,23 +350,12 @@ fn router() {
             .route("param_optional_glob_after/b", actix_web::web::get().to(param_optional_glob_after))
             .route("param_optional_glob_after/{id:.+}/b", actix_web::web::get().to(param_optional_glob_after));
 
-        get!("double//slashes", double_slashes);
+        to!(get, "double//slashes", double_slashes);
 
-        // get!("/param/{foo}", param);
-        // / "param" / foo
-        // get!("/param_optional/{foo?}", param_optional);
         // "param" / foo?
-        // "param" / foo: Option<String>
-        // get!("/param_typed/{foo:u16}", param_typed);
         // "param" / foo: u16
-        // get!("/param_regex/{foo:[a-f]{6}}/{bar:\\d+}", param_regex);
-        // "param" / foo: u16 @ "[0-9]+"
-        // get!("/param_glob/{foo*}", param_glob);
         // "param" / foo*
-        // "param" / foo: Vec<String>
-        // get!("/param_optional_glob/{foo*?}", param_optional_glob);
         // "param" / foo*?
-        // "param" / foo: Option<Vec<String>>
 
         // TODO: Trailing slashes
 
@@ -522,15 +510,15 @@ fn router() {
         });
 
         scope!("/scope-static", {
-            get!("", scope_static);
+            to!(get, "", scope_static);
         });
 
         scope!("/pipe", [timer], {
-            get!("", pipe);
+            to!(get, "", pipe);
         });
 
         scope!("/pipe-empty", [], {
-            get!("", pipe_empty);
+            to!(get, "", pipe_empty);
         });
 
         // TODO:(router) any
@@ -538,7 +526,7 @@ fn router() {
     });
 
     // scope!("/api", [common, api], {
-    //     get!("/", api);
+    //     to!(get, "/", api);
     // });
 }
 

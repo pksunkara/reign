@@ -1,25 +1,25 @@
 use crate::router::{
     path::{combine_params, PathSegment},
-    Methods, ROUTE_NUM, STRUCT_NUM,
+    To, ROUTE_NUM, STRUCT_NUM,
 };
 use inflector::cases::screamingsnakecase::to_screaming_snake_case;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
-pub fn gotham(input: Methods) -> TokenStream {
-    let Methods {
+pub fn gotham(input: To) -> TokenStream {
+    let To {
         methods,
         path,
         action,
         prev,
     } = input;
 
+    let (paths, params) = path.gotham(false);
     let methods = methods
         .iter()
         .map(|i| Ident::new(&to_screaming_snake_case(&i.to_string()), i.span()))
         .collect::<Vec<_>>();
-    let (paths, params) = path.gotham(false);
 
     let (fields, args) =
         combine_params(prev, params)

@@ -11,19 +11,16 @@ pub fn tide(input: Scope) -> TokenStream {
         prev,
     } = input;
 
-    let pipes = if let Some(pipe) = pipe {
-        pipe.into_iter()
-            .map(|i| {
-                let name = Ident::new(&format!("{}_pipe", i), i.span());
+    let pipes = pipe
+        .into_iter()
+        .map(|i| {
+            let name = Ident::new(&format!("{}_pipe", i), i.span());
 
-                quote! {
-                    #name(&mut app);
-                }
-            })
-            .collect()
-    } else {
-        vec![]
-    };
+            quote! {
+                #name(&mut app);
+            }
+        })
+        .collect::<Vec<_>>();
 
     let (paths, params) = path.tide(true);
 

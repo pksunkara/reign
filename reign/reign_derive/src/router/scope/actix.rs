@@ -11,7 +11,7 @@ pub fn actix(input: Scope) -> TokenStream {
         prev,
     } = input;
 
-    let pipes = if let Some(pipe) = pipe {
+    let pipes = if !pipe.is_empty() {
         pipe.into_iter().fold(quote!(scope), |tokens, i| {
             let name = Ident::new(&format!("{}_pipe", i), i.span());
 

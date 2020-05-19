@@ -51,8 +51,8 @@ fn delete() {
 }
 
 #[action]
-fn methods() {
-    Ok("methods")
+fn multi_methods() {
+    Ok("multi_methods")
 }
 
 async fn param(req: tide::Request<()>) -> tide::Result<tide::Response> {
@@ -291,18 +291,18 @@ fn router() {
     );
 
     scope!("/", [common, app], {
-        get!("str", str_);
-        get!("string", string);
-        get!("response", response);
+        to!(get, "str", str_);
+        to!(get, "string", string);
+        to!(get, "response", response);
 
-        get!("error", error);
+        to!(get, "error", error);
 
-        post!("post", post);
-        put!("put", put);
-        patch!("patch", patch);
-        delete!("delete", delete);
+        to!(post, "post", post);
+        to!(put, "put", put);
+        to!(patch, "patch", patch);
+        to!(delete, "delete", delete);
 
-        methods!([post, put], "methods", methods);
+        to!([post, put], "multi_methods", multi_methods);
 
         app.at("param/:id").get(param);
 
@@ -319,7 +319,7 @@ fn router() {
         app.at("param_optional_glob_after/b").get(param_optional_glob_after);
         app.at("param_optional_glob_after/*id/b").get(param_optional_glob_after);
 
-        get!("double//slashes", double_slashes);
+        to!(get, "double//slashes", double_slashes);
 
         app.at("scope_static").nest({
             let mut app = tide::new();
@@ -445,15 +445,15 @@ fn router() {
         });
 
         scope!("/scope-static", {
-            get!("/", scope_static);
+            to!(get, "/", scope_static);
         });
 
         scope!("/pipe", [timer], {
-            get!("/", pipe);
+            to!(get, "/", pipe);
         });
 
         scope!("/pipe-empty", [], {
-            get!("/", pipe_empty);
+            to!(get, "/", pipe_empty);
         });
     });
 }

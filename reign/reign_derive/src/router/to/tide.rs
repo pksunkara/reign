@@ -1,17 +1,22 @@
-use crate::router::Methods;
+use crate::router::To;
+use inflector::cases::snakecase::to_snake_case;
 use proc_macro2::TokenStream;
 use quote::quote;
+use syn::Ident;
 
-pub fn tide(input: Methods) -> TokenStream {
-    let Methods {
+pub fn tide(input: To) -> TokenStream {
+    let To {
         methods,
         path,
         action,
         prev,
     } = input;
 
-    let methods = methods.iter().map(|i| i).collect::<Vec<_>>();
     let (paths, params) = path.tide(false);
+    let methods = methods
+        .iter()
+        .map(|i| Ident::new(&to_snake_case(&i.to_string()), i.span()))
+        .collect::<Vec<_>>();
 
     paths
         .iter()

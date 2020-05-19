@@ -94,21 +94,21 @@ pub async fn test(bad_method_status: StatusCode) {
 
     assert_eq!(res.status(), bad_method_status);
 
-    url = "http://localhost:8080/methods";
+    url = "http://localhost:8080/multi_methods";
 
     let res = client.post(url).send().await.unwrap();
 
     assert_eq!(res.status(), StatusCode::OK);
     assert!(res.headers().contains_key("x-powered-by"));
     assert!(res.headers().contains_key("x-content-type-options"));
-    assert_eq!(res.text().await.unwrap(), "methods");
+    assert_eq!(res.text().await.unwrap(), "multi_methods");
 
     let res = client.put(url).send().await.unwrap();
 
     assert_eq!(res.status(), StatusCode::OK);
     assert!(res.headers().contains_key("x-powered-by"));
     assert!(res.headers().contains_key("x-content-type-options"));
-    assert_eq!(res.text().await.unwrap(), "methods");
+    assert_eq!(res.text().await.unwrap(), "multi_methods");
 
     let res = client.get(url).send().await.unwrap();
 

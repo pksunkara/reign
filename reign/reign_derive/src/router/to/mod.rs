@@ -5,7 +5,7 @@ use syn::{
     bracketed,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::Comma,
+    token::{Bracket, Comma},
     Ident, Path as SynPath,
 };
 
@@ -13,21 +13,26 @@ mod actix;
 mod gotham;
 mod tide;
 
-pub struct Methods {
+pub struct To {
     methods: Punctuated<Ident, Comma>,
     path: Path,
     action: SynPath,
     prev: Option<Path>,
 }
 
-impl Parse for Methods {
+impl Parse for To {
     fn parse(input: ParseStream) -> Result<Self> {
-        let content;
-
-        Ok(Methods {
+        Ok(To {
             methods: {
-                bracketed!(content in input);
-                content.parse_terminated(|i| i.parse::<Ident>())?
+                if input.peek(Bracket) {
+                    let content;
+                    bracketed!(content in input);
+                    content.parse_terminated(|i| i.parse::<Ident>())?
+                } else {
+                    let mut methods = Punctuated::new();
+                    methods.push(input.parse()?);
+                    methods
+                }
                 //TODO:(router) Unallowed methods
             },
             path: {
@@ -50,7 +55,7 @@ impl Parse for Methods {
     }
 }
 
-pub fn methods(input: Methods) -> TokenStream {
+pub fn to(input: To) -> TokenStream {
     if cfg!(feature = "router-actix") {
         actix::actix(input)
     } else if cfg!(feature = "router-gotham") {
@@ -59,35 +64,5 @@ pub fn methods(input: Methods) -> TokenStream {
         tide::tide(input)
     } else {
         quote! {}
-    }
-}
-
-pub fn get(input: TokenStream) -> TokenStream {
-    quote! {
-        methods!([get], #input)
-    }
-}
-
-pub fn post(input: TokenStream) -> TokenStream {
-    quote! {
-        methods!([post], #input)
-    }
-}
-
-pub fn put(input: TokenStream) -> TokenStream {
-    quote! {
-        methods!([put], #input)
-    }
-}
-
-pub fn patch(input: TokenStream) -> TokenStream {
-    quote! {
-        methods!([patch], #input)
-    }
-}
-
-pub fn delete(input: TokenStream) -> TokenStream {
-    quote! {
-        methods!([delete], #input)
     }
 }
