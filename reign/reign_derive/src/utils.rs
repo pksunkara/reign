@@ -11,6 +11,7 @@ pub struct Options {
 }
 
 impl Options {
+    #[allow(unused)]
     pub fn remove(&mut self, key: &'static str) -> Option<Expr> {
         self.inner.remove(&Ident::new(key, Span::call_site()))
     }

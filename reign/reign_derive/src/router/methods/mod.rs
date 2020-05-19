@@ -1,5 +1,4 @@
 use crate::router::path::Path;
-use inflector::cases::screamingsnakecase::to_screaming_snake_case;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
@@ -7,12 +6,16 @@ use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::Comma,
-    Ident, LitStr, Path as SynPath,
+    Ident, Path as SynPath,
 };
+
+mod actix;
+mod gotham;
+mod tide;
 
 pub struct Methods {
     methods: Punctuated<Ident, Comma>,
-    path: LitStr,
+    path: Path,
     action: SynPath,
 }
 
@@ -39,34 +42,12 @@ impl Parse for Methods {
 }
 
 pub fn methods(input: Methods) -> TokenStream {
-    let Methods {
-        methods,
-        path,
-        action,
-    } = input;
-
     if cfg!(feature = "router-actix") {
-        let methods = methods.iter().map(|i| i);
-
-        quote! {
-            app = app
-                #(.route(#path, ::actix_web::web::#methods().to(#action)))*
-        }
+        actix::actix(input)
     } else if cfg!(feature = "router-gotham") {
-        let methods = methods
-            .iter()
-            .map(|i| Ident::new(&to_screaming_snake_case(&i.to_string()), i.span()));
-
-        quote! {
-            route.request(vec![#(::gotham::hyper::Method::#methods),*], #path).to(#action)
-        }
+        gotham::gotham(input)
     } else if cfg!(feature = "router-tide") {
-        let methods = methods.iter().map(|i| i);
-
-        quote! {
-            app.at(#path)
-                #(.#methods(#action))*
-        }
+        tide::tide(input)
     } else {
         quote! {}
     }

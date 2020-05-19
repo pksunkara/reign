@@ -1,11 +1,7 @@
-use crate::router::{path::Path, Scope};
-use proc_macro2::{Span, TokenStream};
+use crate::router::Scope;
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Ident;
-
-fn gen_path(path: Path) -> TokenStream {
-    quote! {}
-}
 
 pub fn tide(input: Scope) -> TokenStream {
     let Scope { path, pipe, rest } = input;
@@ -13,7 +9,7 @@ pub fn tide(input: Scope) -> TokenStream {
     let pipes = if let Some(pipe) = pipe {
         pipe.into_iter()
             .map(|i| {
-                let name = Ident::new(&format!("{}_pipe", i), Span::call_site());
+                let name = Ident::new(&format!("{}_pipe", i), i.span());
 
                 quote! {
                     #name(&mut app);
@@ -24,16 +20,19 @@ pub fn tide(input: Scope) -> TokenStream {
         vec![]
     };
 
-    let path = gen_path(path);
+    path.tide(true)
+        .iter()
+        .map(|path| {
+            quote! {
+                app.at(#path).nest({
+                    let mut app = ::tide::new();
 
-    quote! {
-        app.at(#path).nest({
-            let mut app = ::tide::new();
+                    #(#pipes)*
+                    #rest
 
-            #(#pipes)*
-            #rest
-
-            app
+                    app
+                })
+            }
         })
-    }
+        .collect()
 }

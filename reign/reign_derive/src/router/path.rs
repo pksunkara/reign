@@ -1,4 +1,5 @@
 use crate::router::ty::subty_if_name;
+use proc_macro_error::{abort, abort_call_site};
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
@@ -22,6 +23,36 @@ impl PathSegmentDynamic {
             glob: false,
             ty: None,
             regex: None,
+        }
+    }
+
+    pub fn actix(&self) -> String {
+        if self.glob {
+            format!("{{{}:.+}}", self.ident)
+        } else if let Some(regex) = &self.regex {
+            format!("{{{}:{}}}", self.ident, regex.value())
+        } else {
+            format!("{{{}}}", self.ident)
+        }
+    }
+
+    pub fn gotham(&self) -> String {
+        if self.glob {
+            "*".to_string()
+        } else if let Some(regex) = &self.regex {
+            format!(":{}:{}", self.ident, regex.value())
+        } else {
+            format!(":{}", self.ident)
+        }
+    }
+
+    pub fn tide(&self) -> String {
+        if self.glob {
+            format!("*{}", self.ident)
+        } else if let Some(regex) = &self.regex {
+            abort!(regex.span(), "tide does not support regex path params");
+        } else {
+            format!(":{}", self.ident)
         }
     }
 }
@@ -99,5 +130,89 @@ impl Parse for Path {
                 }
             },
         })
+    }
+}
+
+impl Path {
+    pub fn add(paths: &mut Vec<Vec<String>>, val: String) {
+        for i in paths {
+            i.push(val.clone())
+        }
+    }
+
+    pub fn optional(paths: &mut Vec<Vec<String>>, val: String) {
+        let mut duplicates = paths.clone();
+
+        Self::add(&mut duplicates, val);
+        paths.append(&mut duplicates);
+    }
+
+    pub fn actix(self, is_scope: bool) -> Vec<String> {
+        let mut paths = vec![vec![]];
+
+        for segment in self.segments {
+            match segment {
+                PathSegment::Static(s) => Self::add(&mut paths, s.value()),
+                PathSegment::Dynamic(d) => {
+                    let part = d.actix();
+
+                    if d.optional {
+                        if is_scope {
+                            abort_call_site!(
+                                "actix does not support optional path params in scope"
+                            );
+                        } else {
+                            Self::optional(&mut paths, part);
+                        }
+                    } else {
+                        Self::add(&mut paths, part);
+                    }
+                }
+            }
+        }
+
+        paths.into_iter().map(|x| x.join("/")).collect()
+    }
+
+    pub fn gotham(self, _is_scope: bool) -> Vec<String> {
+        let mut paths = vec![vec![]];
+
+        for segment in self.segments {
+            match segment {
+                PathSegment::Static(s) => Self::add(&mut paths, s.value()),
+                PathSegment::Dynamic(d) => {
+                    let part = d.gotham();
+
+                    if d.optional {
+                        Self::optional(&mut paths, part);
+                    } else {
+                        Self::add(&mut paths, part);
+                    }
+                }
+            }
+        }
+
+        paths.into_iter().map(|x| x.join("/")).collect()
+    }
+
+    pub fn tide(self, _is_scope: bool) -> Vec<String> {
+        let mut paths = vec![vec![]];
+
+        for segment in self.segments {
+            match segment {
+                PathSegment::Static(s) => Self::add(&mut paths, s.value()),
+                PathSegment::Dynamic(d) => {
+                    let part = d.tide();
+
+                    if d.optional {
+                        abort_call_site!("tide does not support optional path params")
+                    } else {
+                        Self::add(&mut paths, part);
+                    }
+                }
+            }
+        }
+
+        paths.into_iter().map(|x| x.join("/")).collect()
     }
 }

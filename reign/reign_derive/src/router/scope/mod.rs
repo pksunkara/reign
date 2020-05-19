@@ -12,7 +12,6 @@ use syn::{
 mod actix;
 mod gotham;
 mod tide;
-mod warp;
 
 pub struct Scope {
     path: Path,

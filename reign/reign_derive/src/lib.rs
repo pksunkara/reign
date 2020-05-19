@@ -4,7 +4,7 @@
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
-use syn::{parse_macro_input, Expr};
+use syn::parse_macro_input;
 
 #[cfg(feature = "router")]
 mod router;
@@ -86,7 +86,7 @@ pub fn render(input: TokenStream) -> TokenStream {
 #[cfg(feature = "view")]
 #[proc_macro]
 pub fn redirect(input: TokenStream) -> TokenStream {
-    let input: Expr = parse_macro_input!(input);
+    let input: syn::Expr = parse_macro_input!(input);
 
     views::redirect::redirect(input).into()
 }
@@ -159,6 +159,7 @@ pub fn scope(input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn methods(input: TokenStream) -> TokenStream {
     let input: router::Methods = parse_macro_input!(input);
 
@@ -167,30 +168,35 @@ pub fn methods(input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn get(input: TokenStream) -> TokenStream {
     router::get(input.into()).into()
 }
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn post(input: TokenStream) -> TokenStream {
     router::post(input.into()).into()
 }
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn put(input: TokenStream) -> TokenStream {
     router::put(input.into()).into()
 }
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn patch(input: TokenStream) -> TokenStream {
     router::patch(input.into()).into()
 }
 
 #[cfg(feature = "router")]
 #[proc_macro]
+#[proc_macro_error]
 pub fn delete(input: TokenStream) -> TokenStream {
     router::delete(input.into()).into()
 }
