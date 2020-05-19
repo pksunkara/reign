@@ -84,23 +84,14 @@ pub fn gotham(input: To) -> TokenStream {
                 fn #name(
                     mut state: ::gotham::state::State,
                 ) -> std::pin::Pin<Box<::gotham::handler::HandlerFuture>> {
-                    use ::gotham::{state::FromState, handler::IntoResponse};
+                    use ::gotham::state::FromState;
                     use ::futures::prelude::*;
 
                     async move {
                         #path_data
                         let _called = #action(&mut state, #args).await;
 
-                        match _called {
-                            Ok(r) => {
-                                let r = r.into_response(&state);
-                                Ok((state, r))
-                            },
-                            Err(e) => {
-                                ::reign::log::error!("{}", e);
-                                Ok((state, e.respond()))
-                            },
-                        }
+                        Ok((state, _called))
                     }.boxed()
                 }
 

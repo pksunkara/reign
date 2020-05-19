@@ -1,12 +1,25 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{ItemFn, Signature};
+use syn::{FnArg, ItemFn, Pat, Signature};
 
 pub fn action(input: ItemFn) -> TokenStream {
     let ItemFn {
         attrs, sig, block, ..
     } = input;
     let Signature { ident, inputs, .. } = sig;
+
+    let args = inputs
+        .iter()
+        .flat_map(|x| {
+            if let FnArg::Typed(x) = x {
+                if let Pat::Ident(x) = &*x.pat {
+                    return Some(x.ident.clone());
+                }
+            }
+
+            None
+        })
+        .collect::<Vec<_>>();
 
     if cfg!(feature = "router-actix") {
         quote! {
@@ -40,7 +53,25 @@ pub fn action(input: ItemFn) -> TokenStream {
             pub async fn #ident(
                 state: &mut ::gotham::state::State,
                 #inputs
-            ) -> Result<impl ::gotham::handler::IntoResponse, crate::errors::Error> #block
+            ) -> ::gotham::hyper::Response<::gotham::hyper::Body> {
+                use ::gotham::handler::IntoResponse;
+
+                #[inline]
+                async fn _call(
+                    state: &mut ::gotham::state::State,
+                    #inputs
+                ) -> Result<impl IntoResponse, crate::errors::Error> #block
+
+                let _called = _call(state, #(#args),*).await;
+
+                match _called {
+                    Ok(r) => r.into_response(&state),
+                    Err(e) => {
+                        ::reign::log::error!("{}", e);
+                        e.respond()
+                    },
+                }
+            }
         }
     } else if cfg!(feature = "router-tide") {
         quote! {
