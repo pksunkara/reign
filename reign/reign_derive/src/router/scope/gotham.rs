@@ -1,10 +1,15 @@
-use crate::router::Scope;
+use crate::router::{path::hint_params, Scope};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
 pub fn gotham(input: Scope) -> TokenStream {
-    let Scope { path, pipe, rest } = input;
+    let Scope {
+        path,
+        pipe,
+        block,
+        prev,
+    } = input;
 
     let pipes = if let Some(pipe) = pipe {
         let mut chains = vec![];
@@ -30,7 +35,10 @@ pub fn gotham(input: Scope) -> TokenStream {
         quote! {}
     };
 
-    path.gotham(true)
+    let (paths, params) = path.gotham(true);
+    let rest = hint_params(block, prev, params);
+
+    paths
         .iter()
         .map(|path| {
             quote! {
@@ -38,9 +46,9 @@ pub fn gotham(input: Scope) -> TokenStream {
                     #pipes;
 
                     route.with_pipeline_chain(__chain, |route| {
-                        #rest
+                        #(#rest)*
                     });
-                })
+                });
             }
         })
         .collect()

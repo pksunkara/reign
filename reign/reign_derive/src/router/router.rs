@@ -29,6 +29,49 @@ pub fn router(input: ItemFn) -> TokenStream {
         return ret;
     });
 
+    // TODO:(router) No need for macros
+    // scopes = scopes
+    //     .into_iter()
+    //     .map(|stmt| match stmt.clone() {
+    //         Stmt::Expr(Expr::Call(ExprCall {
+    //             func,
+    //             attrs,
+    //             paren_token,
+    //             args,
+    //         }))
+    //         | Stmt::Semi(
+    //             Expr::Call(ExprCall {
+    //                 func,
+    //                 attrs,
+    //                 paren_token,
+    //                 args,
+    //             }),
+    //             _,
+    //         ) => {
+    //             if let Expr::Path(p) = *func {
+    //                 if let Some(name) = only_one(p.path.segments.iter()) {
+    //                     if name.ident == "scope" {
+    //                         return Stmt::Expr(Expr::Macro(ExprMacro {
+    //                             attrs,
+    //                             mac: Macro {
+    //                                 path: p.path,
+    //                                 bang_token: Bang::default(),
+    //                                 delimiter: MacroDelimiter::Paren(paren_token),
+    //                                 tokens: {
+    //                                     let args = args.iter();
+    //                                     quote!(#(#args),*)
+    //                                 },
+    //                             },
+    //                         }));
+    //                     }
+    //                 }
+    //             }
+    //             stmt
+    //         }
+    //         _ => stmt,
+    //     })
+    //     .collect();
+
     if cfg!(feature = "router-actix") {
         quote! {
             #(#attrs)*
@@ -57,18 +100,20 @@ pub fn router(input: ItemFn) -> TokenStream {
             where
                 A: std::net::ToSocketAddrs + Send + 'static
             {
-                use ::gotham::router::builder::*;
+                use ::gotham::router::builder::{DrawRoutes, DefineSingleRoute};
 
                 ::gotham::init_server(
                     addr,
-                    build_simple_router(|route| {
+                    ::gotham::router::builder::build_simple_router(|route| {
                         #(#pipes)*
 
-                        route.delegate("").to_router(build_router((), pipeline_set, |route| {
-                            let __chain = ();
+                        route.delegate("").to_router(
+                            ::gotham::router::builder::build_router((), pipeline_set, |route| {
+                                let __chain = ();
 
-                            #(#scopes)*
-                        }));
+                                #(#scopes)*
+                            })
+                        );
                     })
                 ).await
             }

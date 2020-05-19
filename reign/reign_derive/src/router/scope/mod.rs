@@ -2,11 +2,11 @@ use crate::router::path::Path;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
-    braced, bracketed,
+    bracketed,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{Bracket, Comma},
-    Ident,
+    Block, Ident,
 };
 
 mod actix;
@@ -16,13 +16,12 @@ mod tide;
 pub struct Scope {
     path: Path,
     pipe: Option<Punctuated<Ident, Comma>>,
-    rest: TokenStream,
+    block: Block,
+    prev: Option<Path>,
 }
 
 impl Parse for Scope {
     fn parse(input: ParseStream) -> Result<Self> {
-        let mut content;
-
         Ok(Scope {
             path: input.parse()?,
             pipe: {
@@ -31,19 +30,27 @@ impl Parse for Scope {
                 }
 
                 if input.peek(Bracket) {
+                    let content;
                     bracketed!(content in input);
                     Some(content.parse_terminated(|i| i.parse::<Ident>())?)
                 } else {
                     None
                 }
             },
-            rest: {
+            block: {
                 if input.peek(Comma) {
                     input.parse::<Comma>()?;
                 }
 
-                braced!(content in input);
-                content.parse()?
+                input.parse()?
+            },
+            prev: {
+                if input.peek(Comma) {
+                    input.parse::<Comma>()?;
+                    Some(input.parse()?)
+                } else {
+                    None
+                }
             },
         })
     }

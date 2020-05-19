@@ -4,7 +4,12 @@ use quote::quote;
 use syn::Ident;
 
 pub fn actix(input: Scope) -> TokenStream {
-    let Scope { path, pipe, rest } = input;
+    let Scope {
+        path,
+        pipe,
+        block,
+        prev,
+    } = input;
 
     let pipes = if let Some(pipe) = pipe {
         pipe.into_iter().fold(quote!(scope), |tokens, i| {
@@ -18,7 +23,11 @@ pub fn actix(input: Scope) -> TokenStream {
         quote!(scope)
     };
 
-    path.actix(true)
+    let (paths, params) = path.actix(true);
+
+    let rest = block.stmts.into_iter().map(|stmt| stmt).collect::<Vec<_>>();
+
+    paths
         .iter()
         .map(|path| {
             quote! {
@@ -26,7 +35,7 @@ pub fn actix(input: Scope) -> TokenStream {
                     let scope = ::actix_web::web::scope(#path);
                     let mut app = #pipes;
 
-                    #rest
+                    #(#rest)*
 
                     app
                 })

@@ -1,17 +1,17 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::ItemFn;
+use syn::{ItemFn, Signature};
 
 pub fn action(input: ItemFn) -> TokenStream {
     let ItemFn {
         attrs, sig, block, ..
     } = input;
-    let name = sig.ident;
+    let Signature { ident, inputs, .. } = sig;
 
     if cfg!(feature = "router-actix") {
         quote! {
             #(#attrs)*
-            pub async fn #name(
+            pub async fn #ident(
                 req: ::actix_web::HttpRequest,
             ) -> ::actix_web::HttpResponse {
                 use ::actix_web::Responder;
@@ -37,36 +37,15 @@ pub fn action(input: ItemFn) -> TokenStream {
     } else if cfg!(feature = "router-gotham") {
         quote! {
             #(#attrs)*
-            pub fn #name(
-                mut state: ::gotham::state::State,
-            ) -> std::pin::Pin<Box<::gotham::handler::HandlerFuture>> {
-                use ::futures::prelude::*;
-                use ::gotham::handler::IntoResponse;
-
-                async fn _call(
-                    state: &mut ::gotham::state::State,
-                ) -> Result<impl IntoResponse, crate::errors::Error> #block
-
-                async move {
-                    let _called = _call(&mut state).await;
-
-                    match _called {
-                        Ok(r) => {
-                            let r = r.into_response(&state);
-                            Ok((state, r))
-                        },
-                        Err(e) => {
-                            ::reign::log::error!("{}", e);
-                            Ok((state, e.respond()))
-                        },
-                    }
-                }.boxed()
-            }
+            pub async fn #ident(
+                state: &mut ::gotham::state::State,
+                #inputs
+            ) -> Result<impl ::gotham::handler::IntoResponse, crate::errors::Error> #block
         }
     } else if cfg!(feature = "router-tide") {
         quote! {
             #(#attrs)*
-            pub async fn #name(
+            pub async fn #ident(
                 req: ::tide::Request<()>,
             ) -> ::tide::Result<::tide::Response> {
                 async fn _call(

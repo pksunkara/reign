@@ -4,7 +4,12 @@ use quote::quote;
 use syn::Ident;
 
 pub fn tide(input: Scope) -> TokenStream {
-    let Scope { path, pipe, rest } = input;
+    let Scope {
+        path,
+        pipe,
+        block,
+        prev,
+    } = input;
 
     let pipes = if let Some(pipe) = pipe {
         pipe.into_iter()
@@ -20,7 +25,11 @@ pub fn tide(input: Scope) -> TokenStream {
         vec![]
     };
 
-    path.tide(true)
+    let (paths, params) = path.tide(true);
+
+    let rest = block.stmts.into_iter().map(|stmt| stmt).collect::<Vec<_>>();
+
+    paths
         .iter()
         .map(|path| {
             quote! {
@@ -28,7 +37,7 @@ pub fn tide(input: Scope) -> TokenStream {
                     let mut app = ::tide::new();
 
                     #(#pipes)*
-                    #rest
+                    #(#rest)*
 
                     app
                 })

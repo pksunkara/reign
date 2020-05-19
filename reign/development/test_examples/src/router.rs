@@ -168,4 +168,131 @@ pub async fn test(bad_method_status: StatusCode) {
     assert!(res.headers().contains_key("x-powered-by"));
     assert!(res.headers().contains_key("x-content-type-options"));
     assert_eq!(res.text().await.unwrap(), "param_optional ");
+
+    url = "http://localhost:8080/param_regex/123";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "param_regex 123");
+
+    url = "http://localhost:8080/param_regex/foobar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+    assert_eq!(res.text().await.unwrap(), "");
+
+    url = "http://localhost:8080/param_optional_regex/123";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "param_optional_regex 123");
+
+    url = "http://localhost:8080/param_optional_regex";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "param_optional_regex ");
+
+    url = "http://localhost:8080/param_optional_regex/foobar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+    assert_eq!(res.text().await.unwrap(), "");
+
+    url = "http://localhost:8080/scope_param/foobar/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "scope_param foobar");
+
+    url = "http://localhost:8080/scope_param_optional/foobar/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "scope_param_optional foobar");
+
+    url = "http://localhost:8080/scope_param_optional/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "scope_param_optional ");
+
+    url = "http://localhost:8080/scope_param_regex/123/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "scope_param_regex 123");
+
+    url = "http://localhost:8080/scope_param_regex/foobar/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+    assert_eq!(res.text().await.unwrap(), "");
+
+    url = "http://localhost:8080/scope_param_optional_regex/123/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "scope_param_optional_regex 123");
+
+    url = "http://localhost:8080/scope_param_optional_regex/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "scope_param_optional_regex ");
+
+    url = "http://localhost:8080/scope_param_optional_regex/foobar/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::NOT_FOUND);
+    assert_eq!(res.text().await.unwrap(), "");
+
+    url = "http://localhost:8080/nested_scope/123/foo/456/bar";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "nested_scope 123 456");
+
+    url = "http://localhost:8080/multi_params/123/foo/456";
+
+    let res = client.get(url).send().await.unwrap();
+
+    assert_eq!(res.status(), StatusCode::OK);
+    assert!(res.headers().contains_key("x-powered-by"));
+    assert!(res.headers().contains_key("x-content-type-options"));
+    assert_eq!(res.text().await.unwrap(), "multi_params 123 456");
 }

@@ -1,12 +1,15 @@
 use crate::router::ty::subty_if_name;
+use proc_macro2::TokenStream;
 use proc_macro_error::{abort, abort_call_site};
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
     token::{At, Brace, Bracket, Colon, Div, Question, Star},
-    Ident, LitStr, Type,
+    Block, Expr, ExprMacro, Ident, LitStr, Macro, Stmt, Type,
 };
 
+#[derive(Clone)]
 pub struct PathSegmentDynamic {
     pub ident: Ident,
     pub optional: bool,
@@ -24,6 +27,24 @@ impl PathSegmentDynamic {
             ty: None,
             regex: None,
         }
+    }
+
+    pub fn ty(&self) -> TokenStream {
+        let ty = if let Some(ty) = &self.ty {
+            quote!(#ty)
+        } else {
+            quote!(String)
+        };
+
+        let ty = if self.glob { quote!(Vec<#ty>) } else { ty };
+
+        let ty = if self.optional {
+            quote!(Option<#ty>)
+        } else {
+            ty
+        };
+
+        ty
     }
 
     pub fn actix(&self) -> String {
@@ -115,6 +136,25 @@ impl Parse for PathSegment {
     }
 }
 
+impl ToTokens for PathSegment {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            PathSegment::Static(s) => {
+                s.to_tokens(tokens);
+            }
+            PathSegment::Dynamic(d) => {
+                d.ident.to_tokens(tokens);
+                Colon::default().to_tokens(tokens);
+                tokens.append_all(d.ty());
+
+                if let Some(regex) = &d.regex {
+                    tokens.append_all(quote!(@ #regex));
+                }
+            }
+        }
+    }
+}
+
 pub struct Path {
     pub segments: Punctuated<PathSegment, Div>,
 }
@@ -123,7 +163,7 @@ impl Parse for Path {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Path {
             segments: {
-                if input.peek(Brace) || input.peek(Bracket) {
+                if input.peek(Brace) || input.peek(Bracket) || input.is_empty() {
                     Punctuated::new()
                 } else {
                     Punctuated::parse_separated_nonempty_with(input, |i| i.parse::<PathSegment>())?
@@ -147,13 +187,15 @@ impl Path {
         paths.append(&mut duplicates);
     }
 
-    pub fn actix(self, is_scope: bool) -> Vec<String> {
+    pub fn actix(&self, is_scope: bool) -> (Vec<String>, Vec<PathSegmentDynamic>) {
         let mut paths = vec![vec![]];
+        let mut params = vec![];
 
-        for segment in self.segments {
+        for segment in &self.segments {
             match segment {
                 PathSegment::Static(s) => Self::add(&mut paths, s.value()),
                 PathSegment::Dynamic(d) => {
+                    params.push(d.clone());
                     let part = d.actix();
 
                     if d.optional {
@@ -171,16 +213,18 @@ impl Path {
             }
         }
 
-        paths.into_iter().map(|x| x.join("/")).collect()
+        (paths.into_iter().map(|x| x.join("/")).collect(), params)
     }
 
-    pub fn gotham(self, _is_scope: bool) -> Vec<String> {
+    pub fn gotham(&self, _is_scope: bool) -> (Vec<String>, Vec<PathSegmentDynamic>) {
         let mut paths = vec![vec![]];
+        let mut params = vec![];
 
-        for segment in self.segments {
+        for segment in &self.segments {
             match segment {
                 PathSegment::Static(s) => Self::add(&mut paths, s.value()),
                 PathSegment::Dynamic(d) => {
+                    params.push(d.clone());
                     let part = d.gotham();
 
                     if d.optional {
@@ -192,16 +236,18 @@ impl Path {
             }
         }
 
-        paths.into_iter().map(|x| x.join("/")).collect()
+        (paths.into_iter().map(|x| x.join("/")).collect(), params)
     }
 
-    pub fn tide(self, _is_scope: bool) -> Vec<String> {
+    pub fn tide(&self, _is_scope: bool) -> (Vec<String>, Vec<PathSegmentDynamic>) {
         let mut paths = vec![vec![]];
+        let mut params = vec![];
 
-        for segment in self.segments {
+        for segment in &self.segments {
             match segment {
                 PathSegment::Static(s) => Self::add(&mut paths, s.value()),
                 PathSegment::Dynamic(d) => {
+                    params.push(d.clone());
                     let part = d.tide();
 
                     if d.optional {
@@ -213,6 +259,51 @@ impl Path {
             }
         }
 
-        paths.into_iter().map(|x| x.join("/")).collect()
+        (paths.into_iter().map(|x| x.join("/")).collect(), params)
     }
+}
+
+pub fn combine_params(
+    prev: Option<Path>,
+    params: Vec<PathSegmentDynamic>,
+) -> Punctuated<PathSegment, Div> {
+    if let Some(prev) = prev {
+        let mut segments = prev.segments;
+
+        for p in params {
+            segments.push(PathSegment::Dynamic(p))
+        }
+
+        segments
+    } else {
+        params
+            .into_iter()
+            .map(|p| PathSegment::Dynamic(p))
+            .collect()
+    }
+}
+
+pub fn hint_params(
+    block: Block,
+    prev: Option<Path>,
+    params: Vec<PathSegmentDynamic>,
+) -> Vec<TokenStream> {
+    let current = combine_params(prev, params);
+
+    block
+        .stmts
+        .into_iter()
+        .map(|stmt| match stmt {
+            Stmt::Semi(Expr::Macro(m), _) | Stmt::Expr(Expr::Macro(m)) => {
+                let ExprMacro { mac, attrs } = m;
+                let Macro { path, tokens, .. } = mac;
+
+                quote! {
+                    #(#attrs)*
+                    #path!(#tokens, #current);
+                }
+            }
+            _ => quote!(stmt),
+        })
+        .collect()
 }

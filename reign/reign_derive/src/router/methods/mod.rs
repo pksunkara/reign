@@ -17,6 +17,7 @@ pub struct Methods {
     methods: Punctuated<Ident, Comma>,
     path: Path,
     action: SynPath,
+    prev: Option<Path>,
 }
 
 impl Parse for Methods {
@@ -36,6 +37,14 @@ impl Parse for Methods {
             action: {
                 input.parse::<Comma>()?;
                 input.parse()?
+            },
+            prev: {
+                if input.peek(Comma) {
+                    input.parse::<Comma>()?;
+                    Some(input.parse()?)
+                } else {
+                    None
+                }
             },
         })
     }
