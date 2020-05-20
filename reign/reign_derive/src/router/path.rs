@@ -76,6 +76,36 @@ impl PathSegmentDynamic {
             format!(":{}", self.ident)
         }
     }
+
+    fn parse(&mut self, input: ParseStream) -> Result<()> {
+        if input.peek(Colon) {
+            input.parse::<Colon>()?;
+            self.ty = Some(input.parse()?);
+        }
+
+        if input.peek(At) {
+            input.parse::<At>()?;
+            self.regex = Some(input.parse()?);
+        }
+
+        if let Some(ty) = self.ty.clone() {
+            if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                self.glob = true;
+                self.ty = Some(ty);
+            } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
+                self.optional = true;
+
+                if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                    self.glob = true;
+                    self.ty = Some(ty);
+                } else {
+                    self.ty = Some(ty);
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub enum PathSegment {
@@ -104,31 +134,7 @@ impl Parse for PathSegment {
                     dynamic.optional = true;
                 }
             } else {
-                if input.peek(Colon) {
-                    input.parse::<Colon>()?;
-                    dynamic.ty = Some(input.parse()?);
-                }
-
-                if input.peek(At) {
-                    input.parse::<At>()?;
-                    dynamic.regex = Some(input.parse()?);
-                }
-
-                if let Some(ty) = dynamic.ty.clone() {
-                    if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                        dynamic.glob = true;
-                        dynamic.ty = Some(ty);
-                    } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
-                        dynamic.optional = true;
-
-                        if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                            dynamic.glob = true;
-                            dynamic.ty = Some(ty);
-                        } else {
-                            dynamic.ty = Some(ty);
-                        }
-                    }
-                }
+                dynamic.parse(input)?;
             }
 
             Ok(PathSegment::Dynamic(dynamic))

@@ -4,10 +4,10 @@
 
 pub use log;
 
+pub mod prelude;
+
 #[cfg(feature = "framework")]
 pub use reign_boot::boot;
-#[cfg(any(feature = "view", feature = "router"))]
-pub use reign_derive as prelude;
 #[cfg(feature = "router")]
 pub use reign_router as router;
 #[cfg(feature = "view")]
