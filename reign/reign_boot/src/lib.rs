@@ -4,6 +4,7 @@
 
 use dotenv;
 use env_logger;
+use serde::Deserialize;
 use std::env;
 
 // TODO:(config) Have a config struct so that it loads envs and all panics happen during boot
@@ -34,13 +35,19 @@ fn load_env_files() {
     }
 }
 
-pub fn boot() {
+pub fn boot<T>() -> T
+where
+    T: for<'de> Deserialize<'de>,
+{
     load_env_files();
 
-    // TODO: Allow custom loggers by adding an option to exclude this call
+    // TODO:(log) Allow custom loggers by adding an option to exclude this call
     env_logger::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp(None)
         .init();
+
+    // TODO:(env) default value
+    envy::from_env::<T>().unwrap()
 }
 
 #[cfg(test)]
