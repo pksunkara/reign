@@ -19,7 +19,7 @@ path = "src/lib.rs"
 [dependencies]
 actix-web = { version = "3.0.0-alpha.2", optional = true }
 actix-service = { version = "1.0", optional = true }
-gotham = { git = "git://github.com/gotham-rs/gotham", branch = "master", optional = true }
+gotham = { version = "0.5.0-rc.1", optional = true }
 tide = { version = "0.8.1", optional = true }
 warp = { version = "0.2.2", optional = true }
 mime = "0.3"

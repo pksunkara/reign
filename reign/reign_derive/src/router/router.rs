@@ -30,47 +30,6 @@ pub fn router(input: ItemFn) -> TokenStream {
     });
 
     // TODO:(router) No need for macros
-    // scopes = scopes
-    //     .into_iter()
-    //     .map(|stmt| match stmt.clone() {
-    //         Stmt::Expr(Expr::Call(ExprCall {
-    //             func,
-    //             attrs,
-    //             paren_token,
-    //             args,
-    //         }))
-    //         | Stmt::Semi(
-    //             Expr::Call(ExprCall {
-    //                 func,
-    //                 attrs,
-    //                 paren_token,
-    //                 args,
-    //             }),
-    //             _,
-    //         ) => {
-    //             if let Expr::Path(p) = *func {
-    //                 if let Some(name) = only_one(p.path.segments.iter()) {
-    //                     if name.ident == "scope" {
-    //                         return Stmt::Expr(Expr::Macro(ExprMacro {
-    //                             attrs,
-    //                             mac: Macro {
-    //                                 path: p.path,
-    //                                 bang_token: Bang::default(),
-    //                                 delimiter: MacroDelimiter::Paren(paren_token),
-    //                                 tokens: {
-    //                                     let args = args.iter();
-    //                                     quote!(#(#args),*)
-    //                                 },
-    //                             },
-    //                         }));
-    //                     }
-    //                 }
-    //             }
-    //             stmt
-    //         }
-    //         _ => stmt,
-    //     })
-    //     .collect();
 
     if cfg!(feature = "router-actix") {
         quote! {

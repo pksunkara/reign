@@ -303,7 +303,7 @@ pub fn hint_params(
                     #path!(#tokens, #current);
                 }
             }
-            _ => quote!(stmt),
+            _ => quote!(#stmt),
         })
         .collect()
 }
