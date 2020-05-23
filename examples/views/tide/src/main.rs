@@ -40,7 +40,7 @@ async fn server() {
             name: "Tide".to_string(),
         };
 
-        Ok(json!(user, status = 415))
+        Ok(json!(user, status = 422))
     });
 
     app.listen("127.0.0.1:8080").await.unwrap();

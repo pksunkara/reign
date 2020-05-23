@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 reign = { path = "../../../reign", features = ["router-actix"], default-features = false }
-actix-web = "3.0.0-alpha.2"
+actix-web = "3.0.0-alpha.3"
 actix-rt = "1.0"
 anyhow = "1"
 thiserror = "1"

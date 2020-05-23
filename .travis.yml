@@ -4,20 +4,10 @@ cache: cargo
 jobs:
   include:
     - rust: nightly-2020-03-19
-      name: Run cargo tests
-      script:
-        - cargo test --all-features --manifest-path reign/Cargo.toml -- --test-threads 1
-    - rust: nightly-2020-03-19
-      name: Run cargo examples tests
-      script:
-        - bash test.sh
-    - rust: nightly-2020-03-19
       if: tag IS blank
-      name: Linting (fmt + clippy)
+      name: Linting (clippy)
       before_script:
         - rustup component add clippy
-        - rustup component add rustfmt
       script:
         - echo "Checking codebase with Clippy release `cargo clippy --version`."
         - cargo clippy
-        - cargo fmt -- --check
