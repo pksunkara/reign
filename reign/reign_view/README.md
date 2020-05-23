@@ -171,7 +171,7 @@ will be easier to refer to them later on.
 
 An **expression** is a custom subset of all the types
 of expressions available in Rust language. You can read
-more about them [here](#expressions).
+about them [here](#expressions).
 
 A **pattern** is a custom rust pattern syntax where the
 expressions allowed are the only ones defined in the above
@@ -214,7 +214,7 @@ Interpolation can also be used in values of attributes.
 ```
 
 If you want to use `"` inside the attribute value for an
-*expression*, you can refer to the HTML spec and surround the
+*expression*, you can follow the HTML spec and surround the
 value with `'`.
 
 ```html
@@ -317,9 +317,9 @@ described [above](#attributes).
 
 Any template can be used as a component. We can refer to the template by using it's
 tag reference. Tag reference can be achieved by joining all the parts in the path of the
-component with `:` after converting them to kebab case. A template at
+component with `:` after converting them to kebab case. A template that lives at
 `src/views/users/avatar.html` can be used with `users:avatar`, and similarily a template
-at `src/views/common/simple/small_icon.html` can be used with `common:simple:small-icon`.
+that lives at `src/views/common/simple/small_icon.html` can be used with `common:simple:small-icon`.
 
 ### Slots
 

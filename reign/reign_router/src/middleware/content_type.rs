@@ -12,6 +12,8 @@ use gotham::{
     helpers::http::response::create_empty_response,
     state::{FromState, State},
 };
+#[cfg(feature = "router-gotham")]
+use gotham_derive::NewMiddleware;
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 use std::pin::Pin;
 #[cfg(feature = "router-actix")]
@@ -20,6 +22,7 @@ use std::task::{Context, Poll};
 use tide::{Next, Request, Response};
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "router-gotham", derive(NewMiddleware))]
 pub struct ContentType<'a> {
     subtypes: Vec<&'a str>, // TODO:(lifetime) Do I need the lifetime here?
 }
@@ -165,15 +168,6 @@ impl<'a> gotham::middleware::Middleware for ContentType<'a> {
 
         let response = create_empty_response(&state, StatusCode::UNSUPPORTED_MEDIA_TYPE);
         future::ok((state, response)).boxed()
-    }
-}
-
-#[cfg(feature = "router-gotham")]
-impl<'a> gotham::middleware::NewMiddleware for ContentType<'a> {
-    type Instance = Self;
-
-    fn new_middleware(&self) -> std::io::Result<Self::Instance> {
-        Ok(self.clone())
     }
 }
 

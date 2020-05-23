@@ -8,7 +8,7 @@ pub fn tide(input: Scope) -> TokenStream {
         path,
         pipe,
         block,
-        prev,
+        prev: _prev,
     } = input;
 
     let pipes = pipe
@@ -22,7 +22,7 @@ pub fn tide(input: Scope) -> TokenStream {
         })
         .collect::<Vec<_>>();
 
-    let (paths, params) = path.tide(true);
+    let (paths, _params) = path.tide(true);
 
     let rest = block.stmts.into_iter().map(|stmt| stmt).collect::<Vec<_>>();
 

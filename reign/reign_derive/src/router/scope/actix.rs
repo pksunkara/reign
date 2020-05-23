@@ -8,7 +8,7 @@ pub fn actix(input: Scope) -> TokenStream {
         path,
         pipe,
         block,
-        prev,
+        prev: _prev,
     } = input;
 
     let pipes = if !pipe.is_empty() {
@@ -23,7 +23,7 @@ pub fn actix(input: Scope) -> TokenStream {
         quote!(scope)
     };
 
-    let (paths, params) = path.actix(true);
+    let (paths, _params) = path.actix(true);
 
     let rest = block.stmts.into_iter().map(|stmt| stmt).collect::<Vec<_>>();
 

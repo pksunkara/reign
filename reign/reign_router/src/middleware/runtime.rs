@@ -9,6 +9,8 @@ use chrono::prelude::Utc;
 use futures::prelude::*;
 #[cfg(feature = "router-gotham")]
 use gotham::{handler::HandlerFuture, state::State};
+#[cfg(feature = "router-gotham")]
+use gotham_derive::NewMiddleware;
 use std::pin::Pin;
 #[cfg(feature = "router-actix")]
 use std::task::{Context, Poll};
@@ -26,6 +28,7 @@ fn dur_to_string(i: i64) -> String {
 }
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "router-gotham", derive(NewMiddleware))]
 pub struct Runtime {
     header: &'static str,
 }
@@ -136,15 +139,6 @@ impl gotham::middleware::Middleware for Runtime {
                 future::ok((state, response))
             })
             .boxed()
-    }
-}
-
-#[cfg(feature = "router-gotham")]
-impl gotham::middleware::NewMiddleware for Runtime {
-    type Instance = Self;
-
-    fn new_middleware(&self) -> std::io::Result<Self::Instance> {
-        Ok(self.clone())
     }
 }
 

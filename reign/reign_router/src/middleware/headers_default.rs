@@ -8,6 +8,8 @@ use actix_web::{
 use futures::prelude::*;
 #[cfg(feature = "router-gotham")]
 use gotham::{handler::HandlerFuture, state::State};
+#[cfg(feature = "router-gotham")]
+use gotham_derive::NewMiddleware;
 use std::pin::Pin;
 #[cfg(feature = "router-actix")]
 use std::task::{Context, Poll};
@@ -15,6 +17,7 @@ use std::task::{Context, Poll};
 use tide::{Next, Request, Response};
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "router-gotham", derive(NewMiddleware))]
 pub struct HeadersDefault {
     headers: Vec<(&'static str, &'static str)>,
 }
@@ -132,15 +135,6 @@ impl gotham::middleware::Middleware for HeadersDefault {
                 future::ok((state, response))
             })
             .boxed()
-    }
-}
-
-#[cfg(feature = "router-gotham")]
-impl gotham::middleware::NewMiddleware for HeadersDefault {
-    type Instance = Self;
-
-    fn new_middleware(&self) -> std::io::Result<Self::Instance> {
-        Ok(self.clone())
     }
 }
 

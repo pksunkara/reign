@@ -9,10 +9,10 @@ pub fn actix(input: To) -> TokenStream {
         methods,
         path,
         action,
-        prev,
+        prev: _prev,
     } = input;
 
-    let (paths, params) = path.actix(false);
+    let (paths, _params) = path.actix(false);
     let methods = methods
         .iter()
         .map(|i| Ident::new(&to_screaming_snake_case(&i.to_string()), i.span()))

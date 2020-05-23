@@ -9,10 +9,10 @@ pub fn tide(input: To) -> TokenStream {
         methods,
         path,
         action,
-        prev,
+        prev: _prev,
     } = input;
 
-    let (paths, params) = path.tide(false);
+    let (paths, _params) = path.tide(false);
     let methods = methods
         .iter()
         .map(|i| Ident::new(&to_snake_case(&i.to_string()), i.span()))
