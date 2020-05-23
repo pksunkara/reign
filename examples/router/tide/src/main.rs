@@ -106,6 +106,14 @@ async fn param_optional_glob_after(req: tide::Request<()>) -> tide::Result<tide:
     )))
 }
 
+async fn multiple_param_glob(req: tide::Request<()>) -> tide::Result<tide::Response> {
+    Ok(tide::Response::from(format!(
+        "multiple_param_glob {} {}",
+        req.param::<String>("foo").unwrap(),
+        req.param::<String>("bar").unwrap()
+    )))
+}
+
 #[action]
 fn scope_static_b() {
     Ok("scope_static_b")
@@ -318,6 +326,8 @@ fn router() {
 
         app.at("param_optional_glob_after/b").get(param_optional_glob_after);
         app.at("param_optional_glob_after/*id/b").get(param_optional_glob_after);
+
+        app.at("multiple_param_glob/*foo/foobar/*bar").get(multiple_param_glob);
 
         to!(get, "double//slashes", double_slashes);
 

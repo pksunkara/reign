@@ -329,6 +329,8 @@ fn router() {
         // route.scope("sibling_scope/lower", |route| {
         //     route.get("").to(sibling_scope_lower);
         // });
+
+        // route.scope("multiple_param_glob/*/foobar/*")
     });
 }
 

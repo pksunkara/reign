@@ -111,6 +111,10 @@ async fn param_optional_glob_after(req: actix_web::web::HttpRequest) -> impl act
     )
 }
 
+async fn multiple_param_glob(req: actix_web::web::Path<(String, String)>) -> impl actix_web::Responder {
+    format!("multiple_param_glob {} {}", req.0, req.1)
+}
+
 #[action]
 fn scope_static_b() {
     Ok("scope_static_b")
@@ -350,6 +354,8 @@ fn router() {
             .route("param_optional_glob_after/b", actix_web::web::get().to(param_optional_glob_after))
             .route("param_optional_glob_after/{id:.+}/b", actix_web::web::get().to(param_optional_glob_after));
 
+        app = app.route("multiple_param_glob/{foo:.+}/foobar/{bar:.+}", actix_web::web::get().to(multiple_param_glob));
+
         to!(get, "double//slashes", double_slashes);
 
         // "param" / foo?
@@ -383,14 +389,14 @@ fn router() {
             app = app.route("/b", actix_web::web::get().to(scope_param_optional_b));
             app = app.route("", actix_web::web::get().to(scope_param_optional));
 
-            app
-        });
+            app = app.service({
+                let mut app = actix_web::web::scope("{id}");
 
-        app = app.service({
-            let mut app = actix_web::web::scope("scope_param_optional/{id}");
+                app = app.route("/b", actix_web::web::get().to(scope_param_optional_b));
+                app = app.route("", actix_web::web::get().to(scope_param_optional));
 
-            app = app.route("/b", actix_web::web::get().to(scope_param_optional_b));
-            app = app.route("", actix_web::web::get().to(scope_param_optional));
+                app
+            });
 
             app
         });
@@ -410,14 +416,14 @@ fn router() {
             app = app.route("/b", actix_web::web::get().to(scope_param_optional_regex_b));
             app = app.route("", actix_web::web::get().to(scope_param_optional_regex));
 
-            app
-        });
+            app = app.service({
+                let mut app = actix_web::web::scope("{id:[0-9]+}");
 
-        app = app.service({
-            let mut app = actix_web::web::scope("scope_param_optional_regex/{id:[0-9]+}");
+                app = app.route("/b", actix_web::web::get().to(scope_param_optional_regex_b));
+                app = app.route("", actix_web::web::get().to(scope_param_optional_regex));
 
-            app = app.route("/b", actix_web::web::get().to(scope_param_optional_regex_b));
-            app = app.route("", actix_web::web::get().to(scope_param_optional_regex));
+                app
+            });
 
             app
         });
@@ -437,14 +443,14 @@ fn router() {
             app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_b));
             app = app.route("", actix_web::web::get().to(scope_param_optional_glob));
 
-            app
-        });
+            app = app.service({
+                let mut app = actix_web::web::scope("{id:.+}");
 
-        app = app.service({
-            let mut app = actix_web::web::scope("scope_param_optional_glob/{id:.+}");
+                app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_b));
+                app = app.route("", actix_web::web::get().to(scope_param_optional_glob));
 
-            app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_b));
-            app = app.route("", actix_web::web::get().to(scope_param_optional_glob));
+                app
+            });
 
             app
         });
@@ -459,19 +465,25 @@ fn router() {
         });
 
         app = app.service({
-            let mut app = actix_web::web::scope("scope_param_optional_glob_after/foo");
+            let mut app = actix_web::web::scope("scope_param_optional_glob_after");
 
-            app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_after_b));
-            app = app.route("", actix_web::web::get().to(scope_param_optional_glob_after));
+            app = app.service({
+                let mut app = actix_web::web::scope("foo");
 
-            app
-        });
+                app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_after_b));
+                app = app.route("", actix_web::web::get().to(scope_param_optional_glob_after));
 
-        app = app.service({
-            let mut app = actix_web::web::scope("scope_param_optional_glob_after/{id:.+}/foo");
+                app
+            });
 
-            app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_after_b));
-            app = app.route("", actix_web::web::get().to(scope_param_optional_glob_after));
+            app = app.service({
+                let mut app = actix_web::web::scope("{id:.+}/foo");
+
+                app = app.route("/b", actix_web::web::get().to(scope_param_optional_glob_after_b));
+                app = app.route("", actix_web::web::get().to(scope_param_optional_glob_after));
+
+                app
+            });
 
             app
         });

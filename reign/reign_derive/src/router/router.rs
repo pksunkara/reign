@@ -82,7 +82,7 @@ pub fn router(input: ItemFn) -> TokenStream {
             #(#attrs)*
             pub async fn #name<A>(addr: A) -> std::io::Result<()>
             where
-                A: std::net::ToSocketAddrs + Send + 'static
+                A: ::async_std::net::ToSocketAddrs + 'static
             {
                 let mut app = ::tide::new();
 
