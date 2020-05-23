@@ -19,7 +19,7 @@ pub use action::action;
 pub use pipelines::{pipelines, Pipelines};
 pub use router::router;
 pub use scope::{scope, Scope};
-pub use to::{to, To};
+pub use to::{to, To, get};
 
 struct Id(u32);
 

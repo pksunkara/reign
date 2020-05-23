@@ -66,3 +66,9 @@ pub fn to(input: To) -> TokenStream {
         quote! {}
     }
 }
+
+pub fn get(input: TokenStream) -> TokenStream {
+    quote! {
+        to!(get, #input);
+    }
+}

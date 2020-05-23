@@ -165,3 +165,9 @@ pub fn to(input: TokenStream) -> TokenStream {
 
     router::to(input).into()
 }
+
+#[cfg(feature = "router")]
+#[proc_macro]
+pub fn get(input: TokenStream) -> TokenStream {
+    router::get(input.into()).into()
+}

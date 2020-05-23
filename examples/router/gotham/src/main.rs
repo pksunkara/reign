@@ -214,6 +214,11 @@ fn multi_params(foo: String, bar: String) {
     Ok(format!("multi_params {} {}", foo, bar))
 }
 
+#[action]
+fn multi_globs(foo: Vec<String>, bar: Vec<String>) {
+    Ok(format!("multi_globs {} {}", foo.join("/"), bar.join("/")))
+}
+
 #[router]
 fn router() {
     pipelines!(
@@ -247,76 +252,80 @@ fn router() {
         to!([post, put], "multi_methods", multi_methods);
 
         scope!("scope_static", {
-            to!(get, "", scope_static);
+            get!("", scope_static);
         });
 
         scope!("pipe", [timer], {
-            to!(get, "", pipe);
+            get!("", pipe);
         });
 
         scope!("pipe_empty", [], {
-            to!(get, "", pipe_empty);
+            get!("", pipe_empty);
         });
 
-        to!(get, "param" / id, param);
-        to!(get, "param_optional" / id: Option<String>, param_optional);
+        get!("param" / id, param);
+        get!("param_optional" / id: Option<String>, param_optional);
 
-        to!(get, "param_regex" / id @ "[0-9]+", param_regex);
-        to!(get, "param_optional_regex" / id: Option<String> @ "[0-9]+", param_optional_regex);
+        get!("param_regex" / id @ "[0-9]+", param_regex);
+        get!("param_optional_regex" / id: Option<String> @ "[0-9]+", param_optional_regex);
 
-        to!(get, "param_glob" / id: Vec<String>, param_glob);
-        to!(get,
+        get!("param_glob" / id: Vec<String>, param_glob);
+        get!(
             "param_optional_glob" / id: Option<Vec<String>>,
             param_optional_glob
         );
 
-        to!(get,
+        get!(
             "param_glob_middle" / id: Vec<String> / "foo",
             param_glob_middle
         );
-        to!(get,
+        get!(
             "param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
             param_optional_glob_middle
         );
 
         scope!("scope_param" / id, {
-            to!(get, "bar", scope_param);
+            get!("bar", scope_param);
         });
         scope!("scope_param_optional" / id: Option<String>, {
-            to!(get, "bar", scope_param_optional);
+            get!("bar", scope_param_optional);
         });
 
         scope!("scope_param_regex" / id @ "[0-9]+", {
-            to!(get, "bar", scope_param_regex);
+            get!("bar", scope_param_regex);
         });
         scope!("scope_param_optional_regex" / id: Option<String> @ "[0-9]+", {
-            to!(get, "bar", scope_param_optional_regex);
+            get!("bar", scope_param_optional_regex);
         });
 
         scope!("scope_param_glob" / id: Vec<String>, {
-            to!(get, "bar", scope_param_glob);
+            get!("bar", scope_param_glob);
         });
         scope!("scope_param_optional_glob" / id: Option<Vec<String>>, {
-            to!(get, "bar", scope_param_optional_glob);
+            get!("bar", scope_param_optional_glob);
         });
 
         scope!("scope_param_glob_middle" / id: Vec<String> / "foo", {
-            to!(get, "bar", scope_param_glob_middle);
+            get!("bar", scope_param_glob_middle);
         });
         scope!(
             "scope_param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
             {
-                to!(get, "bar", scope_param_optional_glob_middle);
+                get!("bar", scope_param_optional_glob_middle);
             }
         );
 
         scope!("nested_scope" / foo, {
             scope!("foo" / bar, {
-                to!(get, "bar", nested_scope);
+                get!("bar", nested_scope);
             });
         });
 
-        to!(get, "multi_params" / foo / "foo" / bar, multi_params);
+        get!("multi_params" / foo / "foo" / bar, multi_params);
+        get!(
+            "multi_globs" / foo: Vec<String> / "foobar" / bar: Vec<String>,
+            multi_globs
+        );
 
         // route.scope("sibling_scope/higher", |route| {
         //     route.get("").to(sibling_scope_higher);
@@ -329,8 +338,6 @@ fn router() {
         // route.scope("sibling_scope/lower", |route| {
         //     route.get("").to(sibling_scope_lower);
         // });
-
-        // route.scope("multiple_param_glob/*/foobar/*")
     });
 }
 
