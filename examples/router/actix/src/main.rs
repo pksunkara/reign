@@ -300,21 +300,19 @@ fn pipe_empty() {
 
 #[router]
 fn router() {
-    pipelines!(
-        common: [
-            HeadersDefault::empty().add("x-powered-by", "reign"),
-        ],
-        app: [
-            HeadersDefault::empty().add("x-content-type-options", "nosniff"),
-        ],
-        timer: [
-            Runtime::default(),
-        ],
-        api: [
-            HeadersDefault::empty().add("x-version", "1.0"),
-            HeadersDefault::empty().add("content-type", "application/json"),
-        ],
-    );
+    pipe!(common, [
+        HeadersDefault::empty().add("x-powered-by", "reign"),
+    ]);
+    pipe!(app, [
+        HeadersDefault::empty().add("x-content-type-options", "nosniff"),
+    ]);
+    pipe!(timer, [
+        Runtime::default(),
+    ]);
+    pipe!(api, [
+        HeadersDefault::empty().add("x-version", "1.0"),
+        HeadersDefault::empty().add("content-type", "application/json"),
+    ]);
 
     scope!("", [common, app], {
         to!(get, "str", str_);

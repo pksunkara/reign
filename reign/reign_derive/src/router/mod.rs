@@ -7,7 +7,7 @@ lazy_static! {
 }
 
 mod action;
-mod pipelines;
+mod pipeline;
 mod router;
 mod scope;
 mod to;
@@ -16,10 +16,10 @@ mod path;
 mod ty;
 
 pub use action::action;
-pub use pipelines::{pipelines, Pipelines};
+pub use pipeline::{pipeline, Pipeline};
 pub use router::router;
 pub use scope::{scope, Scope};
-pub use to::{to, To, get};
+pub use to::{get, to, To};
 
 struct Id(u32);
 

@@ -9,24 +9,22 @@ pub fn router(input: ItemFn) -> TokenStream {
     } = input;
 
     let name = sig.ident;
-    let mut saw_pipelines = false;
+    let mut saw_scope = false;
     let stmts = block.stmts;
 
     let (scopes, pipes) = stmts.into_iter().partition::<Vec<_>, _>(move |stmt| {
-        let ret = saw_pipelines;
-
         match stmt {
             Stmt::Expr(Expr::Macro(e)) | Stmt::Semi(Expr::Macro(e), _) => {
                 if let Some(name) = only_one(e.mac.path.segments.iter()) {
-                    if name.ident == "pipelines" {
-                        saw_pipelines = true;
+                    if name.ident == "scope" {
+                        saw_scope = true;
                     }
                 }
             }
             _ => {}
         }
 
-        return ret;
+        return saw_scope;
     });
 
     // TODO:(router) No need for macros
@@ -64,7 +62,11 @@ pub fn router(input: ItemFn) -> TokenStream {
                 ::gotham::init_server(
                     addr,
                     ::gotham::router::builder::build_simple_router(|route| {
+                        let pipelines = ::gotham::pipeline::set::new_pipeline_set();
+
                         #(#pipes)*
+
+                        let pipeline_set = ::gotham::pipeline::set::finalize_pipeline_set(pipelines);
 
                         route.delegate("").to_router(
                             ::gotham::router::builder::build_router((), pipeline_set, |route| {

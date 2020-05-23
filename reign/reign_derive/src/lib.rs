@@ -142,10 +142,10 @@ pub fn router(_: TokenStream, input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro]
-pub fn pipelines(input: TokenStream) -> TokenStream {
-    let input: router::Pipelines = parse_macro_input!(input);
+pub fn pipe(input: TokenStream) -> TokenStream {
+    let input: router::Pipeline = parse_macro_input!(input);
 
-    router::pipelines(input).into()
+    router::pipeline(input).into()
 }
 
 #[cfg(feature = "router")]

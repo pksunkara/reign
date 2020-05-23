@@ -4,11 +4,11 @@ use syn::{
     bracketed,
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::{Colon, Comma},
+    token::Comma,
     Expr, Ident,
 };
 
-struct Pipeline {
+pub struct Pipeline {
     name: Ident,
     middlewares: Punctuated<Expr, Comma>,
 }
@@ -20,7 +20,7 @@ impl Parse for Pipeline {
             middlewares: {
                 let content;
 
-                input.parse::<Colon>()?;
+                input.parse::<Comma>()?;
                 bracketed!(content in input);
 
                 content.parse_terminated(|i| i.parse::<Expr>())?
@@ -64,38 +64,6 @@ impl ToTokens for Pipeline {
     }
 }
 
-pub struct Pipelines {
-    items: Punctuated<Pipeline, Comma>,
-}
-
-impl Parse for Pipelines {
-    fn parse(input: ParseStream) -> Result<Self> {
-        Ok(Pipelines {
-            items: input.parse_terminated(|i| i.parse::<Pipeline>())?,
-        })
-    }
-}
-
-pub fn pipelines(input: Pipelines) -> TokenStream {
-    let items = input.items.into_iter().map(|i| i);
-
-    if cfg!(feature = "router-actix") {
-        quote! {
-            #(#items)*
-        }
-    } else if cfg!(feature = "router-gotham") {
-        quote! {
-            let pipelines = ::gotham::pipeline::set::new_pipeline_set();
-
-            #(#items)*
-
-            let pipeline_set = ::gotham::pipeline::set::finalize_pipeline_set(pipelines);
-        }
-    } else if cfg!(feature = "router-tide") {
-        quote! {
-            #(#items)*
-        }
-    } else {
-        quote! {}
-    }
+pub fn pipeline(input: Pipeline) -> TokenStream {
+    quote!(#input)
 }
