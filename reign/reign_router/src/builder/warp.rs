@@ -1,4 +1,4 @@
-use crate::RouterTypeTrait;
+use super::RouterTypeTrait;
 
 pub struct RouterTypeWarp;
 

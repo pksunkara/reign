@@ -2,7 +2,10 @@
 
 use reign::{
     prelude::*,
-    router::middleware::{HeadersDefault, Runtime},
+    router::{
+        middleware::{HeadersDefault, Runtime},
+        Router, serve,
+    },
 };
 use serde_json::{from_str, to_string, Value};
 use tide::{http::StatusCode, Response};
@@ -281,7 +284,7 @@ fn pipe_empty() {
 }
 
 #[router]
-fn router() {
+fn router() -> Router {
     pipe!(common, [
         HeadersDefault::empty().add("x-powered-by", "reign"),
     ]);
@@ -467,7 +470,7 @@ fn router() {
 }
 
 async fn server() {
-    router("127.0.0.1:8300").await.unwrap();
+    serve("127.0.0.1:8080", router()).await.unwrap()
 }
 
 #[tokio::main]

@@ -1,4 +1,4 @@
-use crate::RouterTypeTrait;
+use super::RouterTypeTrait;
 use std::{
     collections::HashMap as Map,
     fmt::{Debug, Formatter, Result as FmtResult},

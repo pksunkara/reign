@@ -1,4 +1,4 @@
-use crate::RouterTypeTrait;
+use super::RouterTypeTrait;
 use gotham::{
     middleware::{chain::NewMiddlewareChain, Middleware, NewMiddleware},
     pipeline::{

@@ -3,7 +3,10 @@
 use gotham::hyper::Response;
 use reign::{
     prelude::*,
-    router::middleware::{HeadersDefault, Runtime},
+    router::{
+        middleware::{HeadersDefault, Runtime},
+        serve, Router,
+    },
 };
 use serde_json::{from_str, to_string, Value};
 
@@ -220,20 +223,23 @@ fn multi_globs(foo: Vec<String>, bar: Vec<String>) {
 }
 
 #[router]
-fn router() {
-    pipe!(common, [
-        HeadersDefault::empty().add("x-powered-by", "reign"),
-    ]);
-    pipe!(app, [
-        HeadersDefault::empty().add("x-content-type-options", "nosniff"),
-    ]);
-    pipe!(timer, [
-        Runtime::default(),
-    ]);
-    pipe!(api, [
-        HeadersDefault::empty().add("x-version", "1.0"),
-        HeadersDefault::empty().add("content-type", "application/json"),
-    ]);
+fn router() -> Router {
+    pipe!(
+        common,
+        [HeadersDefault::empty().add("x-powered-by", "reign")]
+    );
+    pipe!(
+        app,
+        [HeadersDefault::empty().add("x-content-type-options", "nosniff")]
+    );
+    pipe!(timer, [Runtime::default()]);
+    pipe!(
+        api,
+        [
+            HeadersDefault::empty().add("x-version", "1.0"),
+            HeadersDefault::empty().add("content-type", "application/json"),
+        ]
+    );
 
     scope!("", [common, app], {
         to!(get, "str", str_);
@@ -340,7 +346,7 @@ fn router() {
 }
 
 async fn server() {
-    router("127.0.0.1:8080").await.unwrap()
+    serve("127.0.0.1:8080", router()).await.unwrap()
 }
 
 #[tokio::main]
