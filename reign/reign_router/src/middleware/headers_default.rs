@@ -105,8 +105,8 @@ where
 
             for (name, value) in &headers {
                 res.headers_mut().insert(
-                    HeaderName::from_lowercase(name).map_err(|x| HttpError::from(x))?,
-                    HeaderValue::from_str(value).map_err(|x| HttpError::from(x))?,
+                    HeaderName::from_lowercase(name).map_err(HttpError::from)?,
+                    HeaderValue::from_str(value).map_err(HttpError::from)?,
                 )
             }
 

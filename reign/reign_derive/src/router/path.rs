@@ -38,13 +38,11 @@ impl PathSegmentDynamic {
 
         let ty = if self.glob { quote!(Vec<#ty>) } else { ty };
 
-        let ty = if self.optional {
+        if self.optional {
             quote!(Option<#ty>)
         } else {
             ty
-        };
-
-        ty
+        }
     }
 
     pub fn actix(&self) -> String {

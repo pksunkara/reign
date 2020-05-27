@@ -45,7 +45,7 @@ impl<C> Pipe<RouterTypeGotham, C>
 where
     C: NewMiddlewareChain,
 {
-    pub fn add<T>(self, middleware: T) -> Pipe<RouterTypeGotham, (T, C)>
+    pub fn and<T>(self, middleware: T) -> Pipe<RouterTypeGotham, (T, C)>
     where
         T: NewMiddleware,
         T::Instance: Middleware + Send + 'static,
@@ -113,12 +113,12 @@ mod test {
     #[test]
     fn test_builder() {
         let a = Pipe::<RouterTypeGotham, _>::new("common")
-            .add(HeadersDefault::empty().add("x-1", "a"))
-            .add(ContentType::empty().json())
+            .and(HeadersDefault::empty().add("x-1", "a"))
+            .and(ContentType::empty().json())
             .build();
 
         let b = Pipe::<RouterTypeGotham, _>::new("timer")
-            .add(Runtime::default())
+            .and(Runtime::default())
             .build();
 
         let _pipes = Pipes::<RouterTypeGotham, _>::new().pipe(a).pipe(b);

@@ -21,7 +21,7 @@ jobs:
           override: true
           components: rustfmt, clippy
       - name: Format check
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
+        run: |
+          cd reign
+          cargo fmt -- --check
+          cargo clippy --all-features -- -D warnings

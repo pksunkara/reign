@@ -26,7 +26,7 @@ pub fn router(input: ItemFn) -> TokenStream {
             _ => {}
         }
 
-        return saw_scope;
+        saw_scope
     });
 
     // TODO:(router) No need for macros

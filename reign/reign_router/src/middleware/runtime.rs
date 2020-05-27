@@ -104,8 +104,8 @@ where
 
             if let Some(dur) = duration {
                 res.headers_mut().insert(
-                    HeaderName::from_lowercase(header).map_err(|x| HttpError::from(x))?,
-                    HeaderValue::from_str(&dur_to_string(dur)).map_err(|x| HttpError::from(x))?,
+                    HeaderName::from_lowercase(header).map_err(HttpError::from)?,
+                    HeaderValue::from_str(&dur_to_string(dur)).map_err(HttpError::from)?,
                 );
             }
 

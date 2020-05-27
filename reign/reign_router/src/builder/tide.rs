@@ -86,7 +86,7 @@ where
         }
     }
 
-    pub fn add<M>(mut self, middleware: M) -> Self
+    pub fn and<M>(mut self, middleware: M) -> Self
     where
         M: Middleware<S> + Debug,
         S: 'static,
@@ -139,11 +139,11 @@ mod test {
         let pipes = Pipes::<RouterTypeTide, _>::new()
             .pipe(
                 Pipe::new("common")
-                    .add(HeadersDefault::empty().add("x-1", "a"))
-                    .add(ContentType::empty().json())
+                    .and(HeadersDefault::empty().add("x-1", "a"))
+                    .and(ContentType::empty().json())
                     .build(),
             )
-            .pipe(Pipe::new("timer").add(Runtime::default()).build());
+            .pipe(Pipe::new("timer").and(Runtime::default()).build());
 
         let mut app = tide::new();
 
