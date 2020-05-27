@@ -21,26 +21,12 @@ async fn server() {
 
     app.at("/world").get(|_| async move { Ok(redirect!("/")) });
 
-    app.at("/hey").get(|_| async move {
-        let msg = "Hey Tide!";
-
-        Ok(render!(app, status = 404))
-    });
-
     app.at("/json").get(|_| async move {
         let user = User {
             name: "Tide".to_string(),
         };
 
         Ok(json!(user))
-    });
-
-    app.at("/json_err").get(|_| async move {
-        let user = User {
-            name: "Tide".to_string(),
-        };
-
-        Ok(json!(user, status = 422))
     });
 
     app.listen("127.0.0.1:8080").await.unwrap();

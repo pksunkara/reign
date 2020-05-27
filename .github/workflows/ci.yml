@@ -65,11 +65,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
       - name: Cache cargo
+        if: matrix.type == 'test'
         uses: actions/cache@v1
         id: cache
         with:
           path: ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('reign/{Cargo.toml,**/Cargo.toml}') }}
       - name: Test
         if: matrix.type == 'test'
         shell: bash
@@ -80,8 +81,18 @@ jobs:
         if: matrix.type != 'test'
         shell: bash
         run: |
-          cd examples/${{ matrix.type }}
-          cargo test
+          if [-d examples/${{ matrix.type }}]; then
+            cd examples/${{ matrix.type }}
+            cargo test
+          fi
+      - name: Test Integration
+        if: matrix.type != 'test'
+        shell: bash
+        run: |
+          if [-d tests/${{ matrix.type }}]; then
+            cd tests/${{ matrix.type }}
+            cargo test
+          fi
       - name: Install cargo-cache
         uses: actions-rs/install@v0.1
         if: steps.cache.outputs.cache-hit != 'true'
@@ -89,11 +100,11 @@ jobs:
           crate: cargo-cache
           use-tool-cache: true
       - name: Cleanup cache
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: matrix.type == 'test' && steps.cache.outputs.cache-hit != 'true'
         run: cargo cache -a
       # https://github.com/rust-lang/rust/issues/29497
       - name: Cleanup windows cache
-        if: steps.cache.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
+        if: matrix.type == 'test' && steps.cache.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
         shell: bash
         run: |
           rm -rf ~/.cargo/git/checkouts

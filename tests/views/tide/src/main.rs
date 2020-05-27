@@ -2,7 +2,6 @@
 
 use reign::prelude::*;
 use serde::Serialize;
-use warp::Filter;
 
 #[derive(Serialize)]
 struct User {
@@ -12,25 +11,23 @@ struct User {
 views!("src", "views");
 
 async fn server() {
-    let hello = warp::path::end().map(|| {
-        let msg = "Hello Warp!";
+    let mut app = tide::new();
 
-        render!(app)
+    app.at("/hey").get(|_| async move {
+        let msg = "Hey Tide!";
+
+        Ok(render!(app, status = 404))
     });
 
-    let world = warp::path("world").map(|| redirect!("/"));
-
-    let json = warp::path("json").map(|| {
+    app.at("/json_err").get(|_| async move {
         let user = User {
-            name: "Warp".to_string(),
+            name: "Tide".to_string(),
         };
 
-        json!(user)
+        Ok(json!(user, status = 422))
     });
 
-    let app = hello.or(world).or(json);
-
-    warp::serve(app).run(([127, 0, 0, 1], 8080)).await
+    app.listen("127.0.0.1:8080").await.unwrap();
 }
 
 #[tokio::main]
@@ -42,14 +39,14 @@ async fn main() {
 mod tests {
     use super::*;
     use std::time::Duration;
-    use test_examples::views::test;
+    use test_integrations::views::test;
     use tokio::{select, time::delay_for};
 
     #[tokio::test]
     async fn test_server() {
         let client = async {
             delay_for(Duration::from_millis(100)).await;
-            test("Warp").await
+            test("Tide").await
         };
 
         select! {

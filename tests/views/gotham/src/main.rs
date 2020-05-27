@@ -16,29 +16,24 @@ struct User {
 
 views!("src", "views");
 
-fn hello(state: State) -> (State, Response<Body>) {
-    let msg = "Hello Gotham!";
+fn hey(state: State) -> (State, Response<Body>) {
+    let msg = "Hey Gotham!";
 
-    (state, render!(app))
+    (state, render!(app, status = 404))
 }
 
-fn world(state: State) -> (State, Response<Body>) {
-    (state, redirect!("/"))
-}
-
-fn json(state: State) -> (State, Response<Body>) {
+fn json_err(state: State) -> (State, Response<Body>) {
     let user = User {
         name: "Gotham".to_string(),
     };
 
-    (state, json!(user))
+    (state, json!(user, status = 422))
 }
 
 fn router() -> Router {
     build_simple_router(|route| {
-        route.get("/").to(hello);
-        route.get("/world").to(world);
-        route.get("/json").to(json);
+        route.get("/hey").to(hey);
+        route.get("/json_err").to(json_err);
     })
 }
 
@@ -55,7 +50,7 @@ async fn main() {
 mod tests {
     use super::*;
     use std::time::Duration;
-    use test_examples::views::test;
+    use test_integrations::views::test;
     use tokio::{select, time::delay_for};
 
     #[tokio::test]

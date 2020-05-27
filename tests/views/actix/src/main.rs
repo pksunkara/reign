@@ -11,30 +11,25 @@ struct User {
 
 views!("src", "views");
 
-async fn hello(_: HttpRequest) -> impl Responder {
-    let msg = "Hello Actix!";
+async fn hey(_: HttpRequest) -> impl Responder {
+    let msg = "Hey Actix!";
 
-    render!(app)
+    render!(app, status = 404)
 }
 
-async fn world(_: HttpRequest) -> impl Responder {
-    redirect!("/")
-}
-
-async fn json(_: HttpRequest) -> impl Responder {
+async fn json_err(_: HttpRequest) -> impl Responder {
     let user = User {
         name: "Actix".to_string(),
     };
 
-    json!(user)
+    json!(user, status = 422)
 }
 
 async fn server() {
     HttpServer::new(|| {
         App::new()
-            .route("/", web::get().to(hello))
-            .route("/world", web::get().to(world))
-            .route("/json", web::get().to(json))
+            .route("/hey", web::get().to(hey))
+            .route("/json_err", web::get().to(json_err))
     })
     .bind("127.0.0.1:8080")
     .unwrap()
@@ -53,7 +48,7 @@ mod tests {
     use super::*;
     use actix_rt::{spawn, time::delay_for};
     use std::time::Duration;
-    use test_examples::views::test;
+    use test_integrations::views::test;
 
     #[actix_rt::test]
     async fn test_server() {

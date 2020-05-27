@@ -12,23 +12,21 @@ struct User {
 views!("src", "views");
 
 async fn server() {
-    let hello = warp::path::end().map(|| {
-        let msg = "Hello Warp!";
+    let hey = warp::path("hey").map(|| {
+        let msg = "Hey Warp!";
 
-        render!(app)
+        render!(app, status = 404)
     });
 
-    let world = warp::path("world").map(|| redirect!("/"));
-
-    let json = warp::path("json").map(|| {
+    let json_err = warp::path("json_err").map(|| {
         let user = User {
             name: "Warp".to_string(),
         };
 
-        json!(user)
+        json!(user, status = 422)
     });
 
-    let app = hello.or(world).or(json);
+    let app = hey.or(json_err);
 
     warp::serve(app).run(([127, 0, 0, 1], 8080)).await
 }
@@ -42,7 +40,7 @@ async fn main() {
 mod tests {
     use super::*;
     use std::time::Duration;
-    use test_examples::views::test;
+    use test_integrations::views::test;
     use tokio::{select, time::delay_for};
 
     #[tokio::test]
