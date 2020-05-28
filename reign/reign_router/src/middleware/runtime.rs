@@ -76,6 +76,7 @@ where
 }
 
 #[cfg(feature = "router-actix")]
+#[allow(clippy::type_complexity)]
 impl<S, B> Service for RuntimeMiddleware<S>
 where
     S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,

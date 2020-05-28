@@ -13,73 +13,73 @@ use serde_json::{from_str, to_string, Value};
 mod errors;
 
 #[action]
-fn str_() {
+async fn str_() {
     Ok("str")
 }
 
 #[action]
-fn string() {
+async fn string() {
     Ok("string".to_string())
 }
 
 #[action]
-fn response() {
+async fn response() {
     Ok(Response::new("response".into()))
 }
 
 #[action]
-fn error() {
+async fn error() {
     let value = from_str::<Value>("{name}")?;
     Ok(Response::new(to_string(&value)?.into()))
 }
 
 #[action]
-fn post() {
+async fn post() {
     Ok("post")
 }
 
 #[action]
-fn put() {
+async fn put() {
     Ok("put")
 }
 
 #[action]
-fn patch() {
+async fn patch() {
     Ok("patch")
 }
 
 #[action]
-fn delete() {
+async fn delete() {
     Ok("delete")
 }
 
 #[action]
-fn multi_methods() {
+async fn multi_methods() {
     Ok("multi_methods")
 }
 
 #[action]
-fn scope_static() {
+async fn scope_static() {
     Ok("scope_static")
 }
 
 #[action]
-fn pipe() {
+async fn pipe() {
     Ok("pipe")
 }
 
 #[action]
-fn pipe_empty() {
+async fn pipe_empty() {
     Ok("pipe_empty")
 }
 
 #[action]
-fn param(id: String) {
+async fn param(id: String) {
     Ok(format!("param {}", id))
 }
 
 #[action]
-fn param_optional(id: Option<String>) {
+async fn param_optional(id: Option<String>) {
     Ok(format!(
         "param_optional {}",
         match id {
@@ -90,12 +90,12 @@ fn param_optional(id: Option<String>) {
 }
 
 #[action]
-fn param_regex(id: String) {
+async fn param_regex(id: String) {
     Ok(format!("param_regex {}", id))
 }
 
 #[action]
-fn param_optional_regex(id: Option<String>) {
+async fn param_optional_regex(id: Option<String>) {
     Ok(format!(
         "param_optional_regex {}",
         match id {
@@ -112,12 +112,12 @@ fn param_optional_regex(id: Option<String>) {
 // }
 
 #[action]
-fn param_glob(id: Vec<String>) {
+async fn param_glob(id: Vec<String>) {
     Ok(format!("param_glob {}", id.join("/")))
 }
 
 #[action]
-fn param_optional_glob(id: Option<Vec<String>>) {
+async fn param_optional_glob(id: Option<Vec<String>>) {
     Ok(format!(
         "param_optional_glob {}",
         match id {
@@ -128,12 +128,12 @@ fn param_optional_glob(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn param_glob_middle(id: Vec<String>) {
+async fn param_glob_middle(id: Vec<String>) {
     Ok(format!("param_glob_middle {}", id.join("/")))
 }
 
 #[action]
-fn param_optional_glob_middle(id: Option<Vec<String>>) {
+async fn param_optional_glob_middle(id: Option<Vec<String>>) {
     Ok(format!(
         "param_optional_glob_middle {}",
         match id {
@@ -144,12 +144,12 @@ fn param_optional_glob_middle(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn scope_param(id: String) {
+async fn scope_param(id: String) {
     Ok(format!("scope_param {}", id))
 }
 
 #[action]
-fn scope_param_optional(id: Option<String>) {
+async fn scope_param_optional(id: Option<String>) {
     Ok(format!(
         "scope_param_optional {}",
         match id {
@@ -160,12 +160,12 @@ fn scope_param_optional(id: Option<String>) {
 }
 
 #[action]
-fn scope_param_regex(id: String) {
+async fn scope_param_regex(id: String) {
     Ok(format!("scope_param_regex {}", id))
 }
 
 #[action]
-fn scope_param_optional_regex(id: Option<String>) {
+async fn scope_param_optional_regex(id: Option<String>) {
     Ok(format!(
         "scope_param_optional_regex {}",
         match id {
@@ -176,12 +176,12 @@ fn scope_param_optional_regex(id: Option<String>) {
 }
 
 #[action]
-fn scope_param_glob(id: Vec<String>) {
+async fn scope_param_glob(id: Vec<String>) {
     Ok(format!("scope_param_glob {}", id.join("/")))
 }
 
 #[action]
-fn scope_param_optional_glob(id: Option<Vec<String>>) {
+async fn scope_param_optional_glob(id: Option<Vec<String>>) {
     Ok(format!(
         "scope_param_optional_glob {}",
         match id {
@@ -192,12 +192,12 @@ fn scope_param_optional_glob(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn scope_param_glob_middle(id: Vec<String>) {
+async fn scope_param_glob_middle(id: Vec<String>) {
     Ok(format!("scope_param_glob_middle {}", id.join("/")))
 }
 
 #[action]
-fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
+async fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
     Ok(format!(
         "scope_param_optional_glob_middle {}",
         match id {
@@ -208,17 +208,17 @@ fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn nested_scope(foo: String, bar: String) {
+async fn nested_scope(foo: String, bar: String) {
     Ok(format!("nested_scope {} {}", foo, bar))
 }
 
 #[action]
-fn multi_params(foo: String, bar: String) {
+async fn multi_params(foo: String, bar: String) {
     Ok(format!("multi_params {} {}", foo, bar))
 }
 
 #[action]
-fn multi_globs(foo: Vec<String>, bar: Vec<String>) {
+async fn multi_globs(foo: Vec<String>, bar: Vec<String>) {
     Ok(format!("multi_globs {} {}", foo.join("/"), bar.join("/")))
 }
 

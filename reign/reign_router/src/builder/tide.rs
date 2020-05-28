@@ -109,6 +109,7 @@ impl<S> Pipes<RouterTypeTide, S>
 where
     S: Send + Sync + 'static,
 {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self { inner: Map::new() }
     }

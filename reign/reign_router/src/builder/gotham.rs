@@ -32,6 +32,7 @@ where
 }
 
 impl Pipe<RouterTypeGotham, ()> {
+    #[allow(clippy::new_without_default)]
     pub fn new(name: &'static str) -> Self {
         Self {
             name,

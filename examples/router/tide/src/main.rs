@@ -13,48 +13,48 @@ use tide::{http::StatusCode, Response};
 mod errors;
 
 #[action]
-fn str_() {
+async fn str_() {
     Ok("str")
 }
 
 #[action]
-fn string() {
+async fn string() {
     Ok("string".to_string())
 }
 
 #[action]
-fn response() {
+async fn response() {
     Ok(Response::new(StatusCode::Ok).body_string("response".to_string()))
 }
 
 #[action]
-fn error() {
+async fn error() {
     let value = from_str::<Value>("{name}")?;
     Ok(to_string(&value)?)
 }
 
 #[action]
-fn post() {
+async fn post() {
     Ok("post")
 }
 
 #[action]
-fn put() {
+async fn put() {
     Ok("put")
 }
 
 #[action]
-fn patch() {
+async fn patch() {
     Ok("patch")
 }
 
 #[action]
-fn delete() {
+async fn delete() {
     Ok("delete")
 }
 
 #[action]
-fn multi_methods() {
+async fn multi_methods() {
     Ok("multi_methods")
 }
 
@@ -118,7 +118,7 @@ async fn multiple_param_glob(req: tide::Request<()>) -> tide::Result<tide::Respo
 }
 
 #[action]
-fn scope_static_b() {
+async fn scope_static_b() {
     Ok("scope_static_b")
 }
 
@@ -239,47 +239,47 @@ async fn nested_scope_b(req: tide::Request<()>) -> tide::Result<tide::Response> 
 }
 
 #[action]
-fn double_slashes() {
+async fn double_slashes() {
     Ok("double_slashes")
 }
 
 #[action]
-fn sibling_scope_higher() {
+async fn sibling_scope_higher() {
     Ok("sibling_scope_higher")
 }
 
 #[action]
-fn sibling_scope_common_higher() {
+async fn sibling_scope_common_higher() {
     Ok("sibling_scope_common_higher")
 }
 
 #[action]
-fn sibling_scope_common_lower() {
+async fn sibling_scope_common_lower() {
     Ok("sibling_scope_common_lower")
 }
 
 #[action]
-fn sibling_scope_common_c() {
+async fn sibling_scope_common_c() {
     Ok("sibling_scope_common_c")
 }
 
 #[action]
-fn sibling_scope_lower() {
+async fn sibling_scope_lower() {
     Ok("sibling_scope_lower")
 }
 
 #[action]
-fn scope_static() {
+async fn scope_static() {
     Ok("scope_static")
 }
 
 #[action]
-fn pipe() {
+async fn pipe() {
     Ok("pipe")
 }
 
 #[action]
-fn pipe_empty() {
+async fn pipe_empty() {
     Ok("pipe_empty")
 }
 
