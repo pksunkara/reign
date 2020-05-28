@@ -16,7 +16,7 @@ pub fn action(input: ItemFn) -> TokenStream {
         asyncness,
         unsafety,
         fn_token,
-        // TODO:(router) Use the output directly
+        output,
         ..
     } = sig;
 
@@ -39,16 +39,15 @@ pub fn action(input: ItemFn) -> TokenStream {
             #vis #constness #asyncness #unsafety #fn_token #ident(
                 req: ::actix_web::HttpRequest,
             ) -> ::actix_web::HttpResponse {
-                use ::actix_web::Responder;
-
+                #[inline]
                 async fn _call(
                     req: &::actix_web::HttpRequest,
-                ) -> Result<impl Responder, crate::errors::Error> #block
+                ) #output #block
 
                 let _called = _call(&req).await;
 
                 match _called {
-                    Ok(r) => match r.respond_to(&req).await {
+                    Ok(r) => match r.actix_response(&req).await {
                         Ok(r) => r,
                         Err(e) => ::actix_web::HttpResponse::from_error(e.into()),
                     },
@@ -66,18 +65,16 @@ pub fn action(input: ItemFn) -> TokenStream {
                 state: &mut ::gotham::state::State,
                 #inputs
             ) -> ::gotham::hyper::Response<::gotham::hyper::Body> {
-                use ::gotham::handler::IntoResponse;
-
                 #[inline]
                 async fn _call(
                     state: &mut ::gotham::state::State,
                     #inputs
-                ) -> Result<impl IntoResponse, crate::errors::Error> #block
+                ) #output #block
 
                 let _called = _call(state, #(#args),*).await;
 
                 match _called {
-                    Ok(r) => r.into_response(&state),
+                    Ok(r) => r.gotham_response(&state),
                     Err(e) => {
                         ::reign::log::error!("{}", e);
                         e.respond()
@@ -94,12 +91,12 @@ pub fn action(input: ItemFn) -> TokenStream {
                 #[inline]
                 async fn _call(
                     req: ::tide::Request<()>,
-                ) -> Result<impl Into<::tide::Response>, crate::errors::Error> #block
+                ) #output #block
 
                 let _called = _call(req).await;
 
                 let response = match _called {
-                    Ok(r) => r.into(),
+                    Ok(r) => r.tide_response(),
                     Err(e) => {
                         ::reign::log::error!("{}", e);
                         e.respond()

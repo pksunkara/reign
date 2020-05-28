@@ -9,6 +9,9 @@ use std::{io::Result, net::ToSocketAddrs};
 pub mod builder;
 pub mod middleware;
 pub mod query;
+mod response;
+
+pub use response::Response;
 
 pub enum Router<T = ()>
 where

@@ -4,57 +4,59 @@ use reign::{
     prelude::*,
     router::{
         middleware::{HeadersDefault, Runtime},
-        Router, serve,
+        serve, Response, Router,
     },
 };
 use serde_json::{from_str, to_string, Value};
-use tide::{http::StatusCode, Response};
+use tide::{http::StatusCode};
 
 mod errors;
 
+use errors::Error;
+
 #[action]
-async fn str_() {
+async fn str_() -> Result<impl Response, Error> {
     Ok("str")
 }
 
 #[action]
-async fn string() {
+async fn string() -> Result<impl Response, Error> {
     Ok("string".to_string())
 }
 
 #[action]
-async fn response() {
-    Ok(Response::new(StatusCode::Ok).body_string("response".to_string()))
+async fn response() -> Result<impl Response, Error> {
+    Ok(tide::Response::new(StatusCode::Ok).body_string("response".to_string()))
 }
 
 #[action]
-async fn error() {
+async fn error() -> Result<impl Response, Error> {
     let value = from_str::<Value>("{name}")?;
     Ok(to_string(&value)?)
 }
 
 #[action]
-async fn post() {
+async fn post() -> Result<impl Response, Error> {
     Ok("post")
 }
 
 #[action]
-async fn put() {
+async fn put() -> Result<impl Response, Error> {
     Ok("put")
 }
 
 #[action]
-async fn patch() {
+async fn patch() -> Result<impl Response, Error> {
     Ok("patch")
 }
 
 #[action]
-async fn delete() {
+async fn delete() -> Result<impl Response, Error> {
     Ok("delete")
 }
 
 #[action]
-async fn multi_methods() {
+async fn multi_methods() -> Result<impl Response, Error> {
     Ok("multi_methods")
 }
 
@@ -118,7 +120,7 @@ async fn multiple_param_glob(req: tide::Request<()>) -> tide::Result<tide::Respo
 }
 
 #[action]
-async fn scope_static_b() {
+async fn scope_static_b() -> Result<impl Response, Error> {
     Ok("scope_static_b")
 }
 
@@ -239,47 +241,47 @@ async fn nested_scope_b(req: tide::Request<()>) -> tide::Result<tide::Response> 
 }
 
 #[action]
-async fn double_slashes() {
+async fn double_slashes() -> Result<impl Response, Error> {
     Ok("double_slashes")
 }
 
 #[action]
-async fn sibling_scope_higher() {
+async fn sibling_scope_higher() -> Result<impl Response, Error> {
     Ok("sibling_scope_higher")
 }
 
 #[action]
-async fn sibling_scope_common_higher() {
+async fn sibling_scope_common_higher() -> Result<impl Response, Error> {
     Ok("sibling_scope_common_higher")
 }
 
 #[action]
-async fn sibling_scope_common_lower() {
+async fn sibling_scope_common_lower() -> Result<impl Response, Error> {
     Ok("sibling_scope_common_lower")
 }
 
 #[action]
-async fn sibling_scope_common_c() {
+async fn sibling_scope_common_c() -> Result<impl Response, Error> {
     Ok("sibling_scope_common_c")
 }
 
 #[action]
-async fn sibling_scope_lower() {
+async fn sibling_scope_lower() -> Result<impl Response, Error> {
     Ok("sibling_scope_lower")
 }
 
 #[action]
-async fn scope_static() {
+async fn scope_static() -> Result<impl Response, Error> {
     Ok("scope_static")
 }
 
 #[action]
-async fn pipe() {
+async fn pipe() -> Result<impl Response, Error> {
     Ok("pipe")
 }
 
 #[action]
-async fn pipe_empty() {
+async fn pipe_empty() -> Result<impl Response, Error> {
     Ok("pipe_empty")
 }
 

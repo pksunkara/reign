@@ -1,85 +1,87 @@
 #![feature(proc_macro_hygiene)]
 
-use gotham::hyper::Response;
+use gotham::hyper;
 use reign::{
     prelude::*,
     router::{
         middleware::{HeadersDefault, Runtime},
-        serve, Router,
+        serve, Response, Router,
     },
 };
 use serde_json::{from_str, to_string, Value};
 
 mod errors;
 
+use errors::Error;
+
 #[action]
-async fn str_() {
+async fn str_() -> Result<impl Response, Error> {
     Ok("str")
 }
 
 #[action]
-async fn string() {
+async fn string() -> Result<impl Response, Error> {
     Ok("string".to_string())
 }
 
 #[action]
-async fn response() {
-    Ok(Response::new("response".into()))
+async fn response() -> Result<impl Response, Error> {
+    Ok(hyper::Response::new("response".into()))
 }
 
 #[action]
-async fn error() {
+async fn error() -> Result<impl Response, Error> {
     let value = from_str::<Value>("{name}")?;
-    Ok(Response::new(to_string(&value)?.into()))
+    Ok(hyper::Response::new(to_string(&value)?.into()))
 }
 
 #[action]
-async fn post() {
+async fn post() -> Result<impl Response, Error> {
     Ok("post")
 }
 
 #[action]
-async fn put() {
+async fn put() -> Result<impl Response, Error> {
     Ok("put")
 }
 
 #[action]
-async fn patch() {
+async fn patch() -> Result<impl Response, Error> {
     Ok("patch")
 }
 
 #[action]
-async fn delete() {
+async fn delete() -> Result<impl Response, Error> {
     Ok("delete")
 }
 
 #[action]
-async fn multi_methods() {
+async fn multi_methods() -> Result<impl Response, Error> {
     Ok("multi_methods")
 }
 
 #[action]
-async fn scope_static() {
+async fn scope_static() -> Result<impl Response, Error> {
     Ok("scope_static")
 }
 
 #[action]
-async fn pipe() {
+async fn pipe() -> Result<impl Response, Error> {
     Ok("pipe")
 }
 
 #[action]
-async fn pipe_empty() {
+async fn pipe_empty() -> Result<impl Response, Error> {
     Ok("pipe_empty")
 }
 
 #[action]
-async fn param(id: String) {
+async fn param(id: String) -> Result<impl Response, Error> {
     Ok(format!("param {}", id))
 }
 
 #[action]
-async fn param_optional(id: Option<String>) {
+async fn param_optional(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional {}",
         match id {
@@ -90,12 +92,12 @@ async fn param_optional(id: Option<String>) {
 }
 
 #[action]
-async fn param_regex(id: String) {
+async fn param_regex(id: String) -> Result<impl Response, Error> {
     Ok(format!("param_regex {}", id))
 }
 
 #[action]
-async fn param_optional_regex(id: Option<String>) {
+async fn param_optional_regex(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional_regex {}",
         match id {
@@ -106,12 +108,12 @@ async fn param_optional_regex(id: Option<String>) {
 }
 
 #[action]
-async fn param_glob(id: Vec<String>) {
+async fn param_glob(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("param_glob {}", id.join("/")))
 }
 
 #[action]
-async fn param_optional_glob(id: Option<Vec<String>>) {
+async fn param_optional_glob(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional_glob {}",
         match id {
@@ -122,12 +124,12 @@ async fn param_optional_glob(id: Option<Vec<String>>) {
 }
 
 #[action]
-async fn param_glob_middle(id: Vec<String>) {
+async fn param_glob_middle(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("param_glob_middle {}", id.join("/")))
 }
 
 #[action]
-async fn param_optional_glob_middle(id: Option<Vec<String>>) {
+async fn param_optional_glob_middle(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional_glob_middle {}",
         match id {
@@ -138,12 +140,12 @@ async fn param_optional_glob_middle(id: Option<Vec<String>>) {
 }
 
 #[action]
-async fn scope_param(id: String) {
+async fn scope_param(id: String) -> Result<impl Response, Error> {
     Ok(format!("scope_param {}", id))
 }
 
 #[action]
-async fn scope_param_optional(id: Option<String>) {
+async fn scope_param_optional(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional {}",
         match id {
@@ -154,12 +156,12 @@ async fn scope_param_optional(id: Option<String>) {
 }
 
 #[action]
-async fn scope_param_regex(id: String) {
+async fn scope_param_regex(id: String) -> Result<impl Response, Error> {
     Ok(format!("scope_param_regex {}", id))
 }
 
 #[action]
-async fn scope_param_optional_regex(id: Option<String>) {
+async fn scope_param_optional_regex(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional_regex {}",
         match id {
@@ -170,12 +172,12 @@ async fn scope_param_optional_regex(id: Option<String>) {
 }
 
 #[action]
-async fn scope_param_glob(id: Vec<String>) {
+async fn scope_param_glob(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("scope_param_glob {}", id.join("/")))
 }
 
 #[action]
-async fn scope_param_optional_glob(id: Option<Vec<String>>) {
+async fn scope_param_optional_glob(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional_glob {}",
         match id {
@@ -186,12 +188,12 @@ async fn scope_param_optional_glob(id: Option<Vec<String>>) {
 }
 
 #[action]
-async fn scope_param_glob_middle(id: Vec<String>) {
+async fn scope_param_glob_middle(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("scope_param_glob_middle {}", id.join("/")))
 }
 
 #[action]
-async fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
+async fn scope_param_optional_glob_middle(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional_glob_middle {}",
         match id {
@@ -202,17 +204,17 @@ async fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
 }
 
 #[action]
-async fn nested_scope(foo: String, bar: String) {
+async fn nested_scope(foo: String, bar: String) -> Result<impl Response, Error> {
     Ok(format!("nested_scope {} {}", foo, bar))
 }
 
 #[action]
-async fn multi_params(foo: String, bar: String) {
+async fn multi_params(foo: String, bar: String) -> Result<impl Response, Error> {
     Ok(format!("multi_params {} {}", foo, bar))
 }
 
 #[action]
-async fn multi_globs(foo: Vec<String>, bar: Vec<String>) {
+async fn multi_globs(foo: Vec<String>, bar: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("multi_globs {} {}", foo.join("/"), bar.join("/")))
 }
 

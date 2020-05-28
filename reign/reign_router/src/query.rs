@@ -1,10 +1,14 @@
 #[cfg(feature = "router-gotham")]
 use gotham_derive::{StateData, StaticResponseExtender};
+#[cfg(feature = "router-gotham")]
 use serde::Deserialize;
 use std::collections::HashMap as Map;
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "router-gotham", derive(StateData, StaticResponseExtender))]
+#[derive(Debug)]
+#[cfg_attr(
+    feature = "router-gotham",
+    derive(Deserialize, StateData, StaticResponseExtender)
+)]
 pub struct Query(Map<String, String>);
 
 impl Query {
