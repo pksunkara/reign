@@ -8,6 +8,7 @@ use std::{io::Result, net::ToSocketAddrs};
 #[doc(hidden)]
 pub mod builder;
 pub mod middleware;
+pub mod query;
 
 pub enum Router<T = ()>
 where
