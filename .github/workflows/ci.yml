@@ -61,16 +61,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: ${{ matrix.target }}
           override: true
-      - name: Ready cache
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-      - name: Cache cargo
-        if: matrix.type == 'test'
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-cargo-${{ hashFiles('reign/{Cargo.toml,**/Cargo.toml}') }}
       - name: Test
         if: matrix.type == 'test'
         shell: bash
@@ -93,19 +83,3 @@ jobs:
             cd tests/${{ matrix.type }}
             cargo test
           fi
-      - name: Install cargo-cache
-        uses: actions-rs/install@v0.1
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          crate: cargo-cache
-          use-tool-cache: true
-      - name: Cleanup cache
-        if: matrix.type == 'test' && steps.cache.outputs.cache-hit != 'true'
-        run: cargo cache -a
-      # https://github.com/rust-lang/rust/issues/29497
-      - name: Cleanup windows cache
-        if: matrix.type == 'test' && steps.cache.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
-        shell: bash
-        run: |
-          rm -rf ~/.cargo/git/checkouts
-          rm -rf ~/.cargo/registry/index

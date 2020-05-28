@@ -55,7 +55,7 @@ pub fn router(input: ItemFn) -> TokenStream {
             #(#attrs)*
             #vis #sig
             {
-                use ::gotham::router::builder::{DrawRoutes, DefineSingleRoute};
+                use ::gotham::router::builder::*;
                 use ::reign::router::Router::Gotham;
 
                 Gotham(::gotham::router::builder::build_simple_router(|route| {

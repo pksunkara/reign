@@ -90,7 +90,7 @@ impl PathSegmentDynamic {
             if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
                 self.glob = true;
                 self.ty = Some(ty);
-            } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
+            } else if let Some(ty) = subty_if_name(ty, "Option") {
                 self.optional = true;
 
                 if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
@@ -108,7 +108,7 @@ impl PathSegmentDynamic {
 
 pub enum PathSegment {
     Static(LitStr),
-    Dynamic(PathSegmentDynamic),
+    Dynamic(Box<PathSegmentDynamic>),
 }
 
 impl Parse for PathSegment {
@@ -135,7 +135,7 @@ impl Parse for PathSegment {
                 dynamic.parse(input)?;
             }
 
-            Ok(PathSegment::Dynamic(dynamic))
+            Ok(PathSegment::Dynamic(Box::new(dynamic)))
         }
     }
 }
@@ -199,7 +199,7 @@ impl Path {
             match segment {
                 PathSegment::Static(s) => Self::add(&mut paths, s.value()),
                 PathSegment::Dynamic(d) => {
-                    params.push(d.clone());
+                    params.push(*d.clone());
                     let part = d.actix();
 
                     if d.optional {
@@ -228,7 +228,7 @@ impl Path {
             match segment {
                 PathSegment::Static(s) => Self::add(&mut paths, s.value()),
                 PathSegment::Dynamic(d) => {
-                    params.push(d.clone());
+                    params.push(*d.clone());
                     let part = d.gotham();
 
                     if d.optional {
@@ -251,7 +251,7 @@ impl Path {
             match segment {
                 PathSegment::Static(s) => Self::add(&mut paths, s.value()),
                 PathSegment::Dynamic(d) => {
-                    params.push(d.clone());
+                    params.push(*d.clone());
                     let part = d.tide();
 
                     if d.optional {
@@ -275,14 +275,14 @@ pub fn combine_params(
         let mut segments = prev.segments;
 
         for p in params {
-            segments.push(PathSegment::Dynamic(p))
+            segments.push(PathSegment::Dynamic(Box::new(p)))
         }
 
         segments
     } else {
         params
             .into_iter()
-            .map(|p| PathSegment::Dynamic(p))
+            .map(|p| PathSegment::Dynamic(Box::new(p)))
             .collect()
     }
 }

@@ -1,3 +1,5 @@
+#![allow(clippy::new_without_default)]
+
 use super::RouterTypeTrait;
 use gotham::{
     middleware::{chain::NewMiddlewareChain, Middleware, NewMiddleware},
@@ -32,7 +34,6 @@ where
 }
 
 impl Pipe<RouterTypeGotham, ()> {
-    #[allow(clippy::new_without_default)]
     pub fn new(name: &'static str) -> Self {
         Self {
             name,

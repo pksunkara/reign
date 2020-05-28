@@ -105,12 +105,6 @@ async fn param_optional_regex(id: Option<String>) {
     ))
 }
 
-// #[derive(Deserialize, StateData, StaticResponseExtender)]
-// struct OptPathExtractor {
-//     #[serde(rename = "*")]
-//     path: Option<Vec<String>>,
-// }
-
 #[action]
 async fn param_glob(id: Vec<String>) {
     Ok(format!("param_glob {}", id.join("/")))

@@ -8,8 +8,8 @@ publish = false
 [dependencies]
 reign = { path = "../../../reign", features = ["view-tide", "json"], default-features = false }
 tide = "0.8.1"
-tokio = { version = "0.2", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "0.2.21", features = ["full"] }
+serde = { version = "1.0.110", features = ["derive"] }
 
 [dev-dependencies]
 test_integrations = { path = "../../../reign/development/test_integrations" }

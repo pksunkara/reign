@@ -18,7 +18,7 @@ impl Options {
 
     #[allow(unused)]
     pub fn find(&self, key: &str) -> Option<(&Ident, &Expr)> {
-        self.inner.iter().find(|x| x.0.to_string() == key)
+        self.inner.iter().find(|x| *x.0 == key)
     }
 }
 
