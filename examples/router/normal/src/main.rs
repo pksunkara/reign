@@ -3,62 +3,77 @@
 use reign::{
     prelude::*,
     router::{
-        middleware::{HeadersDefault, Runtime, },
-        router::{serve, Router, Pipe},
+        middleware::{HeadersDefault, Runtime},
+        router::{hyper::Method, serve, Pipe, Router, Scope, Path},
     },
 };
 
 fn router(r: &mut Router) {
-
-    r.pipe(
-        Pipe::new("common")
-            .and(HeadersDefault::empty().add("x-powered-by", "reign"))
-    );
+    r.pipe(Pipe::new("common").and(HeadersDefault::empty().add("x-powered-by", "reign")));
     r.pipe(Pipe::new("app").and(HeadersDefault::empty().add("x-content-type-options", "nosniff")));
     r.pipe(Pipe::new("timer").and(Runtime::default()));
     r.pipe(
         Pipe::new("api")
             .and(HeadersDefault::empty().add("x-version", "1.0"))
-            .and(HeadersDefault::empty().add("content-type", "application/json"))
+            .and(HeadersDefault::empty().add("content-type", "application/json")),
     );
 
-    // scope!("", [common, app], {
-    //     to!(get, "str", str_);
-    //     to!(get, "string", string);
-    //     to!(get, "response", response);
+    r.scope(Scope::empty().through(&["common", "app"]).to(|r| {
+        r.get(Path::new("str"), str_);
+        r.get(Path::new("string"), string);
+        r.get(Path::new("response"), response);
 
-    //     to!(get, "error", error);
+        r.get(Path::new("error"), error);
 
-    //     to!(post, "post", post);
-    //     to!(put, "put", put);
-    //     to!(patch, "patch", patch);
-    //     to!(delete, "delete", delete);
+        r.post(Path::new("post"), post);
+        r.put(Path::new("put"), put);
+        r.patch(Path::new("patch"), patch);
+        r.delete(Path::new("delete"), delete);
 
-    //     to!([post, put], "multi_methods", multi_methods);
+        r.any(
+            &[Method::POST, Method::PUT],
+            Path::new("multi_methods"),
+            multi_methods,
+        );
 
-    //     scope!("scope_static", {
-    //         get!("", scope_static);
-    //     });
+        r.scope(Scope::new(Path::new("scope_static")).to(|r| {
+            r.get(Path::empty(), scope_static);
+        }));
 
-    //     scope!("pipe", [timer], {
-    //         get!("", pipe);
-    //     });
+        r.scope(Scope::new(Path::new("pipe")).through(&["timer"]).to(|r| {
+            r.get(Path::empty(), pipe);
+        }));
 
-    //     scope!("pipe_empty", [], {
-    //         get!("", pipe_empty);
-    //     });
+        r.get(Path::new("param").param("id"), param);
+        r.get(Path::new("param_opt").param_opt("id"), param_opt);
 
-    //     get!("param" / id, param);
-    //     get!("param_optional" / id: Option<String>, param_optional);
+        r.get(
+            Path::new("param_regex").param_regex("id", "[0-9]+"),
+            param_regex,
+        );
+        r.get(
+            Path::new("param_opt_regex").param_opt_regex("id", "[0-9]+"),
+            param_opt_regex,
+        );
 
-    //     get!("param_regex" / id @ "[0-9]+", param_regex);
-    //     get!("param_optional_regex" / id: Option<String> @ "[0-9]+", param_optional_regex);
+        r.get(Path::new("param_glob").param_glob("id"), param_glob);
+        r.get(
+            Path::new("param_opt_glob").param_opt_glob("id"),
+            param_opt_glob,
+        );
 
-    //     get!("param_glob" / id: Vec<String>, param_glob);
-    //     get!(
-    //         "param_optional_glob" / id: Option<Vec<String>>,
-    //         param_optional_glob
-    //     );
+        r.get(Path::new("param_typed").param::<i32>("id"), param_typed);
+
+        r.scope(Scope::new(Path::new("scope_param").param("id")).to(|r| {
+            r.get(Path::new("bar"), scope_param);
+        }));
+
+        r.scope(
+            Scope::new(Path::new("scope_param_opt").param_opt("id")).to(|r| {
+                r.get(Path::new("bar"), scope_param_opt);
+            }),
+        );
+    }));
 
     //     get!(
     //         "param_glob_middle" / id: Vec<String> / "foo",
@@ -68,13 +83,6 @@ fn router(r: &mut Router) {
     //         "param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
     //         param_optional_glob_middle
     //     );
-
-    //     scope!("scope_param" / id, {
-    //         get!("bar", scope_param);
-    //     });
-    //     scope!("scope_param_optional" / id: Option<String>, {
-    //         get!("bar", scope_param_optional);
-    //     });
 
     //     scope!("scope_param_regex" / id @ "[0-9]+", {
     //         get!("bar", scope_param_regex);
