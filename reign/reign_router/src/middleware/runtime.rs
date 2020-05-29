@@ -33,6 +33,8 @@ pub struct Runtime {
     header: &'static str,
 }
 
+impl crate::router::Middleware for Runtime {}
+
 impl Runtime {
     pub fn new(header: &'static str) -> Self {
         if header.to_lowercase() != header {

@@ -76,6 +76,6 @@ impl Response for HyperResponse<Body> {
 impl Response for TideResponse {
     #[inline]
     fn tide_response(self) -> TideResponse {
-        self.into()
+        self
     }
 }

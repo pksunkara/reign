@@ -10,6 +10,7 @@ pub mod builder;
 pub mod middleware;
 pub mod query;
 mod response;
+pub mod router;
 
 pub use response::Response;
 
