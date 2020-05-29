@@ -20,12 +20,6 @@ async fn server() {
 
     let world = warp::path("world").map(|| redirect!("/"));
 
-    let hey = warp::path("hey").map(|| {
-        let msg = "Hey Warp!";
-
-        render!(app, status = 404)
-    });
-
     let json = warp::path("json").map(|| {
         let user = User {
             name: "Warp".to_string(),
@@ -34,15 +28,7 @@ async fn server() {
         json!(user)
     });
 
-    let json_err = warp::path("json_err").map(|| {
-        let user = User {
-            name: "Warp".to_string(),
-        };
-
-        json!(user, status = 422)
-    });
-
-    let app = hello.or(world).or(hey).or(json).or(json_err);
+    let app = hello.or(world).or(json);
 
     warp::serve(app).run(([127, 0, 0, 1], 8080)).await
 }

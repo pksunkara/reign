@@ -21,12 +21,6 @@ async fn world(_: HttpRequest) -> impl Responder {
     redirect!("/")
 }
 
-async fn hey(_: HttpRequest) -> impl Responder {
-    let msg = "Hey Actix!";
-
-    render!(app, status = 404)
-}
-
 async fn json(_: HttpRequest) -> impl Responder {
     let user = User {
         name: "Actix".to_string(),
@@ -35,22 +29,12 @@ async fn json(_: HttpRequest) -> impl Responder {
     json!(user)
 }
 
-async fn json_err(_: HttpRequest) -> impl Responder {
-    let user = User {
-        name: "Actix".to_string(),
-    };
-
-    json!(user, status = 422)
-}
-
 async fn server() {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(hello))
             .route("/world", web::get().to(world))
-            .route("/hey", web::get().to(hey))
             .route("/json", web::get().to(json))
-            .route("/json_err", web::get().to(json_err))
     })
     .bind("127.0.0.1:8080")
     .unwrap()

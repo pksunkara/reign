@@ -26,12 +26,6 @@ fn world(state: State) -> (State, Response<Body>) {
     (state, redirect!("/"))
 }
 
-fn hey(state: State) -> (State, Response<Body>) {
-    let msg = "Hey Gotham!";
-
-    (state, render!(app, status = 404))
-}
-
 fn json(state: State) -> (State, Response<Body>) {
     let user = User {
         name: "Gotham".to_string(),
@@ -40,21 +34,11 @@ fn json(state: State) -> (State, Response<Body>) {
     (state, json!(user))
 }
 
-fn json_err(state: State) -> (State, Response<Body>) {
-    let user = User {
-        name: "Gotham".to_string(),
-    };
-
-    (state, json!(user, status = 422))
-}
-
 fn router() -> Router {
     build_simple_router(|route| {
         route.get("/").to(hello);
         route.get("/world").to(world);
-        route.get("/hey").to(hey);
         route.get("/json").to(json);
-        route.get("/json_err").to(json_err);
     })
 }
 

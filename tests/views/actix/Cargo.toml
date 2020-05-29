@@ -1,0 +1,15 @@
+[package]
+name = "integrations_views_actix"
+version = "0.0.0"
+authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+reign = { path = "../../../reign", features = ["view-actix", "json"], default-features = false }
+actix-web = "3.0.0-alpha.3"
+actix-rt = "1.1.1"
+serde = { version = "1.0.110", features = ["derive"] }
+
+[dev-dependencies]
+test_integrations = { path = "../../../reign/development/test_integrations" }

@@ -20,7 +20,10 @@ async fn test_gotham() {
 
         let (chain, pipelines) = single_pipeline(
             new_pipeline()
-                .add(ContentType::default().multipart())
+                .add({
+                    let b = ContentType::default().multipart();
+                    b
+                })
                 .build(),
         );
 

@@ -4,9 +4,21 @@ use syn::{FnArg, ItemFn, Pat, Signature};
 
 pub fn action(input: ItemFn) -> TokenStream {
     let ItemFn {
-        attrs, sig, block, ..
+        attrs,
+        sig,
+        block,
+        vis,
     } = input;
-    let Signature { ident, inputs, .. } = sig;
+    let Signature {
+        ident,
+        inputs,
+        constness,
+        asyncness,
+        unsafety,
+        fn_token,
+        output,
+        ..
+    } = sig;
 
     let args = inputs
         .iter()
@@ -24,19 +36,18 @@ pub fn action(input: ItemFn) -> TokenStream {
     if cfg!(feature = "router-actix") {
         quote! {
             #(#attrs)*
-            pub async fn #ident(
+            #vis #constness #asyncness #unsafety #fn_token #ident(
                 req: ::actix_web::HttpRequest,
             ) -> ::actix_web::HttpResponse {
-                use ::actix_web::Responder;
-
+                #[inline]
                 async fn _call(
                     req: &::actix_web::HttpRequest,
-                ) -> Result<impl Responder, crate::errors::Error> #block
+                ) #output #block
 
                 let _called = _call(&req).await;
 
                 match _called {
-                    Ok(r) => match r.respond_to(&req).await {
+                    Ok(r) => match r.actix_response(&req).await {
                         Ok(r) => r,
                         Err(e) => ::actix_web::HttpResponse::from_error(e.into()),
                     },
@@ -50,22 +61,20 @@ pub fn action(input: ItemFn) -> TokenStream {
     } else if cfg!(feature = "router-gotham") {
         quote! {
             #(#attrs)*
-            pub async fn #ident(
+            #vis #constness #asyncness #unsafety #fn_token #ident(
                 state: &mut ::gotham::state::State,
                 #inputs
             ) -> ::gotham::hyper::Response<::gotham::hyper::Body> {
-                use ::gotham::handler::IntoResponse;
-
                 #[inline]
                 async fn _call(
                     state: &mut ::gotham::state::State,
                     #inputs
-                ) -> Result<impl IntoResponse, crate::errors::Error> #block
+                ) #output #block
 
                 let _called = _call(state, #(#args),*).await;
 
                 match _called {
-                    Ok(r) => r.into_response(&state),
+                    Ok(r) => r.gotham_response(&state),
                     Err(e) => {
                         ::reign::log::error!("{}", e);
                         e.respond()
@@ -76,17 +85,18 @@ pub fn action(input: ItemFn) -> TokenStream {
     } else if cfg!(feature = "router-tide") {
         quote! {
             #(#attrs)*
-            pub async fn #ident(
+            #vis #constness #asyncness #unsafety #fn_token #ident(
                 req: ::tide::Request<()>,
             ) -> ::tide::Result<::tide::Response> {
+                #[inline]
                 async fn _call(
                     req: ::tide::Request<()>,
-                ) -> Result<impl Into<::tide::Response>, crate::errors::Error> #block
+                ) #output #block
 
                 let _called = _call(req).await;
 
                 let response = match _called {
-                    Ok(r) => r.into(),
+                    Ok(r) => r.tide_response(),
                     Err(e) => {
                         ::reign::log::error!("{}", e);
                         e.respond()

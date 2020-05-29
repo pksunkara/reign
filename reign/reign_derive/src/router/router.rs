@@ -5,10 +5,12 @@ use syn::{Expr, ItemFn, Stmt};
 
 pub fn router(input: ItemFn) -> TokenStream {
     let ItemFn {
-        attrs, sig, block, ..
+        attrs,
+        vis,
+        sig,
+        block,
     } = input;
 
-    let name = sig.ident;
     let mut saw_scope = false;
     let stmts = block.stmts;
 
@@ -24,7 +26,7 @@ pub fn router(input: ItemFn) -> TokenStream {
             _ => {}
         }
 
-        return saw_scope;
+        saw_scope
     });
 
     // TODO:(router) No need for macros
@@ -32,78 +34,61 @@ pub fn router(input: ItemFn) -> TokenStream {
     if cfg!(feature = "router-actix") {
         quote! {
             #(#attrs)*
-            pub async fn #name<A>(addr: A) -> std::io::Result<()>
-            where
-                A: std::net::ToSocketAddrs + Send + 'static
+            #vis #sig
             {
-                ::actix_web::HttpServer::new(|| {
-                    let mut app = ::actix_web::App::new();
+                fn configure(config: &mut ::actix_web::web::ServiceConfig) {
+                    config.service({
+                        let mut app = actix_web::web::scope("");
 
-                    #(#pipes)*
-                    #(#scopes)*
+                        #(#pipes)*
+                        #(#scopes)*
 
-                    app
-                })
-                .bind(addr)
-                .unwrap()
-                .run()
-                .await
+                        app
+                    });
+                }
+
+                ::reign::router::Router::Actix(configure)
             }
         }
     } else if cfg!(feature = "router-gotham") {
         quote! {
             #(#attrs)*
-            pub async fn #name<A>(addr: A) -> Result<(), ()>
-            where
-                A: std::net::ToSocketAddrs + Send + 'static
+            #vis #sig
             {
-                use ::gotham::router::builder::{DrawRoutes, DefineSingleRoute};
+                use ::gotham::router::builder::*;
+                use ::reign::router::Router::Gotham;
 
-                ::gotham::init_server(
-                    addr,
-                    ::gotham::router::builder::build_simple_router(|route| {
-                        let pipelines = ::gotham::pipeline::set::new_pipeline_set();
+                Gotham(::gotham::router::builder::build_simple_router(|route| {
+                    let pipelines = ::gotham::pipeline::set::new_pipeline_set();
 
-                        #(#pipes)*
+                    #(#pipes)*
 
-                        let pipeline_set = ::gotham::pipeline::set::finalize_pipeline_set(pipelines);
+                    let pipeline_set = ::gotham::pipeline::set::finalize_pipeline_set(pipelines);
 
-                        route.delegate("").to_router(
-                            ::gotham::router::builder::build_router((), pipeline_set, |route| {
-                                let __chain = ();
+                    route.delegate("").to_router(
+                        ::gotham::router::builder::build_router((), pipeline_set, |route| {
+                            let __chain = ();
 
-                                #(#scopes)*
-                            })
-                        );
-                    })
-                ).await
+                            #(#scopes)*
+                        })
+                    );
+                }))
             }
         }
     } else if cfg!(feature = "router-tide") {
         quote! {
             #(#attrs)*
-            pub async fn #name<A>(addr: A) -> std::io::Result<()>
-            where
-                A: ::async_std::net::ToSocketAddrs + 'static
+            #vis #sig
             {
                 let mut app = ::tide::new();
 
                 #(#pipes)*
                 #(#scopes)*
 
-                app.listen(addr).await
+                ::reign::router::Router::Tide(app)
             }
         }
     } else {
-        quote! {
-            #(#attrs)*
-            pub async fn #name<A>(addr: A) -> std::io::Result<()>
-            where
-                A: ::async_std::net::ToSocketAddrs + 'static
-            {
-                #(#pipes)*
-                #(#scopes)*
-            }
-        }
+        quote! {}
     }
 }

@@ -1,82 +1,87 @@
 #![feature(proc_macro_hygiene)]
 
-use gotham::hyper::Response;
+use gotham::hyper;
 use reign::{
     prelude::*,
-    router::middleware::{HeadersDefault, Runtime},
+    router::{
+        middleware::{HeadersDefault, Runtime},
+        serve, Response, Router,
+    },
 };
 use serde_json::{from_str, to_string, Value};
 
 mod errors;
 
+use errors::Error;
+
 #[action]
-fn str_() {
+async fn str_() -> Result<impl Response, Error> {
     Ok("str")
 }
 
 #[action]
-fn string() {
+async fn string() -> Result<impl Response, Error> {
     Ok("string".to_string())
 }
 
 #[action]
-fn response() {
-    Ok(Response::new("response".into()))
+async fn response() -> Result<impl Response, Error> {
+    Ok(hyper::Response::new("response".into()))
 }
 
 #[action]
-fn error() {
+async fn error() -> Result<impl Response, Error> {
     let value = from_str::<Value>("{name}")?;
-    Ok(Response::new(to_string(&value)?.into()))
+    Ok(hyper::Response::new(to_string(&value)?.into()))
 }
 
 #[action]
-fn post() {
+async fn post() -> Result<impl Response, Error> {
     Ok("post")
 }
 
 #[action]
-fn put() {
+async fn put() -> Result<impl Response, Error> {
     Ok("put")
 }
 
 #[action]
-fn patch() {
+async fn patch() -> Result<impl Response, Error> {
     Ok("patch")
 }
 
 #[action]
-fn delete() {
+async fn delete() -> Result<impl Response, Error> {
     Ok("delete")
 }
 
 #[action]
-fn multi_methods() {
+async fn multi_methods() -> Result<impl Response, Error> {
     Ok("multi_methods")
 }
 
 #[action]
-fn scope_static() {
+async fn scope_static() -> Result<impl Response, Error> {
     Ok("scope_static")
 }
 
 #[action]
-fn pipe() {
+async fn pipe() -> Result<impl Response, Error> {
     Ok("pipe")
 }
 
 #[action]
-fn pipe_empty() {
+async fn pipe_empty() -> Result<impl Response, Error> {
     Ok("pipe_empty")
 }
 
 #[action]
-fn param(id: String) {
+async fn param(id: String) -> Result<impl Response, Error> {
     Ok(format!("param {}", id))
 }
 
 #[action]
-fn param_optional(id: Option<String>) {
+async fn param_optional(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional {}",
         match id {
@@ -87,12 +92,12 @@ fn param_optional(id: Option<String>) {
 }
 
 #[action]
-fn param_regex(id: String) {
+async fn param_regex(id: String) -> Result<impl Response, Error> {
     Ok(format!("param_regex {}", id))
 }
 
 #[action]
-fn param_optional_regex(id: Option<String>) {
+async fn param_optional_regex(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional_regex {}",
         match id {
@@ -102,19 +107,13 @@ fn param_optional_regex(id: Option<String>) {
     ))
 }
 
-// #[derive(Deserialize, StateData, StaticResponseExtender)]
-// struct OptPathExtractor {
-//     #[serde(rename = "*")]
-//     path: Option<Vec<String>>,
-// }
-
 #[action]
-fn param_glob(id: Vec<String>) {
+async fn param_glob(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("param_glob {}", id.join("/")))
 }
 
 #[action]
-fn param_optional_glob(id: Option<Vec<String>>) {
+async fn param_optional_glob(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional_glob {}",
         match id {
@@ -125,12 +124,12 @@ fn param_optional_glob(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn param_glob_middle(id: Vec<String>) {
+async fn param_glob_middle(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("param_glob_middle {}", id.join("/")))
 }
 
 #[action]
-fn param_optional_glob_middle(id: Option<Vec<String>>) {
+async fn param_optional_glob_middle(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "param_optional_glob_middle {}",
         match id {
@@ -141,12 +140,12 @@ fn param_optional_glob_middle(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn scope_param(id: String) {
+async fn scope_param(id: String) -> Result<impl Response, Error> {
     Ok(format!("scope_param {}", id))
 }
 
 #[action]
-fn scope_param_optional(id: Option<String>) {
+async fn scope_param_optional(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional {}",
         match id {
@@ -157,12 +156,12 @@ fn scope_param_optional(id: Option<String>) {
 }
 
 #[action]
-fn scope_param_regex(id: String) {
+async fn scope_param_regex(id: String) -> Result<impl Response, Error> {
     Ok(format!("scope_param_regex {}", id))
 }
 
 #[action]
-fn scope_param_optional_regex(id: Option<String>) {
+async fn scope_param_optional_regex(id: Option<String>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional_regex {}",
         match id {
@@ -173,12 +172,12 @@ fn scope_param_optional_regex(id: Option<String>) {
 }
 
 #[action]
-fn scope_param_glob(id: Vec<String>) {
+async fn scope_param_glob(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("scope_param_glob {}", id.join("/")))
 }
 
 #[action]
-fn scope_param_optional_glob(id: Option<Vec<String>>) {
+async fn scope_param_optional_glob(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional_glob {}",
         match id {
@@ -189,12 +188,12 @@ fn scope_param_optional_glob(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn scope_param_glob_middle(id: Vec<String>) {
+async fn scope_param_glob_middle(id: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("scope_param_glob_middle {}", id.join("/")))
 }
 
 #[action]
-fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
+async fn scope_param_optional_glob_middle(id: Option<Vec<String>>) -> Result<impl Response, Error> {
     Ok(format!(
         "scope_param_optional_glob_middle {}",
         match id {
@@ -205,35 +204,38 @@ fn scope_param_optional_glob_middle(id: Option<Vec<String>>) {
 }
 
 #[action]
-fn nested_scope(foo: String, bar: String) {
+async fn nested_scope(foo: String, bar: String) -> Result<impl Response, Error> {
     Ok(format!("nested_scope {} {}", foo, bar))
 }
 
 #[action]
-fn multi_params(foo: String, bar: String) {
+async fn multi_params(foo: String, bar: String) -> Result<impl Response, Error> {
     Ok(format!("multi_params {} {}", foo, bar))
 }
 
 #[action]
-fn multi_globs(foo: Vec<String>, bar: Vec<String>) {
+async fn multi_globs(foo: Vec<String>, bar: Vec<String>) -> Result<impl Response, Error> {
     Ok(format!("multi_globs {} {}", foo.join("/"), bar.join("/")))
 }
 
 #[router]
-fn router() {
-    pipe!(common, [
-        HeadersDefault::empty().add("x-powered-by", "reign"),
-    ]);
-    pipe!(app, [
-        HeadersDefault::empty().add("x-content-type-options", "nosniff"),
-    ]);
-    pipe!(timer, [
-        Runtime::default(),
-    ]);
-    pipe!(api, [
-        HeadersDefault::empty().add("x-version", "1.0"),
-        HeadersDefault::empty().add("content-type", "application/json"),
-    ]);
+fn router() -> Router {
+    pipe!(
+        common,
+        [HeadersDefault::empty().add("x-powered-by", "reign")]
+    );
+    pipe!(
+        app,
+        [HeadersDefault::empty().add("x-content-type-options", "nosniff")]
+    );
+    pipe!(timer, [Runtime::default()]);
+    pipe!(
+        api,
+        [
+            HeadersDefault::empty().add("x-version", "1.0"),
+            HeadersDefault::empty().add("content-type", "application/json"),
+        ]
+    );
 
     scope!("", [common, app], {
         to!(get, "str", str_);
@@ -340,7 +342,7 @@ fn router() {
 }
 
 async fn server() {
-    router("127.0.0.1:8080").await.unwrap()
+    serve("127.0.0.1:8080", router()).await.unwrap()
 }
 
 #[tokio::main]

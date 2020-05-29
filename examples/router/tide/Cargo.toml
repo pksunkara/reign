@@ -8,11 +8,11 @@ publish = false
 [dependencies]
 reign = { path = "../../../reign", features = ["router-tide"], default-features = false }
 tide = "0.8.1"
-tokio = { version = "0.2", features = ["full"] }
-anyhow = "1"
-thiserror = "1"
-serde_json = "1"
 async-std = "1"
+tokio = { version = "0.2.21", features = ["full"] }
+anyhow = "1.0.31"
+thiserror = "1.0.19"
+serde_json = "1.0.53"
 
 [dev-dependencies]
 test_examples = { path = "../../../reign/development/test_examples" }

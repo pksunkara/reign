@@ -22,6 +22,8 @@ pub struct HeadersDefault {
     headers: Vec<(&'static str, &'static str)>,
 }
 
+impl crate::router::Middleware for HeadersDefault {}
+
 impl HeadersDefault {
     pub fn new(headers: Vec<(&'static str, &'static str)>) -> Self {
         Self { headers }
@@ -74,6 +76,7 @@ where
 }
 
 #[cfg(feature = "router-actix")]
+#[allow(clippy::type_complexity)]
 impl<S, B> Service for HeadersDefaultMiddleware<S>
 where
     S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
@@ -105,8 +108,8 @@ where
 
             for (name, value) in &headers {
                 res.headers_mut().insert(
-                    HeaderName::from_lowercase(name).map_err(|x| HttpError::from(x))?,
-                    HeaderValue::from_str(value).map_err(|x| HttpError::from(x))?,
+                    HeaderName::from_lowercase(name).map_err(HttpError::from)?,
+                    HeaderValue::from_str(value).map_err(HttpError::from)?,
                 )
             }
 

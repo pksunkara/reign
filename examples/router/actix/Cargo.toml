@@ -8,10 +8,10 @@ publish = false
 [dependencies]
 reign = { path = "../../../reign", features = ["router-actix"], default-features = false }
 actix-web = "3.0.0-alpha.3"
-actix-rt = "1.0"
-anyhow = "1"
-thiserror = "1"
-serde_json = "1"
+actix-rt = "1.1.1"
+anyhow = "1.0.31"
+thiserror = "1.0.19"
+serde_json = "1.0.53"
 
 [dev-dependencies]
 test_examples = { path = "../../../reign/development/test_examples" }

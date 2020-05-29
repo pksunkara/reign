@@ -98,6 +98,7 @@ pub fn gotham(input: To) -> TokenStream {
                 route
                     .request(vec![#(::gotham::hyper::Method::#methods),*], #path)
                     #path_extractor
+                    .with_query_string_extractor::<::reign::router::query::Query>()
                     .to(#name);
             }
         })

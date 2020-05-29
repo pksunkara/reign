@@ -34,11 +34,11 @@ serde_json = { version = "1.0.53", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
-pretty_assertions = "0.6"
-version-sync = "0.8"
-actix-rt = "1.0"
-tokio = "0.2"
-reqwest = "0.10"
+pretty_assertions = "0.6.1"
+version-sync = "0.9.0"
+actix-rt = "1.1.1"
+tokio = "0.2.21"
+reqwest = "0.10.4"
 
 [features]
 default = []

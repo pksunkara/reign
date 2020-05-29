@@ -1,0 +1,13 @@
+[package]
+name = "examples_router_normal"
+version = "0.0.0"
+authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+reign = { path = "../../../reign", features = ["router"], default-features = false }
+tokio = { version = "0.2.21", features = ["full"] }
+
+[dev-dependencies]
+test_examples = { path = "../../../reign/development/test_examples" }

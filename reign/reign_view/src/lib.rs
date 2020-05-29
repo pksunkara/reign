@@ -559,7 +559,7 @@ pub fn redirect_tide<L: AsRef<str>>(location: L) -> tide::Response {
     };
 
     Response::new(StatusCode::SeeOther).set_header(
-        HeaderName::from_ascii("location".as_bytes().to_vec()).unwrap(),
+        HeaderName::from_ascii(b"location".to_vec()).unwrap(),
         location,
     )
 }

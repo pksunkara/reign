@@ -27,6 +27,8 @@ pub struct ContentType<'a> {
     subtypes: Vec<&'a str>, // TODO:(lifetime) Do I need the lifetime here?
 }
 
+impl<'a> crate::router::Middleware for ContentType<'a> {}
+
 impl<'a> ContentType<'a> {
     pub fn new(subtypes: Vec<&'a str>) -> Self {
         Self { subtypes }
@@ -89,6 +91,7 @@ where
 }
 
 #[cfg(feature = "router-actix")]
+#[allow(clippy::type_complexity)]
 impl<'a, S, B> Service for ContentTypeMiddleware<'a, S>
 where
     S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>,

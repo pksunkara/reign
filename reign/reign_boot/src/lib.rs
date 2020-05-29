@@ -2,8 +2,7 @@
 #![doc(html_root_url = "https://docs.rs/reign_boot/0.1.2")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-use dotenv;
-use env_logger;
+use dotenv::from_filename;
 use serde::Deserialize;
 use std::env;
 
@@ -26,12 +25,12 @@ fn build_env_file_heirarchy(environment: String) -> Vec<String> {
 fn load_env_files() {
     let environment = env::var("REIGN_ENV").unwrap_or_else(|_| "development".to_string());
 
-    dotenv::from_filename(".env").ok();
-    dotenv::from_filename(".env.local").ok();
+    from_filename(".env").ok();
+    from_filename(".env.local").ok();
 
     for item in build_env_file_heirarchy(environment) {
-        dotenv::from_filename(&format!(".env.{}", item)).ok();
-        dotenv::from_filename(&format!(".env.{}.local", item)).ok();
+        from_filename(&format!(".env.{}", item)).ok();
+        from_filename(&format!(".env.{}.local", item)).ok();
     }
 }
 

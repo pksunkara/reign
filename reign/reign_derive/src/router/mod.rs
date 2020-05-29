@@ -8,6 +8,7 @@ lazy_static! {
 
 mod action;
 mod pipeline;
+#[allow(clippy::module_inception)]
 mod router;
 mod scope;
 mod to;

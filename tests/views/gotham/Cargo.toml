@@ -1,0 +1,15 @@
+[package]
+name = "integrations_views_gotham"
+version = "0.0.0"
+authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+reign = { path = "../../../reign", features = ["view-gotham", "json"], default-features = false }
+gotham = "0.5.0-rc.1"
+tokio = { version = "0.2.21", features = ["full"] }
+serde = { version = "1.0.110", features = ["derive"] }
+
+[dev-dependencies]
+test_integrations = { path = "../../../reign/development/test_integrations" }

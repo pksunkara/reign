@@ -13,10 +13,10 @@ pub fn gotham(input: Scope) -> TokenStream {
 
     let pipes = if !pipe.is_empty() {
         let mut chains = vec![];
-        let mut iter = pipe.into_iter().map(|i| i);
+        let iter = pipe.into_iter().map(|i| i);
         let mut prev = Ident::new("__chain", Span::call_site());
 
-        while let Some(i) = iter.next() {
+        for i in iter {
             let name = Ident::new(&format!("{}_pipe", i), i.span());
             let chain = Ident::new(&format!("{}_chain", i), i.span());
 

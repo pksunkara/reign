@@ -1,4 +1,4 @@
-use crate::RouterTypeTrait;
+use super::RouterTypeTrait;
 use std::{
     collections::HashMap as Map,
     fmt::{Debug, Formatter, Result as FmtResult},
@@ -86,7 +86,7 @@ where
         }
     }
 
-    pub fn add<M>(mut self, middleware: M) -> Self
+    pub fn and<M>(mut self, middleware: M) -> Self
     where
         M: Middleware<S> + Debug,
         S: 'static,
@@ -109,6 +109,7 @@ impl<S> Pipes<RouterTypeTide, S>
 where
     S: Send + Sync + 'static,
 {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self { inner: Map::new() }
     }
@@ -139,11 +140,11 @@ mod test {
         let pipes = Pipes::<RouterTypeTide, _>::new()
             .pipe(
                 Pipe::new("common")
-                    .add(HeadersDefault::empty().add("x-1", "a"))
-                    .add(ContentType::empty().json())
+                    .and(HeadersDefault::empty().add("x-1", "a"))
+                    .and(ContentType::empty().json())
                     .build(),
             )
-            .pipe(Pipe::new("timer").add(Runtime::default()).build());
+            .pipe(Pipe::new("timer").and(Runtime::default()).build());
 
         let mut app = tide::new();
 

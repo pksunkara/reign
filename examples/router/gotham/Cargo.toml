@@ -9,12 +9,12 @@ publish = false
 reign = { path = "../../../reign", features = ["router-gotham"], default-features = false }
 gotham = "0.5.0-rc.1"
 gotham_derive = "0.5.0-rc.1"
-futures = "0.3"
-tokio = { version = "0.2", features = ["full"] }
-anyhow = "1"
-thiserror = "1"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+futures = "0.3.5"
+tokio = { version = "0.2.21", features = ["full"] }
+anyhow = "1.0.31"
+thiserror = "1.0.19"
+serde_json = "1.0.53"
+serde = { version = "1.0.110", features = ["derive"] }
 
 [dev-dependencies]
 test_examples = { path = "../../../reign/development/test_examples" }
