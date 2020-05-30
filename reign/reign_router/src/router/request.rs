@@ -3,6 +3,7 @@ use crate::router::{
     ParamError,
 };
 use std::{collections::HashMap as Map, net::SocketAddr};
+use url::form_urlencoded::parse;
 
 #[derive(Debug, Clone)]
 pub struct Request {
@@ -12,6 +13,7 @@ pub struct Request {
     pub(crate) uri: Uri,
     pub(crate) headers: HeaderMap,
     pub(crate) params: Map<String, String>,
+    pub(crate) query: Map<String, String>,
 }
 
 impl Request {
@@ -23,6 +25,11 @@ impl Request {
             uri: req.uri().clone(),
             headers: req.headers().clone(),
             params: Map::new(),
+            query: req
+                .uri()
+                .query()
+                .map(|v| parse(v.as_bytes()).into_owned().collect())
+                .unwrap_or_else(Map::new),
         }
     }
 
@@ -49,6 +56,10 @@ impl Request {
     #[inline]
     pub fn headers(&self) -> &HeaderMap {
         &self.headers
+    }
+
+    pub fn query(&self, name: &str) -> Option<&String> {
+        self.query.get(name)
     }
 
     pub fn param(&self, name: &str) -> Result<String, ParamError> {

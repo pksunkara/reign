@@ -1,6 +1,6 @@
 // use percent_encoding::utf8_percent_encode;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum PathPart<'a> {
     Static(&'a str),
     Param(&'a str),
@@ -9,7 +9,7 @@ enum PathPart<'a> {
     ParamOptRegex(&'a str, &'a str),
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Path<'a> {
     parts: Vec<PathPart<'a>>,
 }

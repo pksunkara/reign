@@ -3,18 +3,19 @@ use crate::router::{
     Error, Path, Request,
 };
 use futures::prelude::*;
+use std::sync::Arc;
 
 pub(crate) type Handler = Box<dyn Fn(Request) -> HandlerReturn + Send + Sync + 'static>;
 pub(crate) type HandlerReturn =
     Box<dyn Future<Output = Result<Response<Body>, Error>> + Send + 'static>;
-pub(crate) type Constraint = Box<dyn Fn(Request) -> bool + Send + Sync + 'static>;
+pub(crate) type Constraint = Box<dyn Fn(&Request) -> bool + Send + Sync + 'static>;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub(crate) struct Route<'a> {
     pub(crate) path: Path<'a>,
     pub(crate) methods: Vec<Method>,
-    pub(crate) handler: Option<Handler>,
-    pub(crate) constraint: Option<Constraint>,
+    pub(crate) handler: Option<Arc<Handler>>,
+    pub(crate) constraint: Option<Arc<Constraint>>,
 }
 
 impl<'a> Route<'a> {
@@ -39,15 +40,15 @@ impl<'a> Route<'a> {
         R: Future<Output = Result<Response<Body>, Error>> + Send + 'static,
     {
         let handler: Handler = Box::new(move |req: Request| Box::new(handler(req)));
-        self.handler = Some(Box::new(handler));
+        self.handler = Some(Arc::new(Box::new(handler)));
         self
     }
 
     pub(crate) fn constraint<C>(mut self, constraint: C) -> Self
     where
-        C: Fn(Request) -> bool + Send + Sync + 'static,
+        C: Fn(&Request) -> bool + Send + Sync + 'static,
     {
-        self.constraint = Some(Box::new(constraint));
+        self.constraint = Some(Arc::new(Box::new(constraint)));
         self
     }
 

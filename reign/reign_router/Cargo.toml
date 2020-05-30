@@ -28,6 +28,7 @@ warp = { version = "0.2.2", optional = true }
 serde = { version = "1.0.110", optional = true, features = ["derive"] }
 chrono = "0.4.11"
 hyper = "0.13.5"
+url = "2.1.1"
 mime = "0.3.16"
 futures = "0.3.5"
 tokio = "0.2.21"

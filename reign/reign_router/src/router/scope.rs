@@ -1,11 +1,12 @@
-use crate::router::{Constraint, Index, Path, Request, Router};
+use crate::router::{Constraint, Path, Request, RouteRef, Router};
+use std::sync::Arc;
 
 #[derive(Default)]
 pub struct Scope<'a> {
     pub(crate) path: Path<'a>,
     pub(crate) pipes: Vec<&'a str>,
     pub(crate) router: Router<'a>,
-    pub(crate) constraint: Option<Constraint>,
+    pub(crate) constraint: Option<Arc<Constraint>>,
 }
 
 impl<'a> Scope<'a> {
@@ -41,13 +42,17 @@ impl<'a> Scope<'a> {
 
     pub fn constraint<C>(mut self, constraint: C) -> Self
     where
-        C: Fn(Request) -> bool + Send + Sync + 'static,
+        C: Fn(&Request) -> bool + Send + Sync + 'static,
     {
-        self.constraint = Some(Box::new(constraint));
+        self.constraint = Some(Arc::new(Box::new(constraint)));
         self
     }
 
-    pub(crate) fn regex(&self) -> (String, Vec<(Vec<Index>, (String, String))>) {
+    pub(crate) fn regex(&self) -> (String, Vec<(String, String)>) {
         (self.path.regex(), self.router.regex())
+    }
+
+    pub(crate) fn refs(&self) -> (Option<Arc<Constraint>>, Vec<RouteRef>) {
+        (self.constraint.clone(), self.router.refs())
     }
 }
