@@ -133,15 +133,6 @@ pub async fn test(bad_method_status: StatusCode) {
     assert!(res.headers().contains_key("x-runtime"));
     assert_eq!(res.text().await.unwrap(), "pipe");
 
-    url = "http://localhost:8080/pipe_empty";
-
-    let res = client.get(url).send().await.unwrap();
-
-    assert_eq!(res.status(), StatusCode::OK);
-    assert!(res.headers().contains_key("x-powered-by"));
-    assert!(res.headers().contains_key("x-content-type-options"));
-    assert_eq!(res.text().await.unwrap(), "pipe_empty");
-
     url = "http://localhost:8080/param/foobar";
 
     let res = client.get(url).send().await.unwrap();

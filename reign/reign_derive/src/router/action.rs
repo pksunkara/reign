@@ -1,6 +1,26 @@
+use crate::{router::ty::subty_if_name, INTERNAL_ERR};
 use proc_macro2::TokenStream;
+use proc_macro_error::abort;
 use quote::quote;
-use syn::{FnArg, ItemFn, Pat, Signature};
+use syn::{spanned::Spanned, FnArg, Ident, ItemFn, LitStr, Pat, Signature, Type};
+
+fn arg_ident(arg: &FnArg) -> Ident {
+    if let FnArg::Typed(x) = arg {
+        if let Pat::Ident(x) = &*x.pat {
+            return x.ident.clone();
+        }
+    }
+
+    abort!(arg.span(), "expected a typed function arg with ident");
+}
+
+fn arg_ty(arg: &FnArg) -> Type {
+    if let FnArg::Typed(x) = arg {
+        return (*x.ty).clone();
+    }
+
+    abort!(arg.span(), "expected a typed function arg with clear ident");
+}
 
 pub fn action(input: ItemFn) -> TokenStream {
     let ItemFn {
@@ -20,18 +40,7 @@ pub fn action(input: ItemFn) -> TokenStream {
         ..
     } = sig;
 
-    let args = inputs
-        .iter()
-        .flat_map(|x| {
-            if let FnArg::Typed(x) = x {
-                if let Pat::Ident(x) = &*x.pat {
-                    return Some(x.ident.clone());
-                }
-            }
-
-            None
-        })
-        .collect::<Vec<_>>();
+    let args = inputs.iter().map(|x| arg_ident(x)).collect::<Vec<_>>();
 
     if cfg!(feature = "router-actix") {
         quote! {
@@ -107,6 +116,69 @@ pub fn action(input: ItemFn) -> TokenStream {
             }
         }
     } else {
-        quote! {}
+        let req = if let Some(arg) = inputs.first() {
+            arg
+        } else {
+            abort!(
+                inputs.span(),
+                "expected atleast one argument denoting Request"
+            );
+        };
+
+        let req_ident = args.first().expect(INTERNAL_ERR);
+        let idents = args.iter().skip(1).collect::<Vec<_>>();
+        let assignments = inputs
+            .iter()
+            .skip(1)
+            .map(|x| {
+                let ident = arg_ident(x);
+                let lit = LitStr::new(&ident.to_string(), ident.span());
+                let ty = arg_ty(x);
+
+                let (fn_name, ty) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                    (quote! { param_glob }, ty)
+                } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
+                    if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                        (quote! { param_opt_glob }, ty)
+                    } else {
+                        (quote! { param_opt }, ty)
+                    }
+                } else {
+                    (quote! { param }, ty)
+                };
+
+                // TODO: typed
+                quote! {
+                    let #ident = #req_ident.#fn_name(#lit)?;
+                }
+            })
+            .collect::<Vec<_>>();
+
+        quote! {
+            #(#attrs)*
+            #vis #constness #asyncness #unsafety #fn_token #ident(
+                #req
+            ) -> Result<
+                ::reign::router::router::hyper::Response<::reign::router::router::hyper::Body>,
+                ::reign::router::router::Error
+            > {
+                #[inline]
+                async fn _call(
+                    #inputs
+                ) #output #block
+
+                #(#assignments)*
+
+                let _called = _call(#req_ident, #(#idents),*).await;
+
+                match _called {
+                    Ok(r) => Ok(r.respond()?),
+                    Err(e) => {
+                        ::reign::log::error!("{}", e);
+                        Ok(e.respond()?)
+                    },
+                }
+            }
+        }
     }
 }

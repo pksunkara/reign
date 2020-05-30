@@ -1,10 +1,11 @@
-use crate::router::{Path, Router};
+use crate::router::{Constraint, Index, Path, Request, Router};
 
 #[derive(Default)]
 pub struct Scope<'a> {
     pub(crate) path: Path<'a>,
     pub(crate) pipes: Vec<&'a str>,
     pub(crate) router: Router<'a>,
+    pub(crate) constraint: Option<Constraint>,
 }
 
 impl<'a> Scope<'a> {
@@ -12,10 +13,14 @@ impl<'a> Scope<'a> {
         Self::default()
     }
 
-    pub fn new(path: Path<'a>) -> Self {
-        let mut ret = Self::default();
-        ret.path = path;
-        ret
+    pub fn new<P>(path: P) -> Self
+    where
+        P: Into<Path<'a>>,
+    {
+        Self {
+            path: path.into(),
+            ..Default::default()
+        }
     }
 
     pub fn through(mut self, pipes: &[&'a str]) -> Self {
@@ -27,10 +32,22 @@ impl<'a> Scope<'a> {
     where
         R: Fn(&mut Router),
     {
-        let mut router = Router::default();
+        let mut router = Router::in_scope();
         router_fn(&mut router);
 
         self.router = router;
         self
+    }
+
+    pub fn constraint<C>(mut self, constraint: C) -> Self
+    where
+        C: Fn(Request) -> bool + Send + Sync + 'static,
+    {
+        self.constraint = Some(Box::new(constraint));
+        self
+    }
+
+    pub(crate) fn regex(&self) -> (String, Vec<(Vec<Index>, (String, String))>) {
+        (self.path.regex(), self.router.regex())
     }
 }

@@ -8,6 +8,10 @@ publish = false
 [dependencies]
 reign = { path = "../../../reign", features = ["router"], default-features = false }
 tokio = { version = "0.2.21", features = ["full"] }
+anyhow = "1.0.31"
+thiserror = "1.0.19"
+serde_json = "1.0.53"
+env_logger = "0.7.1"
 
 [dev-dependencies]
 test_examples = { path = "../../../reign/development/test_examples" }

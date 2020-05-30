@@ -13,6 +13,9 @@ mod views;
 
 mod utils;
 
+pub(crate) const INTERNAL_ERR: &'static str =
+    "Internal error on reign_derive. Please create an issue on https://github.com/pksunkara/reign";
+
 /// Auto load the views from the given directory.
 ///
 /// Folder names should start with an alphabet and end with alphanumeric
@@ -125,6 +128,7 @@ pub fn json(input: TokenStream) -> TokenStream {
 
 #[cfg(feature = "router")]
 #[proc_macro_attribute]
+#[proc_macro_error]
 pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::ItemFn = parse_macro_input!(input);
 
