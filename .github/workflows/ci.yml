@@ -61,23 +61,15 @@ jobs:
           override: true
       - name: Test
         if: matrix.type == 'test'
-        shell: bash
-        run: |
-          cd reign
-          cargo test --all-features --target ${{ matrix.target }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features --target ${{ matrix.target }}
       - name: Test Example
         if: matrix.type != 'test'
         shell: bash
         run: |
           if [-d examples/${{ matrix.type }}]; then
             cd examples/${{ matrix.type }}
-            cargo test
-          fi
-      - name: Test Integration
-        if: matrix.type != 'test'
-        shell: bash
-        run: |
-          if [-d tests/${{ matrix.type }}]; then
-            cd tests/${{ matrix.type }}
             cargo test
           fi

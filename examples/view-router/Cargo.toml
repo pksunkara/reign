@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../reign", features = ["view-router", "router"], default-features = false }
+reign = { path = "../..", features = ["view-router", "router"], default-features = false }
 tokio = { version = "0.2.21", features = ["full"] }
 serde = { version = "1.0.110", features = ["derive"] }
 

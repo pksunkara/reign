@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../../reign", features = ["router"], default-features = false }
+reign = { path = "../..", features = ["router"], default-features = false }
 tokio = { version = "0.2.21", features = ["full"] }
 anyhow = "1.0.31"
 thiserror = "1.0.19"
