@@ -1,4 +1,4 @@
-use crate::router::{Constraint, Path, Request, RouteRef, Router};
+use crate::{Constraint, Path, Request, RouteRef, Router};
 use std::sync::Arc;
 
 #[derive(Default)]

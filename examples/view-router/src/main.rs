@@ -1,9 +1,6 @@
 use reign::{
     prelude::*,
-    router::router::{
-        hyper::{Body, Response},
-        serve, Error, Request, Router,
-    },
+    router::{futures::FutureExt, serve, HandleFuture, Request, Router},
 };
 
 #[derive(serde::Serialize)]
@@ -13,36 +10,48 @@ struct User {
 
 views!("src", "views");
 
-async fn index(_: Request) -> Result<Response<Body>, Error> {
-    let msg = "Hello Reign!";
+fn index(_: &mut Request) -> HandleFuture {
+    async {
+        let msg = "Hello Reign!";
 
-    Ok(render!(app)?)
+        Ok(render!(app)?)
+    }
+    .boxed()
 }
 
-async fn world(_: Request) -> Result<Response<Body>, Error> {
-    Ok(redirect("/")?)
+fn world(_: &mut Request) -> HandleFuture {
+    async { Ok(redirect("/")?) }.boxed()
 }
 
-async fn hey(_: Request) -> Result<Response<Body>, Error> {
-    let msg = "Hey Reign!";
+fn hey(_: &mut Request) -> HandleFuture {
+    async {
+        let msg = "Hey Reign!";
 
-    Ok(render!(app, status = 404)?)
+        Ok(render!(app, status = 404)?)
+    }
+    .boxed()
 }
 
-async fn json(_: Request) -> Result<Response<Body>, Error> {
-    let user = User {
-        name: "Reign".to_string(),
-    };
+fn json(_: &mut Request) -> HandleFuture {
+    async {
+        let user = User {
+            name: "Reign".to_string(),
+        };
 
-    Ok(json!(user)?)
+        Ok(json!(user)?)
+    }
+    .boxed()
 }
 
-async fn json_err(_: Request) -> Result<Response<Body>, Error> {
-    let user = User {
-        name: "Reign".to_string(),
-    };
+fn json_err(_: &mut Request) -> HandleFuture {
+    async {
+        let user = User {
+            name: "Reign".to_string(),
+        };
 
-    Ok(json!(user, status = 422)?)
+        Ok(json!(user, status = 422)?)
+    }
+    .boxed()
 }
 
 fn router(r: &mut Router) {

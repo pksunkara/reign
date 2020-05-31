@@ -16,7 +16,6 @@ readme = "README.md"
 proc-macro = true
 
 [dependencies]
-reign_view = { path = "../reign_view", version = "0.1.2" }
 syn = { version = "1.0.22", features = ["full"] }
 quote = "1.0.6"
 proc-macro-error = "1.0.2"
@@ -24,6 +23,7 @@ proc-macro2 = "1.0.13"
 regex = "1.3.7"
 Inflector = "0.11.4"
 lazy_static = "1.4.0"
+reign_view = { path = "../reign_view", version = "0.1.2", optional = true }
 
 [dev-dependencies]
 reign = { path = "../", features = ["view-router"] }
@@ -33,7 +33,7 @@ trybuild = "1.0"
 [features]
 default = []
 doc = []
-view = []
+view = ["reign_view"]
 view-router = ["view", "router"]
 router = []
 

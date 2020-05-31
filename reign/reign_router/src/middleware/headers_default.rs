@@ -1,8 +1,8 @@
-use crate::router::{
+use crate::{
+    futures::FutureExt,
     hyper::header::{HeaderName, HeaderValue},
     Chain, HandleFuture, Middleware, Request,
 };
-use futures::FutureExt;
 
 #[derive(Debug, Clone)]
 pub struct HeadersDefault {

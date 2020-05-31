@@ -1,5 +1,5 @@
-use reign::router::router::{
-    hyper::{http::Error as HttpError, Body, Response as HyperResponse, StatusCode},
+use reign::router::{
+    hyper::{http::Error as HttpError, Body, Response as Res, StatusCode},
     Response,
 };
 use thiserror::Error;
@@ -13,12 +13,12 @@ pub enum Error {
 }
 
 impl Response for Error {
-    fn respond(self) -> Result<HyperResponse<Body>, HttpError> {
+    fn respond(self) -> Result<Res<Body>, HttpError> {
         match self {
-            Self::Serde(_) => HyperResponse::builder()
+            Self::Serde(_) => Res::builder()
                 .status(StatusCode::UNPROCESSABLE_ENTITY)
                 .body(Body::empty()),
-            _ => HyperResponse::builder()
+            _ => Res::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(Body::empty()),
         }

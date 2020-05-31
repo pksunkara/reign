@@ -1,8 +1,8 @@
-use crate::router::{
+use crate::{
+    futures::FutureExt,
     hyper::{header::CONTENT_TYPE, Body, Response, StatusCode},
     Chain, HandleFuture, Middleware, Request,
 };
-use futures::FutureExt;
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
 #[derive(Debug, Clone)]

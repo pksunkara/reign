@@ -84,26 +84,27 @@ pub fn action(input: ItemFn) -> TokenStream {
         #(#attrs)*
         #vis #constness #asyncness #unsafety #fn_token #ident(
             #req
-        ) -> Result<
-            ::reign::router::router::hyper::Response<::reign::router::router::hyper::Body>,
-            ::reign::router::router::Error
-        > {
-            #[inline]
-            async fn _call(
-                #inputs
-            ) #output #block
+        ) -> ::reign::router::HandleFuture {
+            use ::reign::router::futures::FutureExt;
 
-            #(#assignments)*
+            async move {
+                #[inline]
+                async fn _call(
+                    #inputs
+                ) #output #block
 
-            let _called = _call(#req_ident, #(#idents),*).await;
+                #(#assignments)*
 
-            match _called {
-                Ok(r) => Ok(r.respond()?),
-                Err(e) => {
-                    ::reign::log::error!("{}", e);
-                    Ok(e.respond()?)
-                },
-            }
+                let _called = _call(#req_ident, #(#idents),*).await;
+
+                match _called {
+                    Ok(r) => Ok(r.respond()?),
+                    Err(e) => {
+                        ::reign::log::error!("{}", e);
+                        Ok(e.respond()?)
+                    },
+                }
+            }.boxed()
         }
     }
 }

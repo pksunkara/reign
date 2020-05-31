@@ -1,4 +1,4 @@
-use crate::router::hyper::http::Error as HttpError;
+use crate::hyper::http::Error as HttpError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]

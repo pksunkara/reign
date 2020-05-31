@@ -1,8 +1,7 @@
 use futures::FutureExt;
-use reign_router::middleware::HeadersDefault;
-use reign_router::router::{
+use reign_router::{
     hyper::{body::to_bytes, Body, Request as Req, StatusCode},
-    service, HandleFuture, Pipe, Request, Response,
+    service, HandleFuture, Pipe, Request, Response, middleware::HeadersDefault
 };
 
 #[tokio::test]

@@ -1,9 +1,9 @@
-use crate::router::{
+use crate::{
+    futures::FutureExt,
     hyper::header::{HeaderName, HeaderValue},
-    HandleFuture, Middleware, INTERNAL_ERR,
+    Chain, HandleFuture, Middleware, Request, INTERNAL_ERR,
 };
 use chrono::prelude::Utc;
-use futures::FutureExt;
 
 fn dur_to_string(i: i64) -> String {
     if i < 1000 {
@@ -33,11 +33,7 @@ impl Runtime {
 }
 
 impl Middleware for Runtime {
-    fn handle<'m>(
-        &'m self,
-        req: &'m mut crate::router::Request,
-        chain: crate::router::Chain<'m>,
-    ) -> HandleFuture<'m> {
+    fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
         async move {
             let start = Utc::now();
             let mut response = chain.run(req).await?;

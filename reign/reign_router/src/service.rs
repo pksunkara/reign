@@ -1,4 +1,4 @@
-use crate::router::{
+use crate::{
     hyper::{Body, Request as HyperRequest, Response as HyperResponse, StatusCode},
     Chain, Constraint, Error, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR,
 };

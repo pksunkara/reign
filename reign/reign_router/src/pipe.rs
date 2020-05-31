@@ -1,4 +1,4 @@
-use crate::router::Middleware;
+use crate::Middleware;
 use std::sync::Arc;
 
 pub(crate) type MiddlewareItem = Box<dyn Middleware + Send + Sync + 'static>;
