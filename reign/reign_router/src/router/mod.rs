@@ -2,7 +2,7 @@ use futures::prelude::*;
 use hyper::{
     server::{conn::AddrStream, Server},
     service::{make_service_fn, service_fn},
-    Body, Error as HyperError, Method, Response as HyperResponse,
+    Error as HyperError, Method,
 };
 use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
 
@@ -24,11 +24,12 @@ pub use path::Path;
 pub use pipe::Pipe;
 pub use request::Request;
 pub use response::Response;
+pub use route::HandleFuture;
 pub use scope::Scope;
 pub use service::{service, Service};
 
 use pipe::MiddlewareItem;
-use route::{Constraint, Handler, HandlerReturn, Route};
+use route::{Constraint, Handler, Route};
 use service::RouteRef;
 
 pub(crate) const INTERNAL_ERR: &'static str =
@@ -37,11 +38,10 @@ pub(crate) const INTERNAL_ERR: &'static str =
 macro_rules! method {
     ($name:ident, $method:ident) => {
         #[inline]
-        pub fn $name<P, H, R>(&mut self, path: P, handler: H)
+        pub fn $name<P, H>(&mut self, path: P, handler: H)
         where
             P: Into<Path<'a>>,
-            H: Fn(Request) -> R + Send + Sync + 'static,
-            R: Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'static,
+            H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
         {
             self.any(&[Method::$method], path, handler);
         }
@@ -104,28 +104,26 @@ impl<'a> Router<'a> {
     method!(connect, CONNECT);
 
     /// Any of the given methods allowed
-    pub fn any<P, H, R>(&mut self, methods: &[Method], path: P, handler: H)
+    pub fn any<P, H>(&mut self, methods: &[Method], path: P, handler: H)
     where
         P: Into<Path<'a>>,
-        H: Fn(Request) -> R + Send + Sync + 'static,
-        R: Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'static,
+        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
         self.routes
             .push(Route::new(path).methods(methods).handler(handler));
     }
 
     /// All methods allowed
-    pub fn all<P, H, R>(&mut self, path: P, handler: H)
+    pub fn all<P, H>(&mut self, path: P, handler: H)
     where
         P: Into<Path<'a>>,
-        H: Fn(Request) -> R + Send + Sync + 'static,
-        R: Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'static,
+        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
         self.routes.push(Route::new(path).handler(handler));
     }
 
     /// Any of the given methods allowed with given constraint
-    pub fn any_with_constraint<P, C, H, R>(
+    pub fn any_with_constraint<P, C, H>(
         &mut self,
         methods: &[Method],
         path: P,
@@ -134,24 +132,22 @@ impl<'a> Router<'a> {
     ) where
         P: Into<Path<'a>>,
         C: Fn(&Request) -> bool + Send + Sync + 'static,
-        H: Fn(Request) -> R + Send + Sync + 'static,
-        R: Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'static,
+        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
         self.routes.push(
             Route::new(path)
                 .methods(methods)
                 .constraint(constraint)
-                .handler(handler),
+                .handler(move |req| handler(req)),
         );
     }
 
     /// All methods allowed with given constraint
-    pub fn all_with_constraint<P, C, H, R>(&mut self, path: P, constraint: C, handler: H)
+    pub fn all_with_constraint<P, C, H>(&mut self, path: P, constraint: C, handler: H)
     where
         P: Into<Path<'a>>,
         C: Fn(&Request) -> bool + Send + Sync + 'static,
-        H: Fn(Request) -> R + Send + Sync + 'static,
-        R: Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'static,
+        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
         self.routes
             .push(Route::new(path).constraint(constraint).handler(handler));

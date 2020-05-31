@@ -1,12 +1,13 @@
+use futures::FutureExt;
 use reign_router::router::{
-    hyper::{body::to_bytes, Body, Method, Request as Req, Response as Res, StatusCode},
-    service, Error, Request, Response,
+    hyper::{body::to_bytes, Body, Method, Request as Req, StatusCode},
+    service, HandleFuture, Request, Response,
 };
 
 #[tokio::test]
 async fn test_constraint() {
-    async fn index(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("index".respond()?)
+    fn index(_: &mut Request) -> HandleFuture {
+        async { Ok("index".respond()?) }.boxed()
     }
 
     let service = service(|r| {

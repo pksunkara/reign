@@ -1,6 +1,9 @@
+use crate::router::{
+    hyper::header::{HeaderName, HeaderValue},
+    HandleFuture, Middleware, INTERNAL_ERR,
+};
 use chrono::prelude::Utc;
-use futures::prelude::*;
-use std::pin::Pin;
+use futures::FutureExt;
 
 fn dur_to_string(i: i64) -> String {
     if i < 1000 {
@@ -14,16 +17,14 @@ fn dur_to_string(i: i64) -> String {
 
 #[derive(Debug, Clone)]
 pub struct Runtime {
-    header: &'static str,
+    header: HeaderName,
 }
 
 impl Runtime {
-    pub fn new(header: &'static str) -> Self {
-        if header.to_lowercase() != header {
-            panic!("Only lowercase headers are allowed for Runtime middleware");
+    pub fn new(header: &str) -> Self {
+        Self {
+            header: HeaderName::from_lowercase(header.as_bytes()).unwrap(),
         }
-
-        Self { header }
     }
 
     pub fn default() -> Self {
@@ -31,22 +32,12 @@ impl Runtime {
     }
 }
 
-impl crate::router::Middleware for Runtime {
+impl Middleware for Runtime {
     fn handle<'m>(
         &'m self,
         req: &'m mut crate::router::Request,
         chain: crate::router::Chain<'m>,
-    ) -> Pin<
-        Box<
-            dyn Future<
-                    Output = Result<
-                        crate::router::hyper::Response<crate::router::hyper::Body>,
-                        crate::router::Error,
-                    >,
-                > + Send
-                + 'm,
-        >,
-    > {
+    ) -> HandleFuture<'m> {
         async move {
             let start = Utc::now();
             let mut response = chain.run(req).await?;
@@ -54,9 +45,8 @@ impl crate::router::Middleware for Runtime {
 
             if let Some(dur) = duration {
                 response.headers_mut().insert(
-                    self.header,
-                    crate::router::hyper::header::HeaderValue::from_str(&dur_to_string(dur))
-                        .unwrap(),
+                    self.header.clone(),
+                    HeaderValue::from_str(&dur_to_string(dur)).expect(INTERNAL_ERR),
                 );
             }
 

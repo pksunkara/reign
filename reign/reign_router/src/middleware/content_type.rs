@@ -1,5 +1,8 @@
-use futures::prelude::*;
-use std::pin::Pin;
+use crate::router::{
+    hyper::{header::CONTENT_TYPE, Body, Response, StatusCode},
+    Chain, HandleFuture, Middleware, Request,
+};
+use futures::FutureExt;
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
 #[derive(Debug, Clone)]
@@ -40,23 +43,9 @@ impl<'a> ContentType<'a> {
     }
 }
 
-impl<'a> crate::router::Middleware for ContentType<'a> {
-    fn handle<'m>(
-        &'m self,
-        req: &'m mut crate::router::Request,
-        chain: crate::router::Chain<'m>,
-    ) -> Pin<
-        Box<
-            dyn Future<
-                    Output = Result<
-                        crate::router::hyper::Response<crate::router::hyper::Body>,
-                        crate::router::Error,
-                    >,
-                > + Send
-                + 'm,
-        >,
-    > {
-        match req.headers.get(crate::router::hyper::header::CONTENT_TYPE) {
+impl<'a> Middleware for ContentType<'a> {
+    fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
+        match req.headers.get(CONTENT_TYPE) {
             Some(content_type) => {
                 if let Ok(content_type) = content_type.to_str() {
                     if let Ok(val) = content_type.parse::<Mime>() {
@@ -77,9 +66,9 @@ impl<'a> crate::router::Middleware for ContentType<'a> {
             }
         };
 
-        let response = crate::router::hyper::Response::builder()
-            .status(crate::router::hyper::StatusCode::UNSUPPORTED_MEDIA_TYPE)
-            .body(crate::router::hyper::Body::empty());
+        let response = Response::builder()
+            .status(StatusCode::UNSUPPORTED_MEDIA_TYPE)
+            .body(Body::empty());
 
         async { Ok(response?) }.boxed()
     }

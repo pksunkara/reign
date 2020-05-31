@@ -1,12 +1,13 @@
+use futures::FutureExt;
 use reign_router::router::{
-    hyper::{body::to_bytes, Body, Request as Req, Response as Res, StatusCode},
-    service, Error, Request, Response,
+    hyper::{body::to_bytes, Body, Request as Req, StatusCode},
+    service, HandleFuture, Request, Response,
 };
 
 #[tokio::test]
 async fn test_empty() {
-    async fn index(_: Request) -> Result<Res<Body>, Error> {
-        Ok("index".respond()?)
+    fn index(_: &mut Request) -> HandleFuture {
+        async { Ok("index".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -27,8 +28,8 @@ async fn test_empty() {
 
 #[tokio::test]
 async fn test_trailing_slash() {
-    async fn index(_: Request) -> Result<Res<Body>, Error> {
-        Ok("index".respond()?)
+    fn index(_: &mut Request) -> HandleFuture {
+        async { Ok("index".respond()?) }.boxed()
     }
 
     let service = service(|r| {

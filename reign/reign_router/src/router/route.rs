@@ -3,11 +3,11 @@ use crate::router::{
     Error, Path, Request,
 };
 use futures::prelude::*;
-use std::sync::Arc;
+use std::{pin::Pin, sync::Arc};
 
-pub(crate) type Handler = Box<dyn Fn(Request) -> HandlerReturn + Send + Sync + 'static>;
-pub(crate) type HandlerReturn =
-    Box<dyn Future<Output = Result<Response<Body>, Error>> + Send + 'static>;
+pub(crate) type Handler = Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>;
+pub type HandleFuture<'a> =
+    Pin<Box<dyn Future<Output = Result<Response<Body>, Error>> + Send + 'a>>;
 pub(crate) type Constraint = Box<dyn Fn(&Request) -> bool + Send + Sync + 'static>;
 
 #[derive(Default, Clone)]
@@ -34,12 +34,10 @@ impl<'a> Route<'a> {
         self
     }
 
-    pub(crate) fn handler<H, R>(mut self, handler: H) -> Self
+    pub(crate) fn handler<H>(mut self, handler: H) -> Self
     where
-        H: Fn(Request) -> R + Send + Sync + 'static,
-        R: Future<Output = Result<Response<Body>, Error>> + Send + 'static,
+        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
-        let handler: Handler = Box::new(move |req: Request| Box::new(handler(req)));
         self.handler = Some(Arc::new(Box::new(handler)));
         self
     }

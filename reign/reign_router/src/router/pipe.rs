@@ -16,7 +16,7 @@ impl<'a> Pipe<'a> {
         }
     }
 
-    pub fn and<M>(mut self, middleware: M) -> Self
+    pub fn add<M>(mut self, middleware: M) -> Self
     where
         M: Middleware + Send + Sync + 'static,
     {

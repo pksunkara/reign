@@ -1,6 +1,7 @@
+use futures::FutureExt;
 use reign_router::router::{
-    hyper::{body::to_bytes, Body, Method, Request as Req, Response as Res, StatusCode},
-    service, Error, Request, Response,
+    hyper::{body::to_bytes, Body, Method, Request as Req, StatusCode},
+    service, HandleFuture, Request, Response,
 };
 
 macro_rules! call {
@@ -27,8 +28,8 @@ macro_rules! call {
 
 #[tokio::test]
 async fn test_method_get() {
-    async fn get(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("get".respond()?)
+    fn get(_: &mut Request) -> HandleFuture {
+        async { Ok("get".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -64,8 +65,8 @@ async fn test_method_get() {
 
 #[tokio::test]
 async fn test_method_post() {
-    async fn post(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("post".respond()?)
+    fn post(_: &mut Request) -> HandleFuture {
+        async { Ok("post".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -101,8 +102,8 @@ async fn test_method_post() {
 
 #[tokio::test]
 async fn test_method_put() {
-    async fn put(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("put".respond()?)
+    fn put(_: &mut Request) -> HandleFuture {
+        async { Ok("put".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -138,8 +139,8 @@ async fn test_method_put() {
 
 #[tokio::test]
 async fn test_method_patch() {
-    async fn patch(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("patch".respond()?)
+    fn patch(_: &mut Request) -> HandleFuture {
+        async { Ok("patch".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -175,8 +176,8 @@ async fn test_method_patch() {
 
 #[tokio::test]
 async fn test_method_delete() {
-    async fn delete(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("delete".respond()?)
+    fn delete(_: &mut Request) -> HandleFuture {
+        async { Ok("delete".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -212,8 +213,8 @@ async fn test_method_delete() {
 
 #[tokio::test]
 async fn test_method_head() {
-    async fn head(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("head".respond()?)
+    fn head(_: &mut Request) -> HandleFuture {
+        async { Ok("head".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -249,8 +250,8 @@ async fn test_method_head() {
 
 #[tokio::test]
 async fn test_method_options() {
-    async fn options(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("options".respond()?)
+    fn options(_: &mut Request) -> HandleFuture {
+        async { Ok("options".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -286,8 +287,8 @@ async fn test_method_options() {
 
 #[tokio::test]
 async fn test_method_trace() {
-    async fn trace(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("trace".respond()?)
+    fn trace(_: &mut Request) -> HandleFuture {
+        async { Ok("trace".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -323,8 +324,8 @@ async fn test_method_trace() {
 
 #[tokio::test]
 async fn test_method_connect() {
-    async fn connect(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("connect".respond()?)
+    fn connect(_: &mut Request) -> HandleFuture {
+        async { Ok("connect".respond()?) }.boxed()
     }
 
     let service = service(|r| {
@@ -360,8 +361,8 @@ async fn test_method_connect() {
 
 #[tokio::test]
 async fn test_mutliple_methods() {
-    async fn index(_: &mut Request) -> Result<Res<Body>, Error> {
-        Ok("index".respond()?)
+    fn index(_: &mut Request) -> HandleFuture {
+        async { Ok("index".respond()?) }.boxed()
     }
 
     let service = service(|r| {
