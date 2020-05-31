@@ -33,7 +33,6 @@ pub fn action(input: ItemFn) -> TokenStream {
         ident,
         inputs,
         constness,
-        asyncness,
         unsafety,
         fn_token,
         output,
@@ -61,7 +60,8 @@ pub fn action(input: ItemFn) -> TokenStream {
             let lit = LitStr::new(&ident.to_string(), ident.span());
             let ty = arg_ty(x);
 
-            let (fn_name, ty) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+            // TODO:(router) Typed param
+            let (fn_name, _ty) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
                 (quote! { param_glob }, ty)
             } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
                 if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
@@ -82,7 +82,7 @@ pub fn action(input: ItemFn) -> TokenStream {
 
     quote! {
         #(#attrs)*
-        #vis #constness #asyncness #unsafety #fn_token #ident(
+        #vis #constness #unsafety #fn_token #ident(
             #req
         ) -> ::reign::router::HandleFuture {
             use ::reign::router::futures::FutureExt;

@@ -21,7 +21,7 @@ jobs:
         type:
           - test
           - view
-          # - view_reign
+          - view_router
           - router
           # - full
         rust: [nightly-2020-05-30]
@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: |
           cd reign
-          cargo test --all-features --target ${{ matrix.target }} -- --test-threads 1
+          cargo test --all-features --target ${{ matrix.target }}
       - name: Test Example
         if: matrix.type != 'test'
         shell: bash

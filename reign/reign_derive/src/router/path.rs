@@ -1,12 +1,10 @@
-use crate::router::ty::subty_if_name;
 use proc_macro2::TokenStream;
-use proc_macro_error::{abort, abort_call_site};
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::quote;
 use syn::{
     parse::{Parse, ParseStream, Result},
     punctuated::Punctuated,
-    token::{At, Brace, Bracket, Colon, Div, Question, Star},
-    Block, Expr, ExprMacro, Ident, LitStr, Macro, Stmt, Type,
+    token::{At, Brace, Bracket, Div, Question, Star},
+    Ident, LitStr,
 };
 
 #[derive(Clone)]
@@ -14,7 +12,6 @@ pub struct PathSegmentDynamic {
     pub ident: Ident,
     pub optional: bool,
     pub glob: bool,
-    pub ty: Option<Type>,
     pub regex: Option<LitStr>,
 }
 
@@ -24,55 +21,33 @@ impl PathSegmentDynamic {
             ident,
             optional: false,
             glob: false,
-            ty: None,
             regex: None,
         }
     }
+}
 
-    pub fn ty(&self) -> TokenStream {
-        let ty = if let Some(ty) = &self.ty {
-            quote!(#ty)
-        } else {
-            quote!(String)
-        };
+impl Parse for PathSegmentDynamic {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let mut ret = Self::new(input.parse()?);
 
-        let ty = if self.glob { quote!(Vec<#ty>) } else { ty };
+        while !input.is_empty() && !input.peek(Div) {
+            if input.peek(Question) {
+                input.parse::<Question>()?;
+                ret.optional = true;
+            }
 
-        if self.optional {
-            quote!(Option<#ty>)
-        } else {
-            ty
-        }
-    }
+            if input.peek(Star) {
+                input.parse::<Star>()?;
+                ret.glob = true;
+            }
 
-    fn parse(&mut self, input: ParseStream) -> Result<()> {
-        if input.peek(Colon) {
-            input.parse::<Colon>()?;
-            self.ty = Some(input.parse()?);
-        }
-
-        if input.peek(At) {
-            input.parse::<At>()?;
-            self.regex = Some(input.parse()?);
-        }
-
-        if let Some(ty) = self.ty.clone() {
-            if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                self.glob = true;
-                self.ty = Some(ty);
-            } else if let Some(ty) = subty_if_name(ty, "Option") {
-                self.optional = true;
-
-                if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                    self.glob = true;
-                    self.ty = Some(ty);
-                } else {
-                    self.ty = Some(ty);
-                }
+            if input.peek(At) {
+                input.parse::<At>()?;
+                ret.regex = Some(input.parse()?);
             }
         }
 
-        Ok(())
+        Ok(ret)
     }
 }
 
@@ -88,43 +63,8 @@ impl Parse for PathSegment {
             // TODO:(router) only allow url encoded strings
             Ok(PathSegment::Static(lit))
         } else {
-            let mut dynamic = PathSegmentDynamic::new(input.parse()?);
-
-            if input.peek(Question) {
-                input.parse::<Question>()?;
-                dynamic.optional = true;
-            } else if input.peek(Star) {
-                input.parse::<Star>()?;
-                dynamic.glob = true;
-
-                if input.peek(Question) {
-                    input.parse::<Question>()?;
-                    dynamic.optional = true;
-                }
-            } else {
-                dynamic.parse(input)?;
-            }
-
+            let dynamic: PathSegmentDynamic = input.parse()?;
             Ok(PathSegment::Dynamic(Box::new(dynamic)))
-        }
-    }
-}
-
-impl ToTokens for PathSegment {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            PathSegment::Static(s) => {
-                s.to_tokens(tokens);
-            }
-            PathSegment::Dynamic(d) => {
-                d.ident.to_tokens(tokens);
-                Colon::default().to_tokens(tokens);
-                tokens.append_all(d.ty());
-
-                if let Some(regex) = &d.regex {
-                    tokens.append_all(quote!(@ #regex));
-                }
-            }
         }
     }
 }
@@ -147,17 +87,40 @@ impl Parse for Path {
     }
 }
 
-impl Path {
-    pub fn add(paths: &mut Vec<Vec<String>>, val: String) {
-        for i in paths {
-            i.push(val.clone())
-        }
-    }
+pub fn path(input: Path) -> TokenStream {
+    input.segments.into_iter().fold(
+        quote! {
+            ::reign::router::Path::new()
+        },
+        |tokens, segment| match segment {
+            PathSegment::Static(lit) => quote! { #tokens.path(#lit) },
+            PathSegment::Dynamic(d) => {
+                let name = LitStr::new(&d.ident.to_string(), d.ident.span());
+                let method = Ident::new(
+                    &format!(
+                        "param{}{}",
+                        if d.optional { "_opt" } else { "" },
+                        if d.regex.is_some() {
+                            "_regex"
+                        } else if d.glob {
+                            "_glob"
+                        } else {
+                            ""
+                        }
+                    ),
+                    d.ident.span(),
+                );
 
-    pub fn optional(paths: &mut Vec<Vec<String>>, val: String) {
-        let mut duplicates = paths.clone();
+                let regex = if let Some(regex) = d.regex {
+                    quote! {
+                        , #regex
+                    }
+                } else {
+                    quote! {}
+                };
 
-        Self::add(&mut duplicates, val);
-        paths.append(&mut duplicates);
-    }
+                quote! { #tokens.#method(#name #regex) }
+            }
+        },
+    )
 }

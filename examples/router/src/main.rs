@@ -1,9 +1,8 @@
 use reign::{
     prelude::*,
     router::{
-        hyper::{Method, Response as Res},
-        middleware::HeadersDefault,
-        serve, Path, Pipe, Request, Response, Router,
+        hyper::Response as Res, middleware::HeadersDefault, serve, Path, Pipe, Request, Response,
+        Router,
     },
 };
 use serde_json::{from_str, to_string, Value};
@@ -134,74 +133,43 @@ fn router(r: &mut Router) {
 
         r.get("error", error);
 
-        r.get(Path::new().path("param").param("id"), param);
-        r.get(
-            Path::new().path("param_optional").param_opt("id"),
-            param_opt,
-        );
+        r.get(p!("param" / id), param);
+        r.get(p!("param_opt" / id?), param_opt);
 
-        r.get(
-            Path::new().path("param_regex").param_regex("id", "[0-9]+"),
-            param_regex,
-        );
-        r.get(
-            Path::new()
-                .path("param_optional_regex")
-                .param_opt_regex("id", "[0-9]+"),
-            param_opt_regex,
-        );
+        r.get(p!("param_regex" / id @ "[0-9]+"), param_regex);
+        r.get(p!("param_opt_regex" / id? @ "[0-9]+"), param_opt_regex);
 
         // r.get(Path::new().path("param_glob").param_glob("id"), param_glob);
         // r.get(
-        //     Path::new().path("param_optional_glob").param_opt_glob("id"),
+        //     Path::new().path("param_opt_glob").param_opt_glob("id"),
         //     param_opt_glob,
         // );
 
         // r.get(Path::new().path("param_typed").param::<i32>("id"), param_typed);
 
-        r.scope(Path::new().path("scope_param").param("id"), |r| {
+        r.scope(p!("scope_param" / id), |r| {
             r.get("bar", scope_param);
         });
 
-        r.scope(
-            Path::new().path("scope_param_optional").param_opt("id"),
-            |r| {
-                r.get("bar", scope_param_opt);
-            },
-        );
+        r.scope(p!("scope_param_opt" / id?), |r| {
+            r.get("bar", scope_param_opt);
+        });
 
-        r.scope(
-            Path::new()
-                .path("scope_param_regex")
-                .param_regex("id", "[0-9]+"),
-            |r| {
-                r.get("bar", scope_param_regex);
-            },
-        );
+        r.scope(p!("scope_param_regex" / id @ "[0-9]+"), |r| {
+            r.get("bar", scope_param_regex);
+        });
 
-        r.scope(
-            Path::new()
-                .path("scope_param_optional_regex")
-                .param_opt_regex("id", "[0-9]+"),
-            |r| {
-                r.get("bar", scope_param_opt_regex);
-            },
-        );
+        r.scope(p!("scope_param_opt_regex" / id? @ "[0-9]+"), |r| {
+            r.get("bar", scope_param_opt_regex);
+        });
 
-        r.scope(Path::new().path("nested_scope").param("id"), |r| {
-            r.scope(Path::new().path("foo").param("bar"), |r| {
+        r.scope(p!("nested_scope" / foo), |r| {
+            r.scope(p!("foo" / bar), |r| {
                 r.get("bar", nested_scope);
             });
         });
 
-        r.get(
-            Path::new()
-                .path("multi_params")
-                .param("foo")
-                .path("foo")
-                .param("bar"),
-            multi_params,
-        );
+        r.get(p!("multi_params" / foo / "foo" / bar), multi_params);
     });
 
     //     get!(
@@ -209,24 +177,24 @@ fn router(r: &mut Router) {
     //         param_glob_middle
     //     );
     //     get!(
-    //         "param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
-    //         param_optional_glob_middle
+    //         "param_opt_glob_middle" / id: Option<Vec<String>> / "foo",
+    //         param_opt_glob_middle
     //     );
 
     //     scope!("scope_param_glob" / id: Vec<String>, {
     //         get!("bar", scope_param_glob);
     //     });
-    //     scope!("scope_param_optional_glob" / id: Option<Vec<String>>, {
-    //         get!("bar", scope_param_optional_glob);
+    //     scope!("scope_param_opt_glob" / id: Option<Vec<String>>, {
+    //         get!("bar", scope_param_opt_glob);
     //     });
 
     //     scope!("scope_param_glob_middle" / id: Vec<String> / "foo", {
     //         get!("bar", scope_param_glob_middle);
     //     });
     //     scope!(
-    //         "scope_param_optional_glob_middle" / id: Option<Vec<String>> / "foo",
+    //         "scope_param_opt_glob_middle" / id: Option<Vec<String>> / "foo",
     //         {
-    //             get!("bar", scope_param_optional_glob_middle);
+    //             get!("bar", scope_param_opt_glob_middle);
     //         }
     //     );
 
@@ -317,23 +285,23 @@ mod tests {
             assert!(res.headers().contains_key("x-content-type-options"));
             assert_eq!(res.text().await.unwrap(), "param foobar");
 
-            url = "http://localhost:8080/param_optional/foobar";
+            url = "http://localhost:8080/param_opt/foobar";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "param_optional foobar");
+            assert_eq!(res.text().await.unwrap(), "param_opt foobar");
 
-            url = "http://localhost:8080/param_optional";
+            url = "http://localhost:8080/param_opt";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "param_optional ");
+            assert_eq!(res.text().await.unwrap(), "param_opt ");
 
             url = "http://localhost:8080/param_regex/123";
 
@@ -351,25 +319,25 @@ mod tests {
             assert_eq!(res.status(), StatusCode::NOT_FOUND);
             assert_eq!(res.text().await.unwrap(), "");
 
-            url = "http://localhost:8080/param_optional_regex/123";
+            url = "http://localhost:8080/param_opt_regex/123";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "param_optional_regex 123");
+            assert_eq!(res.text().await.unwrap(), "param_opt_regex 123");
 
-            url = "http://localhost:8080/param_optional_regex";
+            url = "http://localhost:8080/param_opt_regex";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "param_optional_regex ");
+            assert_eq!(res.text().await.unwrap(), "param_opt_regex ");
 
-            url = "http://localhost:8080/param_optional_regex/foobar";
+            url = "http://localhost:8080/param_opt_regex/foobar";
 
             let res = client.get(url).send().await.unwrap();
 
@@ -385,23 +353,23 @@ mod tests {
             assert!(res.headers().contains_key("x-content-type-options"));
             assert_eq!(res.text().await.unwrap(), "scope_param foobar");
 
-            url = "http://localhost:8080/scope_param_optional/foobar/bar";
+            url = "http://localhost:8080/scope_param_opt/foobar/bar";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "scope_param_optional foobar");
+            assert_eq!(res.text().await.unwrap(), "scope_param_opt foobar");
 
-            url = "http://localhost:8080/scope_param_optional/bar";
+            url = "http://localhost:8080/scope_param_opt/bar";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "scope_param_optional ");
+            assert_eq!(res.text().await.unwrap(), "scope_param_opt ");
 
             url = "http://localhost:8080/scope_param_regex/123/bar";
 
@@ -419,25 +387,25 @@ mod tests {
             assert_eq!(res.status(), StatusCode::NOT_FOUND);
             assert_eq!(res.text().await.unwrap(), "");
 
-            url = "http://localhost:8080/scope_param_optional_regex/123/bar";
+            url = "http://localhost:8080/scope_param_opt_regex/123/bar";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "scope_param_optional_regex 123");
+            assert_eq!(res.text().await.unwrap(), "scope_param_opt_regex 123");
 
-            url = "http://localhost:8080/scope_param_optional_regex/bar";
+            url = "http://localhost:8080/scope_param_opt_regex/bar";
 
             let res = client.get(url).send().await.unwrap();
 
             assert_eq!(res.status(), StatusCode::OK);
             assert!(res.headers().contains_key("x-powered-by"));
             assert!(res.headers().contains_key("x-content-type-options"));
-            assert_eq!(res.text().await.unwrap(), "scope_param_optional_regex ");
+            assert_eq!(res.text().await.unwrap(), "scope_param_opt_regex ");
 
-            url = "http://localhost:8080/scope_param_optional_regex/foobar/bar";
+            url = "http://localhost:8080/scope_param_opt_regex/foobar/bar";
 
             let res = client.get(url).send().await.unwrap();
 

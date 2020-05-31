@@ -1,4 +1,5 @@
 #![cfg_attr(feature = "doc", feature(external_doc))]
+#![doc(html_logo_url = "https://reign.rs/images/media/reign.svg")]
 #![doc(html_root_url = "https://docs.rs/reign_derive/0.1.2")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
@@ -33,8 +34,6 @@ pub(crate) const INTERNAL_ERR: &'static str =
 /// # Examples
 ///
 /// ```ignore
-/// #![feature(proc_macro_hygiene)]
-///
 /// use reign::prelude::*;
 ///
 /// views!("src", "views");
@@ -107,11 +106,66 @@ pub fn json(input: TokenStream) -> TokenStream {
     views::json::json(input).into()
 }
 
+/// Helper for defining a [reign_router](https://docs.rs/reign_router) handler.
+///
+/// # Examples
+///
+/// ```ignore
+/// use anyhow::Error;
+/// use reign::{
+///     prelude::*,
+///     router::{Request, Response}
+/// };
+///
+/// #[action]
+/// async fn name(req: &mut Request, id: String) -> Result<impl Response, Error> {
+///     Ok(id)
+/// }
+/// ```
 #[cfg(feature = "router")]
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::ItemFn = parse_macro_input!(input);
 
-    router::action(input).into()
+    router::action::action(input).into()
+}
+
+/// Helper for defining a [reign_router](https://docs.rs/reign_router) Path.
+///
+/// # Examples
+///
+/// ```ignore
+/// use reign::{
+///     prelude::*,
+///     router::{Router}
+/// };
+///
+/// fn router(r: &mut Router) {
+///     // Required param
+///     r.get(p!("foo" / id / "bar"), foobar);
+///
+///     // Optional param
+///     r.get(p!("foo" / id?), foobar);
+///
+///     // Regex param
+///     r.get(p!("number" / id @ "[0-9]+"), number);
+///
+///     // Optional Regex param
+///     r.get(p!("number" / id? @ "[0-9]+"), number);
+///
+///     // Glob param
+///     r.get(p!("tree" / id*), tree);
+///
+///     // Optional Glob param
+///     r.get(p!("tree" / id*?), tree);
+/// }
+/// ```
+#[cfg(feature = "router")]
+#[proc_macro]
+#[proc_macro_error]
+pub fn p(input: TokenStream) -> TokenStream {
+    let input: router::path::Path = parse_macro_input!(input);
+
+    router::path::path(input).into()
 }

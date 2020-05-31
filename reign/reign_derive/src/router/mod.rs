@@ -1,6 +1,4 @@
-mod action;
+pub mod action;
+pub mod path;
 
-mod path;
 mod ty;
-
-pub use action::action;

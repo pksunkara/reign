@@ -2,7 +2,7 @@ use crate::{
     hyper::{Body, Request as HyperRequest, Response as HyperResponse, StatusCode},
     Chain, Constraint, Error, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR,
 };
-use log::debug;
+use log::{debug, error};
 use regex::{Regex, RegexSet};
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
 
@@ -115,7 +115,10 @@ impl<'a> Service<'a> {
             middlewares: &route.middlewares,
         };
 
-        chain.run(&mut request).await
+        chain.run(&mut request).await.map_err(|err| {
+            error!("{}", err);
+            err
+        })
     }
 }
 

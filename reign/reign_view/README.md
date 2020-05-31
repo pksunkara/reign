@@ -1,22 +1,17 @@
-Reign View is a component based HTML templating library for Rust
-inspired by [Vue.js](https://vuejs.org) templates.
+Reign View is a component based HTML templating library for Rust inspired by
+[Vue.js](https://vuejs.org) templates.
 
-This library makes using templates as easy as pie.
-It uses HTML based template syntax that are valid and can
-be parsed by spec-compliant browsers and HTML parsers
-<sup>[[1][ann]]</sup><sup>[[2][ann]]</sup>.
-It has been developed foremost with ease of use in mind followed
-by future extensibility, modularization and customization.
+This library makes using templates as easy as pie. It uses HTML based template
+syntax that are valid and can be parsed by spec-compliant browsers and HTML parsers
+<sup>[[1][ann]]</sup><sup>[[2][ann]]</sup>. It has been developed foremost with ease
+of use in mind followed by future extensibility, modularization and customization.
 
-This library also provides multiple helpers and feature gates
-which an user can use to customize, allowing the library to be
-used directly with multiple micro frameworks like <!--[rocket][],-->
-[gotham][], [actix][], [warp][] and [tide][].
+This library also provides multiple helpers and feature gates which an user can use
+to customize, allowing the library to be used directly with or without [reign_router][].
 
 Please refer to [API documentation](https://docs.rs/reign_view) for more details.
 
-**NOTE**: `proc_macro_hygiene` feature is needed which is supported
-only in `nightly`. It is coming to `stable` soon.
+**NOTE**: Minimum supported Rust version is **1.45.0**
 
 # Table of contents
 
@@ -40,7 +35,6 @@ only in `nightly`. It is coming to `stable` soon.
 2. Initiate the templates in your `main.rs`
 
     ```rust,ignore
-    #![feature(proc_macro_hygiene)]
     use reign::prelude::*;
 
     // If your templates live under `src/views` folder
@@ -86,7 +80,6 @@ previous section at the respective path.
 Now, when you initiate the templating library by writing the following:
 
 ```rust,ignore
-#![feature(proc_macro_hygiene)]
 use reign::prelude::*;
 
 views!("src", "views");
@@ -165,41 +158,36 @@ Which returns the following String:
 
 # Template Syntax
 
-Before we start talking about the template syntax,
-let's agree on a few terms for this section so that it
-will be easier to refer to them later on.
+Before we start talking about the template syntax, let's agree on a few terms
+for this section so that it will be easier to refer to them later on.
 
-An **expression** is a custom subset of all the types
-of expressions available in Rust language. You can read
-about them [here](#expressions).
+An **expression** is a custom subset of all the types of expressions available
+in Rust language. You can read about them [here](#expressions).
 
-A **pattern** is a custom rust pattern syntax where the
-expressions allowed are the only ones defined in the above
-paragraph. You can read more about them [here](#patterns)
+A **pattern** is a custom rust pattern syntax where the expressions allowed are
+the only ones defined in the above paragraph. You can read more about them
+[here](#patterns).
 
-A **field** refers to a field of the struct that is built
-for the template by the `views!` macro when initiating
-the template library.
+A **field** refers to a field of the struct that is built for the template by
+the `views!` macro when initiating the template library.
 
-All html style tags that are used in the template should be
-closed either by a self closing syntax or an end tag. The only
-exception are the tags which are allowed by HTML spec to be
-self closing by default called **void elements**.
+All html style tags that are used in the template should be closed either by a
+self closing syntax or an end tag. The only exception are the tags which are
+allowed by HTML spec to be self closing by default called **void elements**.
 
 ### Text
 
-The most basic form of templating is *"interpolation"*
-using the *"mustache"* syntax (double curly braces).
+The most basic form of templating is *"interpolation"* using the *"mustache"*
+syntax (double curly braces).
 
 ```html
 <span>Message: {{ msg }}</span>
 ```
 
-The mustache tag will be replaced with the value of the
-`msg` *field*. You can also use an *expression* inside the
-mustache tags. Any type that has `std::fmt::Display` implemented
-can be the final result of the *expression* defined by the mustache
-tags.
+The mustache tag will be replaced with the value of the `msg` *field*. You can
+also use an *expression* inside the mustache tags. Any type that has
+`std::fmt::Display` implemented can be the final result of the *expression*
+defined by the mustache tags.
 
 ```html
 <span>Word Count: {{ msg.len() }}</span>
@@ -213,9 +201,8 @@ Interpolation can also be used in values of attributes.
 <div title="Application - {{ page_name }}"></div>
 ```
 
-If you want to use `"` inside the attribute value for an
-*expression*, you can follow the HTML spec and surround the
-value with `'`.
+If you want to use `"` inside the attribute value for an *expression*, you can
+follow the HTML spec and surround the value with `'`.
 
 ```html
 <div title='Application - {{ "Welcome" }}'></div>
@@ -223,8 +210,8 @@ value with `'`.
 
 ### Variable Attributes
 
-If you want to have an attribute that is completely interpolated
-with just one mustache tag and nothing else, you can do this.
+If you want to have an attribute that is completely interpolated with just one
+mustache tag and nothing else, you can do this.
 
 ```html
 <div :title="page_name"></div>
@@ -435,41 +422,25 @@ However, we can still wrap default slot content in a `<template>` if you wish to
 
 # Helpers & Feature Gates
 
-There are multiple feature gates to help the user select what he wants from the library.
-By default, none of them are selected and the default rendering results in a plain string.
+There are multiple feature gates on [Reign][] to help the user select what he wants from the library.
 
-All the `views-*` features are considered to be mutually exclusive and using them
-together might have unintended consequences.
-
-Please refer to [examples](https://github.com/pksunkara/reign/tree/master/examples/views)
+Please refer to [examples](https://github.com/pksunkara/reign/tree/master/examples)
 to see how they are used.
 
 Please refer to [reign_derive](https://docs.rs/reign_derive) for more information about the
-usage of helper macros.
+usage of macros.
 
-##### view-actix
+##### view
 
-* Enables `render_actix` helper and `render!` can be used for actix's request handler.
-* Enables `redirect_actix` helper and `redirect!` can be used for actix's request handler.
+* `views!` can be used to build the views.
+* `render!` can be used to render a view into a string.
 
-##### view-gotham
+##### view-router
 
-* Enables `render_gotham` helper and `render!` can be used for gotham's handler.
-* Enables `redirect_gotham` helper and `redirect!` can be used for gotham's handler.
-
-##### view-tide
-
-* Enables `render_tide` helper and `render!` can be used for tide's endpoint closure.
-* Enables `redirect_tide` helper and `redirect!` can be used for tide's endpoint closure.
-
-##### view-warp
-
-* Enables `render_warp` helper and `render!` can be used for warp's closure.
-* Enables `redirect_warp` helper and `redirect!` can be used for warp's closure.
-
-##### json
-
-* Enable `json_*` helper and `json!` can be used for each respective router that's been enabled.
+* `views!` can be used to build the views.
+* Enables `render` helper and `render!` renders a view into response for [reign_router][] handler.
+* Enables `redirect` helper for [reign_router][] handler.
+* Enables `json` helper and `json!` builds response for [reign_router][] handler
 
 # Appendix
 
@@ -514,10 +485,6 @@ Allowed patterns are described below with `expr` represents the above mentioned
    spec but most of the parsers support it.
 2. We also assume the parsers are made with Web Components specification in mind.
 
-[gotham]: https://gotham.rs
-[rocket]: https://rocket.rs
-[actix]: https://actix.rs
-[warp]: https://docs.rs/warp
-[tide]: https://docs.rs/tide
-[nickel]: https://nickel.rs
 [ann]: #annotations
+[reign_router]: https://docs.rs/reign_router
+[Reign]: https://docs.rs/reign

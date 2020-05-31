@@ -1,4 +1,5 @@
 #![cfg_attr(feature = "doc", feature(external_doc))]
+#![doc(html_logo_url = "https://reign.rs/images/media/reign.svg")]
 #![doc(html_root_url = "https://docs.rs/reign_view/0.1.2")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
@@ -17,55 +18,51 @@ use hyper::{header, http::Error, Body, Response, StatusCode};
 #[cfg(feature = "view-router")]
 use std::fmt::{write, Display};
 
-/// Renders a view for [gotham](https://gotham.rs) handler.
+/// Renders a view for [reign_router](https://docs.rs/reign_router) handler.
 ///
 /// The response is sent with content-type set as `text/html`.
-///
-/// *This function is available if Reign is built with the `"views-gotham"` feature.*
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::view::render_gotham;
+/// use reign::{
+///     view::render,
+///     router::{HandleFuture, Request, futures::FutureExt},
+/// };
 /// # use std::fmt::{Formatter, Result, Display};
-/// use gotham::state::State;
-/// use gotham::hyper::{Body, Response};
-/// # use gotham::{
-/// #   router::builder::{build_simple_router, DrawRoutes, DefineSingleRoute},
-/// #   init_server
-/// # };
+/// # use reign::router::serve;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
 ///
-/// # struct CustomView<'a> {
-/// #   msg: &'a str
-/// # }
-/// #
-/// # impl Display for CustomView<'_> {
-/// #   fn fmt(&self, f: &mut Formatter) -> Result {
-/// #       write!(f, "<h1>{}</h1>", self.msg)
-/// #   }
-/// # }
-/// #
-/// pub fn handler(state: State) -> (State, Response<Body>) {
-///     (state, render_gotham(CustomView {
-///         msg: "Hello Gotham!"
-///     }, 200))
+/// struct CustomView<'a> {
+///   msg: &'a str
+/// }
+///
+/// impl Display for CustomView<'_> {
+///   fn fmt(&self, f: &mut Formatter) -> Result {
+///       write!(f, "<h1>{}</h1>", self.msg)
+///   }
+/// }
+///
+/// fn handler(req: &mut Request) -> HandleFuture {
+///     async move {
+///         Ok(render(CustomView {
+///             msg: "Hello Reign!"
+///         }, 200)?)
+///     }.boxed()
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
 /// # rt.block_on(async {
 /// #   let server = async {
-/// #       let router = build_simple_router(|route| {
-/// #           route.get("/").to(handler);
-/// #       });
-/// #
-/// #       init_server("127.0.0.1:8080", router).await.unwrap()
+/// #       serve("127.0.0.1:52525", |r| {
+/// #           r.get("", handler);
+/// #       }).await.unwrap()
 /// #   };
 /// #
 /// #   let client = async {
 /// #       delay_for(Duration::from_millis(100)).await;
-/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #       let response = reqwest::get("http://localhost:52525").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
 /// #       assert!(response.headers().contains_key("content-type"));
@@ -73,7 +70,7 @@ use std::fmt::{write, Display};
 /// #           response.headers()["content-type"],
 /// #           "text/html; charset=utf-8"
 /// #       );
-/// #       assert_eq!(response.text().await.unwrap(), "<h1>Hello Gotham!</h1>");
+/// #       assert_eq!(response.text().await.unwrap(), "<h1>Hello Reign!</h1>");
 /// #   };
 /// #
 /// #   select! {
@@ -110,38 +107,34 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<Response<Body>, Error>
     }
 }
 
-/// Sends a redirect for [gotham](https://gotham.rs) handler.
+/// Sends a redirect for [reign_router](https://docs.rs/reign_router) handler.
 ///
 /// The response is sent with status code `303` and `location` header.
-///
-/// *This function is available if Reign is built with the `"views-gotham"` feature.*
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::view::redirect_gotham;
-/// use gotham::state::State;
-/// use gotham::hyper::{Body, Response};
-/// # use gotham::{
-/// #   router::builder::{build_simple_router, DrawRoutes, DefineSingleRoute},
-/// #   init_server
-/// # };
+/// use reign::{
+///     view::redirect,
+///     router::{HandleFuture, Request, futures::FutureExt},
+/// };
+/// # use reign::router::serve;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
 /// # use reqwest::{Client, redirect::Policy};
 ///
-/// pub fn handler(state: State) -> (State, Response<Body>) {
-///     (state, redirect_gotham("/dashboard"))
+/// fn handler(req: &mut Request) -> HandleFuture {
+///     async move {
+///         Ok(redirect("/dashboard")?)
+///     }.boxed()
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
 /// # rt.block_on(async {
 /// #   let server = async {
-/// #       let router = build_simple_router(|route| {
-/// #           route.get("/").to(handler);
-/// #       });
-/// #
-/// #       init_server("127.0.0.1:8080", router).await.unwrap()
+/// #       serve("127.0.0.1:52526", |r| {
+/// #           r.get("", handler);
+/// #       }).await.unwrap()
 /// #   };
 /// #
 /// #   let client = async {
@@ -150,7 +143,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<Response<Body>, Error>
 /// #           .redirect(Policy::none())
 /// #           .build()
 /// #           .unwrap()
-/// #           .get("http://localhost:8080")
+/// #           .get("http://localhost:52526")
 /// #           .send()
 /// #           .await
 /// #           .unwrap();
@@ -183,51 +176,46 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
     Ok(response)
 }
 
-/// Serializes and sends JSON for [gotham](https://gotham.rs) handler.
+/// Serializes and sends JSON for [reign_router](https://docs.rs/reign_router) handler.
 ///
 /// The response is sent with content-type set as `application/json`.
-///
-/// *This function is available if Reign is built with the `"views-gotham"`
-/// and `"json"` feature.*
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::view::json_gotham;
-/// use gotham::state::State;
-/// use gotham::hyper::{Body, Response};
-/// # use gotham::{
-/// #   router::builder::{build_simple_router, DrawRoutes, DefineSingleRoute},
-/// #   init_server
-/// # };
+/// use reign::{
+///     view::json,
+///     router::{HandleFuture, Request, futures::FutureExt},
+/// };
+/// # use reign::router::serve;
 /// # use serde::Serialize;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
 ///
-/// # #[derive(Serialize)]
-/// # struct User<'a> {
-/// #   name: &'a str
-/// # }
-/// #
-/// pub fn handler(state: State) -> (State, Response<Body>) {
-///     (state, json_gotham(User {
-///         name: "Gotham"
-///     }, 200))
+/// #[derive(Serialize)]
+/// struct User<'a> {
+///   name: &'a str
+/// }
+///
+/// fn handler(req: &mut Request) -> HandleFuture {
+///     async move {
+///         Ok(json(User {
+///             name: "Reign"
+///         }, 200)?)
+///     }.boxed()
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
 /// # rt.block_on(async {
 /// #   let server = async {
-/// #       let router = build_simple_router(|route| {
-/// #           route.get("/").to(handler);
-/// #       });
-/// #
-/// #       init_server("127.0.0.1:8080", router).await.unwrap()
+/// #       serve("127.0.0.1:52527", |r| {
+/// #           r.get("", handler);
+/// #       }).await.unwrap()
 /// #   };
 /// #
 /// #   let client = async {
 /// #       delay_for(Duration::from_millis(100)).await;
-/// #       let response = reqwest::get("http://localhost:8080").await.unwrap();
+/// #       let response = reqwest::get("http://localhost:52527").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
 /// #       assert!(response.headers().contains_key("content-type"));
@@ -235,7 +223,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
 /// #           response.headers()["content-type"],
 /// #           "application/json"
 /// #       );
-/// #       assert_eq!(response.text().await.unwrap(), r#"{"name":"Gotham"}"#);
+/// #       assert_eq!(response.text().await.unwrap(), r#"{"name":"Reign"}"#);
 /// #   };
 /// #
 /// #   select! {
