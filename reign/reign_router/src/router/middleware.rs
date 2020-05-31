@@ -1,6 +1,6 @@
 use crate::router::{
     hyper::{Body, Response},
-    Error, Handler, MiddlewareItem, Request,
+    Error, Handler, HandlerReturn, MiddlewareItem, Request,
 };
 use futures::future::BoxFuture;
 use std::{future::Future, pin::Pin, sync::Arc};
@@ -30,7 +30,7 @@ where
 }
 
 pub struct Chain<'a> {
-    pub(crate) handler: &'a Handler,
+    pub(crate) handler: &'a Box<dyn Fn(&mut Request) -> HandlerReturn + Send + Sync + 'static>,
     pub(crate) middlewares: &'a [Arc<MiddlewareItem>],
 }
 

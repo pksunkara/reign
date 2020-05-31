@@ -1,4 +1,3 @@
-#[cfg(feature = "json")]
+#[cfg(feature = "view-router")]
 pub mod json;
-pub mod redirect;
 pub mod render;

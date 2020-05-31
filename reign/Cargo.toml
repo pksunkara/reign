@@ -44,8 +44,6 @@ members = [
 	"reign_derive",
 	"reign_router",
 	"reign_view",
-
-	"development/test_examples",
 ]
 default-members = [
 	".",
@@ -56,21 +54,13 @@ default-members = [
 ]
 
 [features]
-default = ["view-gotham", "router-gotham", "framework"]
+default = ["view-router", "framework"]
 cli = ["clap"]
 doc = []
 framework = ["reign_boot"]
 view = ["reign_view", "reign_derive/view"]
-view-actix = ["reign_view/view-actix", "reign_derive/view-actix", "view"]
-view-gotham = ["reign_view/view-gotham", "reign_derive/view-gotham", "view"]
-view-tide = ["reign_view/view-tide", "reign_derive/view-tide", "view"]
-view-warp = ["reign_view/view-warp", "reign_derive/view-warp", "view"]
-json = ["reign_view/json", "reign_derive/json", "view"]
 router = ["reign_router", "reign_derive/router"]
-router-actix = ["reign_router/router-actix", "reign_derive/router-actix", "router"]
-router-gotham = ["reign_router/router-gotham", "reign_derive/router-gotham", "router"]
-router-tide  = ["reign_router/router-tide", "reign_derive/router-tide", "router"]
-router-warp = ["reign_router/router-warp", "reign_derive/router-warp", "router"]
+view-router = ["reign_view/view-router", "reign_derive/view-router", "view", "router"]
 
 [package.metadata.docs.rs]
 all-features = true

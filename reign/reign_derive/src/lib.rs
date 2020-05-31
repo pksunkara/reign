@@ -75,25 +75,6 @@ pub fn render(input: TokenStream) -> TokenStream {
     views::render::render(input).into()
 }
 
-/// Shorthand notation for returning a redirect response.
-///
-/// # Examples
-///
-/// Redirect to the given url
-///
-/// ```ignore
-/// use reign::prelude::*;
-///
-/// redirect!("/dashboard")
-/// ```
-#[cfg(feature = "view")]
-#[proc_macro]
-pub fn redirect(input: TokenStream) -> TokenStream {
-    let input: syn::Expr = parse_macro_input!(input);
-
-    views::redirect::redirect(input).into()
-}
-
 /// Shorthand notation for returning a json response.
 ///
 /// # Examples
@@ -118,7 +99,7 @@ pub fn redirect(input: TokenStream) -> TokenStream {
 ///
 /// json!(user, status = 201)
 /// ```
-#[cfg(feature = "json")]
+#[cfg(feature = "view-router")]
 #[proc_macro]
 pub fn json(input: TokenStream) -> TokenStream {
     let input: views::json::Json = parse_macro_input!(input);
@@ -133,45 +114,4 @@ pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::ItemFn = parse_macro_input!(input);
 
     router::action(input).into()
-}
-
-#[cfg(feature = "router")]
-#[proc_macro_attribute]
-#[proc_macro_error]
-pub fn router(_: TokenStream, input: TokenStream) -> TokenStream {
-    let input: syn::ItemFn = parse_macro_input!(input);
-
-    router::router(input).into()
-}
-
-#[cfg(feature = "router")]
-#[proc_macro]
-pub fn pipe(input: TokenStream) -> TokenStream {
-    let input: router::Pipeline = parse_macro_input!(input);
-
-    router::pipeline(input).into()
-}
-
-#[cfg(feature = "router")]
-#[proc_macro]
-#[proc_macro_error]
-pub fn scope(input: TokenStream) -> TokenStream {
-    let input: router::Scope = parse_macro_input!(input);
-
-    router::scope(input).into()
-}
-
-#[cfg(feature = "router")]
-#[proc_macro]
-#[proc_macro_error]
-pub fn to(input: TokenStream) -> TokenStream {
-    let input: router::To = parse_macro_input!(input);
-
-    router::to(input).into()
-}
-
-#[cfg(feature = "router")]
-#[proc_macro]
-pub fn get(input: TokenStream) -> TokenStream {
-    router::get(input.into()).into()
 }

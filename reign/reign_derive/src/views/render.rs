@@ -1,4 +1,4 @@
-use crate::utils::Options;
+use crate::{utils::Options, INTERNAL_ERR};
 use inflector::cases::pascalcase::to_pascal_case;
 use lazy_static::lazy_static;
 use proc_macro2::{Span, TokenStream};
@@ -62,11 +62,11 @@ impl Parse for Render {
 }
 
 fn file_regex() -> Regex {
-    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)\.html$").unwrap()
+    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)\.html$").expect(INTERNAL_ERR)
 }
 
 fn folder_regex() -> Regex {
-    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)").unwrap()
+    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)").expect(INTERNAL_ERR)
 }
 
 fn recurse(path: &PathBuf, relative_path: &str) -> Vec<proc_macro2::TokenStream> {
@@ -213,21 +213,9 @@ pub fn render(mut input: Render) -> TokenStream {
         .remove("status")
         .unwrap_or_else(|| parse_str("200").unwrap());
 
-    if cfg!(feature = "view-actix") {
+    if cfg!(feature = "view-router") {
         quote! {
-            ::reign::view::render_actix(#capture, #status)
-        }
-    } else if cfg!(feature = "view-gotham") {
-        quote! {
-            ::reign::view::render_gotham(#capture, #status)
-        }
-    } else if cfg!(feature = "view-tide") {
-        quote! {
-            ::reign::view::render_tide(#capture, #status)
-        }
-    } else if cfg!(feature = "view-warp") {
-        quote! {
-            ::reign::view::render_warp(#capture, #status)
+            ::reign::view::render(#capture, #status)
         }
     } else {
         quote! {

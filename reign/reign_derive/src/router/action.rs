@@ -42,142 +42,67 @@ pub fn action(input: ItemFn) -> TokenStream {
 
     let args = inputs.iter().map(|x| arg_ident(x)).collect::<Vec<_>>();
 
-    if cfg!(feature = "router-actix") {
-        quote! {
-            #(#attrs)*
-            #vis #constness #asyncness #unsafety #fn_token #ident(
-                req: ::actix_web::HttpRequest,
-            ) -> ::actix_web::HttpResponse {
-                #[inline]
-                async fn _call(
-                    req: &::actix_web::HttpRequest,
-                ) #output #block
-
-                let _called = _call(&req).await;
-
-                match _called {
-                    Ok(r) => match r.actix_response(&req).await {
-                        Ok(r) => r,
-                        Err(e) => ::actix_web::HttpResponse::from_error(e.into()),
-                    },
-                    Err(e) => {
-                        ::reign::log::error!("{}", e);
-                        e.respond()
-                    },
-                }
-            }
-        }
-    } else if cfg!(feature = "router-gotham") {
-        quote! {
-            #(#attrs)*
-            #vis #constness #asyncness #unsafety #fn_token #ident(
-                state: &mut ::gotham::state::State,
-                #inputs
-            ) -> ::gotham::hyper::Response<::gotham::hyper::Body> {
-                #[inline]
-                async fn _call(
-                    state: &mut ::gotham::state::State,
-                    #inputs
-                ) #output #block
-
-                let _called = _call(state, #(#args),*).await;
-
-                match _called {
-                    Ok(r) => r.gotham_response(&state),
-                    Err(e) => {
-                        ::reign::log::error!("{}", e);
-                        e.respond()
-                    },
-                }
-            }
-        }
-    } else if cfg!(feature = "router-tide") {
-        quote! {
-            #(#attrs)*
-            #vis #constness #asyncness #unsafety #fn_token #ident(
-                req: ::tide::Request<()>,
-            ) -> ::tide::Result<::tide::Response> {
-                #[inline]
-                async fn _call(
-                    req: ::tide::Request<()>,
-                ) #output #block
-
-                let _called = _call(req).await;
-
-                let response = match _called {
-                    Ok(r) => r.tide_response(),
-                    Err(e) => {
-                        ::reign::log::error!("{}", e);
-                        e.respond()
-                    },
-                };
-
-                Ok(response)
-            }
-        }
+    let req = if let Some(arg) = inputs.first() {
+        arg
     } else {
-        let req = if let Some(arg) = inputs.first() {
-            arg
-        } else {
-            abort!(
-                inputs.span(),
-                "expected atleast one argument denoting Request"
-            );
-        };
+        abort!(
+            inputs.span(),
+            "expected atleast one argument denoting Request"
+        );
+    };
 
-        let req_ident = args.first().expect(INTERNAL_ERR);
-        let idents = args.iter().skip(1).collect::<Vec<_>>();
-        let assignments = inputs
-            .iter()
-            .skip(1)
-            .map(|x| {
-                let ident = arg_ident(x);
-                let lit = LitStr::new(&ident.to_string(), ident.span());
-                let ty = arg_ty(x);
+    let req_ident = args.first().expect(INTERNAL_ERR);
+    let idents = args.iter().skip(1).collect::<Vec<_>>();
+    let assignments = inputs
+        .iter()
+        .skip(1)
+        .map(|x| {
+            let ident = arg_ident(x);
+            let lit = LitStr::new(&ident.to_string(), ident.span());
+            let ty = arg_ty(x);
 
-                let (fn_name, ty) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                    (quote! { param_glob }, ty)
-                } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
-                    if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                        (quote! { param_opt_glob }, ty)
-                    } else {
-                        (quote! { param_opt }, ty)
-                    }
+            let (fn_name, ty) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                (quote! { param_glob }, ty)
+            } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
+                if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                    (quote! { param_opt_glob }, ty)
                 } else {
-                    (quote! { param }, ty)
-                };
-
-                // TODO: typed
-                quote! {
-                    let #ident = #req_ident.#fn_name(#lit)?;
+                    (quote! { param_opt }, ty)
                 }
-            })
-            .collect::<Vec<_>>();
+            } else {
+                (quote! { param }, ty)
+            };
 
-        quote! {
-            #(#attrs)*
-            #vis #constness #asyncness #unsafety #fn_token #ident(
-                #req
-            ) -> Result<
-                ::reign::router::router::hyper::Response<::reign::router::router::hyper::Body>,
-                ::reign::router::router::Error
-            > {
-                #[inline]
-                async fn _call(
-                    #inputs
-                ) #output #block
+            // TODO: typed
+            quote! {
+                let #ident = #req_ident.#fn_name(#lit)?;
+            }
+        })
+        .collect::<Vec<_>>();
 
-                #(#assignments)*
+    quote! {
+        #(#attrs)*
+        #vis #constness #asyncness #unsafety #fn_token #ident(
+            #req
+        ) -> Result<
+            ::reign::router::router::hyper::Response<::reign::router::router::hyper::Body>,
+            ::reign::router::router::Error
+        > {
+            #[inline]
+            async fn _call(
+                #inputs
+            ) #output #block
 
-                let _called = _call(#req_ident, #(#idents),*).await;
+            #(#assignments)*
 
-                match _called {
-                    Ok(r) => Ok(r.respond()?),
-                    Err(e) => {
-                        ::reign::log::error!("{}", e);
-                        Ok(e.respond()?)
-                    },
-                }
+            let _called = _call(#req_ident, #(#idents),*).await;
+
+            match _called {
+                Ok(r) => Ok(r.respond()?),
+                Err(e) => {
+                    ::reign::log::error!("{}", e);
+                    Ok(e.respond()?)
+                },
             }
         }
     }

@@ -27,23 +27,7 @@ pub fn json(mut input: Json) -> TokenStream {
         .remove("status")
         .unwrap_or_else(|| parse_str("200").unwrap());
 
-    if cfg!(feature = "view-actix") {
-        quote! {
-            ::reign::view::json_actix(#expr, #status)
-        }
-    } else if cfg!(feature = "view-gotham") {
-        quote! {
-            ::reign::view::json_gotham(#expr, #status)
-        }
-    } else if cfg!(feature = "view-tide") {
-        quote! {
-            ::reign::view::json_tide(#expr, #status)
-        }
-    } else if cfg!(feature = "view-warp") {
-        quote! {
-            ::reign::view::json_warp(#expr, #status)
-        }
-    } else {
-        quote! {}
+    quote! {
+        ::reign::view::json(#expr, #status)
     }
 }

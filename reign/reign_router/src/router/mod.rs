@@ -28,7 +28,7 @@ pub use scope::Scope;
 pub use service::{service, Service};
 
 use pipe::MiddlewareItem;
-use route::{Constraint, Handler, Route};
+use route::{Constraint, Handler, HandlerReturn, Route};
 use service::RouteRef;
 
 pub(crate) const INTERNAL_ERR: &'static str =

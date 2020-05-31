@@ -110,12 +110,13 @@ impl<'a> Service<'a> {
         mut request: Request,
         route: &RouteRef,
     ) -> Result<HyperResponse<Body>, Error> {
-        let chain = Chain {
-            handler,
-            middlewares: &route.middlewares,
-        };
+        // let chain = Chain {
+        //     handler,
+        //     middlewares: &route.middlewares,
+        // };
 
-        chain.run(&mut request).await
+        std::pin::Pin::from(handler(request)).await
+        // chain.run(&mut request).await
     }
 }
 

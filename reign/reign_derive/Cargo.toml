@@ -26,7 +26,7 @@ Inflector = "0.11.4"
 lazy_static = "1.4.0"
 
 [dev-dependencies]
-reign = { path = "../", features = ["view-actix", "json"] }
+reign = { path = "../", features = ["view-router"] }
 version-sync = "0.9.0"
 trybuild = "1.0"
 
@@ -34,16 +34,8 @@ trybuild = "1.0"
 default = []
 doc = []
 view = []
-view-actix = ["view"]
-view-gotham = ["view"]
-view-tide = ["view"]
-view-warp = ["view"]
-json = ["view"]
+view-router = ["view", "router"]
 router = []
-router-actix = ["router"]
-router-gotham = ["router"]
-router-tide = ["router"]
-router-warp = ["router"]
 
 [package.metadata.docs.rs]
 all-features = true
