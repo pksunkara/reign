@@ -27,7 +27,50 @@ pub struct ContentType<'a> {
     subtypes: Vec<&'a str>, // TODO:(lifetime) Do I need the lifetime here?
 }
 
-impl<'a> crate::router::Middleware for ContentType<'a> {}
+impl<'a> crate::router::Middleware for ContentType<'a> {
+    fn handle<'m>(
+        &'m self,
+        req: &'m mut crate::router::Request,
+        chain: crate::router::Chain<'m>,
+    ) -> Pin<
+        Box<
+            dyn Future<
+                    Output = Result<
+                        crate::router::hyper::Response<crate::router::hyper::Body>,
+                        crate::router::Error,
+                    >,
+                > + Send
+                + 'm,
+        >,
+    > {
+        match req.headers.get(crate::router::hyper::header::CONTENT_TYPE) {
+            Some(content_type) => {
+                if let Ok(content_type) = content_type.to_str() {
+                    if let Ok(val) = content_type.parse::<Mime>() {
+                        if self.allow(val.subtype()) {
+                            return chain.run(req);
+                        }
+
+                        if let Some(suffix) = val.suffix() {
+                            if self.allow(suffix) {
+                                return chain.run(req);
+                            }
+                        }
+                    }
+                }
+            }
+            None => {
+                return chain.run(req);
+            }
+        };
+
+        let response = crate::router::hyper::Response::builder()
+            .status(crate::router::hyper::StatusCode::UNSUPPORTED_MEDIA_TYPE)
+            .body(crate::router::hyper::Body::empty());
+
+        async { Ok(response?) }.boxed()
+    }
+}
 
 impl<'a> ContentType<'a> {
     pub fn new(subtypes: Vec<&'a str>) -> Self {

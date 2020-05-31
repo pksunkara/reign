@@ -1,11 +1,11 @@
 use crate::router::{
-    hyper::{Body, HeaderMap, Method, Request as HyperRequest, Uri, Version},
+    hyper::{http::Extensions, Body, HeaderMap, Method, Request as HyperRequest, Uri, Version},
     ParamError,
 };
 use std::{collections::HashMap as Map, net::SocketAddr};
 use url::form_urlencoded::parse;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Request {
     pub(crate) ip: SocketAddr,
     pub(crate) method: Method,
@@ -14,6 +14,7 @@ pub struct Request {
     pub(crate) headers: HeaderMap,
     pub(crate) params: Map<String, String>,
     pub(crate) query: Map<String, String>,
+    pub extensions: Extensions,
 }
 
 impl Request {
@@ -30,6 +31,7 @@ impl Request {
                 .query()
                 .map(|v| parse(v.as_bytes()).into_owned().collect())
                 .unwrap_or_else(Map::new),
+            extensions: Extensions::new(),
         }
     }
 

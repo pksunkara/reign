@@ -19,14 +19,17 @@ mod service;
 pub use hyper;
 
 pub use error::*;
-pub use middleware::Middleware;
+pub use middleware::{Chain, Middleware};
 pub use path::Path;
 pub use pipe::Pipe;
 pub use request::Request;
 pub use response::Response;
-use route::{Constraint, Handler, Route};
 pub use scope::Scope;
-use service::{RouteRef, Service};
+pub use service::{service, Service};
+
+use pipe::MiddlewareItem;
+use route::{Constraint, Handler, Route};
+use service::RouteRef;
 
 pub(crate) const INTERNAL_ERR: &'static str =
     "Internal error on reign_router. Please create an issue on https://github.com/pksunkara/reign";
@@ -174,6 +177,7 @@ impl<'a> Router<'a> {
             .iter()
             .map(|x| RouteRef {
                 handler: x.handler.clone(),
+                middlewares: vec![],
                 constraints: vec![x.constraint.clone()],
             })
             .collect::<Vec<_>>();
@@ -183,12 +187,25 @@ impl<'a> Router<'a> {
 
             for route_ref in scope_ref.1 {
                 let mut constraints = vec![scope_ref.0.clone()];
+                let mut middlewares = scope_ref
+                    .2
+                    .iter()
+                    .flat_map(|x| {
+                        if let Some(pipe) = self.pipes.get(*x) {
+                            pipe.middlewares.clone()
+                        } else {
+                            vec![]
+                        }
+                    })
+                    .collect::<Vec<_>>();
 
                 constraints.extend(route_ref.constraints.into_iter());
+                middlewares.extend(route_ref.middlewares.into_iter());
 
                 routes.push(RouteRef {
                     handler: route_ref.handler.clone(),
-                    constraints: constraints.clone(),
+                    middlewares,
+                    constraints,
                 })
             }
         }
@@ -202,8 +219,7 @@ where
     A: ToSocketAddrs + Send + 'static,
     R: Fn(&mut Router),
 {
-    let mut router = Router::default();
-    router_fn(&mut router);
+    let router_service = service(router_fn);
 
     let socket_addr = addr
         .to_socket_addrs()
@@ -211,60 +227,14 @@ where
         .next()
         .expect("Must be given at least one socket address");
 
-    let router_service = Service::new(router);
-
     let make_svc = make_service_fn(|socket: &AddrStream| {
         let remote_addr = socket.remote_addr();
         let router_service = router_service.clone();
 
         future::ok::<_, Infallible>(service_fn(move |req| {
-            router_service.clone().call_with_addr(req, remote_addr)
+            router_service.clone().call(req, remote_addr)
         }))
     });
 
     Server::bind(&socket_addr).serve(make_svc).await
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::middleware::{ContentType, HeadersDefault, Runtime};
-    // use tokio::test;
-
-    #[test]
-    fn test_server() {
-        async fn delete(req: Request) -> Result<HyperResponse<Body>, Error> {
-            Ok("delete".respond()?)
-        }
-        async fn multi_methods(req: Request) -> Result<HyperResponse<Body>, Error> {
-            Ok("multi_methods".respond()?)
-        }
-        async fn scope_static(req: Request) -> Result<HyperResponse<Body>, Error> {
-            Ok("scope_static".respond()?)
-        }
-        async fn constraint(req: Request) -> Result<HyperResponse<Body>, Error> {
-            Ok("constraint".respond()?)
-        }
-
-        fn router(r: &mut Router) {
-            r.pipe(
-                Pipe::new("common")
-                    .and(HeadersDefault::empty().add("x-1", "a"))
-                    .and(ContentType::empty().json()),
-            );
-            r.pipe(Pipe::new("timer").and(Runtime::default()));
-
-            r.delete("delete", delete);
-
-            r.any(&[Method::POST, Method::PUT], "multi_methods", multi_methods);
-
-            r.any_with_constraint(&[Method::GET], "constraint", |req| true, constraint);
-
-            r.scope("scope_static", |r| {
-                r.get(Path::new(), scope_static);
-            });
-        }
-
-        // serve("127.0.0.1:8080", router).await.unwrap();
-    }
 }

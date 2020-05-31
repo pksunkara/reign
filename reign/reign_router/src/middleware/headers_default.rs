@@ -22,7 +22,7 @@ pub struct HeadersDefault {
     headers: Vec<(&'static str, &'static str)>,
 }
 
-impl crate::router::Middleware for HeadersDefault {}
+// impl crate::router::Middleware for HeadersDefault {}
 
 impl HeadersDefault {
     pub fn new(headers: Vec<(&'static str, &'static str)>) -> Self {

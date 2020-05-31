@@ -1,8 +1,11 @@
 use crate::router::Middleware;
+use std::sync::Arc;
+
+pub(crate) type MiddlewareItem = Box<dyn Middleware + Send + Sync + 'static>;
 
 pub struct Pipe<'a> {
     pub(crate) name: &'a str,
-    pub(crate) middlewares: Vec<Box<dyn Middleware + 'a>>,
+    pub(crate) middlewares: Vec<Arc<MiddlewareItem>>,
 }
 
 impl<'a> Pipe<'a> {
@@ -15,9 +18,9 @@ impl<'a> Pipe<'a> {
 
     pub fn and<M>(mut self, middleware: M) -> Self
     where
-        M: Middleware + 'a,
+        M: Middleware + Send + Sync + 'static,
     {
-        self.middlewares.push(Box::new(middleware));
+        self.middlewares.push(Arc::new(Box::new(middleware)));
         self
     }
 }

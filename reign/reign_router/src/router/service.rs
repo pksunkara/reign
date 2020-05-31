@@ -1,18 +1,19 @@
 use crate::router::{
     hyper::{Body, Request as HyperRequest, Response as HyperResponse, StatusCode},
-    Constraint, Error, Handler, Request, Router, INTERNAL_ERR,
+    Chain, Constraint, Error, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR,
 };
 use log::debug;
 use regex::{Regex, RegexSet};
-use std::{collections::HashMap as Map, net::SocketAddr, pin::Pin, sync::Arc};
+use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
 
 pub(crate) struct RouteRef {
     pub(crate) handler: Option<Arc<Handler>>,
+    pub(crate) middlewares: Vec<Arc<MiddlewareItem>>,
     pub(crate) constraints: Vec<Option<Arc<Constraint>>>,
 }
 
 #[derive(Clone)]
-pub(crate) struct Service<'a> {
+pub struct Service<'a> {
     router: Arc<Router<'a>>,
     regexes: Arc<Vec<Regex>>,
     regex_set: Arc<RegexSet>,
@@ -44,7 +45,7 @@ impl<'a> Service<'a> {
         }
     }
 
-    pub(crate) async fn call_with_addr(
+    pub async fn call(
         self,
         req: HyperRequest<Body>,
         ip: SocketAddr,
@@ -52,13 +53,6 @@ impl<'a> Service<'a> {
         let to_match = format!("{}{}", req.method().as_str(), req.uri().path());
         let to_match = to_match.trim_end_matches('/');
         let matches = self.regex_set.matches(to_match);
-
-        if !matches.matched_any() {
-            // TODO:(router:404) Check for 405 and support custom error handler through post middleware
-            return Ok(HyperResponse::builder()
-                .status(StatusCode::NOT_FOUND)
-                .body(Body::empty())?);
-        }
 
         let mut request = Request::new(ip, req);
 
@@ -100,13 +94,37 @@ impl<'a> Service<'a> {
                 }
 
                 if let Some(handler) = &route.handler {
-                    return Pin::from(handler(request)).await;
+                    return Self::run(handler, request, route).await;
                 }
             }
         }
 
+        // TODO:(router:404) Check for 405 and support custom error handler through post middleware
         Ok(HyperResponse::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .status(StatusCode::NOT_FOUND)
             .body(Body::empty())?)
     }
+
+    async fn run(
+        handler: &Arc<Handler>,
+        mut request: Request,
+        route: &RouteRef,
+    ) -> Result<HyperResponse<Body>, Error> {
+        let chain = Chain {
+            handler,
+            middlewares: &route.middlewares,
+        };
+
+        chain.run(&mut request).await
+    }
+}
+
+pub fn service<'a, R>(router_fn: R) -> Service<'a>
+where
+    R: Fn(&mut Router),
+{
+    let mut router = Router::default();
+    router_fn(&mut router);
+
+    Service::new(router)
 }

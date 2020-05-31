@@ -52,7 +52,11 @@ impl<'a> Scope<'a> {
         (self.path.regex(), self.router.regex())
     }
 
-    pub(crate) fn refs(&self) -> (Option<Arc<Constraint>>, Vec<RouteRef>) {
-        (self.constraint.clone(), self.router.refs())
+    pub(crate) fn refs(&self) -> (Option<Arc<Constraint>>, Vec<RouteRef>, Vec<&str>) {
+        (
+            self.constraint.clone(),
+            self.router.refs(),
+            self.pipes.clone(),
+        )
     }
 }

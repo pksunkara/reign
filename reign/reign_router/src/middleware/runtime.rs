@@ -33,7 +33,40 @@ pub struct Runtime {
     header: &'static str,
 }
 
-impl crate::router::Middleware for Runtime {}
+impl crate::router::Middleware for Runtime {
+    fn handle<'m>(
+        &'m self,
+        req: &'m mut crate::router::Request,
+        chain: crate::router::Chain<'m>,
+    ) -> Pin<
+        Box<
+            dyn Future<
+                    Output = Result<
+                        crate::router::hyper::Response<crate::router::hyper::Body>,
+                        crate::router::Error,
+                    >,
+                > + Send
+                + 'm,
+        >,
+    > {
+        async move {
+            let start = Utc::now();
+            let mut response = chain.run(req).await?;
+            let duration = Utc::now().signed_duration_since(start).num_microseconds();
+
+            if let Some(dur) = duration {
+                response.headers_mut().insert(
+                    self.header,
+                    crate::router::hyper::header::HeaderValue::from_str(&dur_to_string(dur))
+                        .unwrap(),
+                );
+            }
+
+            Ok(response)
+        }
+        .boxed()
+    }
+}
 
 impl Runtime {
     pub fn new(header: &'static str) -> Self {
