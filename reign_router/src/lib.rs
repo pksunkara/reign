@@ -61,6 +61,32 @@ macro_rules! method {
     };
 }
 
+/// Helper to define the routing
+///
+/// # Examples
+///
+/// ```no_run
+/// use reign::router::Router;
+/// # use reign::{prelude::*, router::{Request, Response, Error}};
+/// #
+/// # #[action]
+/// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
+/// #
+/// # #[action]
+/// # async fn bar(req: &mut Request) -> Result<impl Response, Error> { Ok("bar") }
+/// #
+/// # #[action]
+/// # async fn baz(req: &mut Request) -> Result<impl Response, Error> { Ok("baz") }
+///
+/// fn router(r: &mut Router) {
+///     r.get("foo", foo);
+///
+///     r.scope("bar", |r| {
+///         r.post("", bar);
+///         r.delete("baz", baz);
+///     });
+/// }
+/// ```
 #[derive(Default)]
 pub struct Router<'a> {
     in_scope: bool,
@@ -93,6 +119,25 @@ impl<'a> Router<'a> {
         self.scopes.push(Scope::new(path).to(f));
     }
 
+    /// Define a scope that runs a middleware pipe
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use reign::router::{Router, Pipe, middleware::Runtime};
+    /// # use reign::{prelude::*, router::{Request, Response, Error}};
+    /// #
+    /// # #[action]
+    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
+    ///
+    /// fn router(r: &mut Router) {
+    ///     r.pipe(Pipe::new("common").add(Runtime::default()));
+    ///
+    ///     r.scope_through("foo", &["common"], |r| {
+    ///         r.get("", foo);
+    ///    });
+    /// }
+    /// ```
     pub fn scope_through<P, R>(&mut self, path: P, pipes: &[&'a str], f: R)
     where
         P: Into<Path<'a>>,
@@ -116,6 +161,20 @@ impl<'a> Router<'a> {
     method!(connect, CONNECT);
 
     /// Any of the given methods allowed
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use reign::router::{Router, hyper::Method};
+    /// # use reign::{prelude::*, router::{Request, Response, Error}};
+    /// #
+    /// # #[action]
+    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
+    ///
+    /// fn router(r: &mut Router) {
+    ///     r.any(&[Method::GET], "foo", foo);
+    /// }
+    /// ```
     pub fn any<P, H>(&mut self, methods: &[Method], path: P, handler: H)
     where
         P: Into<Path<'a>>,
@@ -135,6 +194,22 @@ impl<'a> Router<'a> {
     }
 
     /// Any of the given methods allowed with given constraint
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use reign::router::{Router, hyper::Method};
+    /// # use reign::{prelude::*, router::{Request, Response, Error}};
+    /// #
+    /// # #[action]
+    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
+    ///
+    /// fn router(r: &mut Router) {
+    ///     r.any_with_constraint(&[Method::GET], "foo", |req| {
+    ///         req.uri().port().is_some() || req.query("bar").is_some()
+    ///    }, foo);
+    /// }
+    /// ```
     pub fn any_with_constraint<P, C, H>(
         &mut self,
         methods: &[Method],
@@ -222,6 +297,20 @@ impl<'a> Router<'a> {
     }
 }
 
+/// Create the server using the given routing definition
+///
+/// # Examples
+///
+/// ```no_run
+/// use reign::router::{serve, Router};
+///
+/// fn router(r: &mut Router) {}
+///
+/// #[tokio::main]
+/// async fn main() {
+///     serve("127.0.0.1:8080", router).await.unwrap();
+/// }
+/// ```
 pub async fn serve<A, R>(addr: A, f: R) -> Result<(), HyperError>
 where
     A: ToSocketAddrs + Send + 'static,

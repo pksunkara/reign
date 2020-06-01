@@ -31,7 +31,7 @@ pub enum Error {
 }
 
 impl Error {
-    pub(crate) fn respond(self) -> Result<Res<Body>, HttpError> {
+    pub fn respond(self) -> Result<Res<Body>, HttpError> {
         match self {
             Self::Param(_) | Self::TokioIo(_) => Res::builder()
                 .status(StatusCode::NOT_FOUND)
