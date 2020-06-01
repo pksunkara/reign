@@ -1,8 +1,7 @@
 use reign::{
     prelude::*,
     router::{
-        hyper::Response as Res, middleware::HeadersDefault, serve, Path, Pipe, Request, Response,
-        Router,
+        hyper::Response as Res, middleware::HeadersDefault, serve, Pipe, Request, Response, Router,
     },
 };
 use serde_json::{from_str, to_string, Value};

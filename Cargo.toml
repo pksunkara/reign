@@ -23,9 +23,6 @@ name = "reign"
 path = "src/lib.rs"
 
 [dependencies]
-# common deps
-log = "0.4.8"
-
 # lib deps
 reign_boot = { path = "./reign_boot", version = "0.1.2", optional = true }
 reign_derive = { path = "./reign_derive", version = "0.1.2", optional = true }
@@ -63,6 +60,7 @@ framework = ["reign_boot"]
 view = ["reign_view", "reign_derive/view"]
 router = ["reign_router", "reign_derive/router"]
 view-router = ["reign_view/view-router", "reign_derive/view-router", "view", "router"]
+session-redis = ["reign_router/session-redis"]
 
 [package.metadata.docs.rs]
 all-features = true

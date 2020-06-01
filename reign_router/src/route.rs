@@ -1,7 +1,5 @@
-use crate::{
-    hyper::{Body, Method, Response},
-    Error, Path, Request,
-};
+use crate::{Error, Path, Request};
+use hyper::{Body, Method, Response};
 use std::{future::Future, pin::Pin, sync::Arc};
 
 pub(crate) type Handler = Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>;

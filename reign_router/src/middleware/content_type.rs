@@ -1,8 +1,6 @@
-use crate::{
-    futures::FutureExt,
-    hyper::{header::CONTENT_TYPE, Body, Response, StatusCode},
-    Chain, HandleFuture, Middleware, Request,
-};
+use crate::{Chain, HandleFuture, Middleware, Request};
+use futures::FutureExt;
+use hyper::{header::CONTENT_TYPE, Body, Response, StatusCode};
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
 #[derive(Debug, Clone)]
@@ -45,7 +43,7 @@ impl<'a> ContentType<'a> {
 
 impl<'a> Middleware for ContentType<'a> {
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
-        match req.headers.get(CONTENT_TYPE) {
+        match req.headers().get(CONTENT_TYPE) {
             Some(content_type) => {
                 if let Ok(content_type) = content_type.to_str() {
                     if let Ok(val) = content_type.parse::<Mime>() {

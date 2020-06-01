@@ -11,8 +11,11 @@ use hyper::{
 };
 use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
 
+pub use anyhow;
 pub use futures;
 pub use hyper;
+pub use log;
+pub use tokio;
 
 mod error;
 mod path;
@@ -80,21 +83,20 @@ impl<'a> Router<'a> {
         self.pipes.insert(pipe.name, pipe);
     }
 
-    pub fn scope<P, R>(&mut self, path: P, router_fn: R)
+    pub fn scope<P, R>(&mut self, path: P, f: R)
     where
         P: Into<Path<'a>>,
         R: Fn(&mut Router),
     {
-        self.scopes.push(Scope::new(path).to(router_fn));
+        self.scopes.push(Scope::new(path).to(f));
     }
 
-    pub fn scope_through<P, R>(&mut self, path: P, pipes: &[&'a str], router_fn: R)
+    pub fn scope_through<P, R>(&mut self, path: P, pipes: &[&'a str], f: R)
     where
         P: Into<Path<'a>>,
         R: Fn(&mut Router),
     {
-        self.scopes
-            .push(Scope::new(path).through(pipes).to(router_fn));
+        self.scopes.push(Scope::new(path).through(pipes).to(f));
     }
 
     pub fn scope_as(&mut self, scope: Scope<'a>) {
@@ -218,12 +220,12 @@ impl<'a> Router<'a> {
     }
 }
 
-pub async fn serve<A, R>(addr: A, router_fn: R) -> Result<(), HyperError>
+pub async fn serve<A, R>(addr: A, f: R) -> Result<(), HyperError>
 where
     A: ToSocketAddrs + Send + 'static,
     R: Fn(&mut Router),
 {
-    let router_service = service(router_fn);
+    let router_service = service(f);
 
     let socket_addr = addr
         .to_socket_addrs()

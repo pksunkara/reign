@@ -30,7 +30,7 @@ impl Parse for PathSegmentDynamic {
     fn parse(input: ParseStream) -> Result<Self> {
         let mut ret = Self::new(input.parse()?);
 
-        while !input.is_empty() && !input.peek(Div) {
+        while input.peek(Question) || input.peek(Star) || input.peek(At) {
             if input.peek(Question) {
                 input.parse::<Question>()?;
                 ret.optional = true;

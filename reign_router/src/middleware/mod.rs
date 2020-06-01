@@ -24,8 +24,13 @@ impl<'a> Chain<'a> {
 
 mod content_type;
 mod headers_default;
+mod request_logger;
 mod runtime;
+
+pub mod cookie_parser;
+pub mod session;
 
 pub use content_type::ContentType;
 pub use headers_default::HeadersDefault;
+pub use request_logger::RequestLogger;
 pub use runtime::Runtime;

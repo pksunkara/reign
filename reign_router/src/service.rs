@@ -1,7 +1,5 @@
-use crate::{
-    hyper::{Body, Request as HyperRequest, Response as HyperResponse, StatusCode},
-    Chain, Constraint, Error, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR,
-};
+use crate::{Chain, Constraint, Error, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR};
+use hyper::{Body, Request as HyperRequest, Response as HyperResponse, StatusCode};
 use log::{debug, error};
 use regex::{Regex, RegexSet};
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
@@ -122,12 +120,12 @@ impl<'a> Service<'a> {
     }
 }
 
-pub fn service<'a, R>(router_fn: R) -> Service<'a>
+pub fn service<'a, R>(f: R) -> Service<'a>
 where
     R: Fn(&mut Router),
 {
     let mut router = Router::default();
-    router_fn(&mut router);
+    f(&mut router);
 
     Service::new(router)
 }

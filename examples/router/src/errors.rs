@@ -1,4 +1,5 @@
 use reign::router::{
+    anyhow,
     hyper::{http::Error as HttpError, Body, Response as Res, StatusCode},
     Response,
 };

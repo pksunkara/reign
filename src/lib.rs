@@ -3,8 +3,6 @@
 #![doc(html_root_url = "https://docs.rs/reign/0.1.2")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-pub use log;
-
 pub mod prelude;
 
 #[cfg(feature = "framework")]

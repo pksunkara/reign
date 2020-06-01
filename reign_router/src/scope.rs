@@ -29,12 +29,12 @@ impl<'a> Scope<'a> {
         self
     }
 
-    pub fn to<R>(mut self, router_fn: R) -> Self
+    pub fn to<R>(mut self, f: R) -> Self
     where
         R: Fn(&mut Router),
     {
         let mut router = Router::in_scope();
-        router_fn(&mut router);
+        f(&mut router);
 
         self.router = router;
         self
