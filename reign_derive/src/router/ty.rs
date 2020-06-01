@@ -25,7 +25,7 @@ where
         })
 }
 
-fn only_last_segment(ty: Type) -> Option<PathSegment> {
+pub fn only_last_segment(ty: Type) -> Option<PathSegment> {
     match ty {
         Type::Path(TypePath {
             qself: None,

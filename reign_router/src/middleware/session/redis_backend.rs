@@ -1,19 +1,19 @@
 use crate::middleware::session::SessionBackend;
-use bb8_redis::{redis::AsyncCommands, RedisPool};
+use bb8_redis::{bb8::Pool, redis::AsyncCommands, RedisConnectionManager};
 use futures::{future::BoxFuture, FutureExt};
 use log::error;
 
 pub struct RedisBackend {
     ttl: usize,
-    pool: RedisPool,
+    pool: Pool<RedisConnectionManager>,
 }
 
 impl RedisBackend {
-    pub fn new(ttl: usize, pool: RedisPool) -> Self {
+    pub fn new(ttl: usize, pool: Pool<RedisConnectionManager>) -> Self {
         Self { ttl, pool }
     }
 
-    pub fn pool(pool: RedisPool) -> Self {
+    pub fn pool(pool: Pool<RedisConnectionManager>) -> Self {
         Self::new(60 * 60 * 24 * 7, pool)
     }
 }
