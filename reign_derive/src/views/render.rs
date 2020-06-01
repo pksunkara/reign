@@ -213,7 +213,7 @@ pub fn render(mut input: Render) -> TokenStream {
         .remove("status")
         .unwrap_or_else(|| parse_str("200").unwrap());
 
-    if cfg!(feature = "view-router") {
+    if cfg!(feature = "view-backend") {
         quote! {
             ::reign::view::render(#capture, #status)
         }

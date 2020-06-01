@@ -13,9 +13,9 @@ mod slots;
 #[doc(hidden)]
 pub use slots::{slot_render, Slots};
 
-#[cfg(feature = "view-router")]
+#[cfg(feature = "view-backend")]
 use hyper::{header, http::Error, Body, Response, StatusCode};
-#[cfg(feature = "view-router")]
+#[cfg(feature = "view-backend")]
 use std::fmt::{write, Display};
 
 /// Renders a view for [reign_router](https://docs.rs/reign_router) handler.
@@ -79,7 +79,7 @@ use std::fmt::{write, Display};
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "view-router")]
+#[cfg(feature = "view-backend")]
 pub fn render<D: Display>(view: D, status: u16) -> Result<Response<Body>, Error> {
     let mut content = String::new();
 
@@ -163,7 +163,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<Response<Body>, Error>
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "view-router")]
+#[cfg(feature = "view-backend")]
 pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
     let mut response = Response::builder()
         .status(StatusCode::SEE_OTHER)
@@ -232,7 +232,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
 /// #   }
 /// # });
 /// ```
-#[cfg(feature = "view-router")]
+#[cfg(feature = "view-backend")]
 pub fn json<S: serde::Serialize>(value: S, status: u16) -> Result<Response<Body>, Error> {
     match serde_json::to_string::<S>(&value) {
         Ok(content) => match StatusCode::from_u16(status) {

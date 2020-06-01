@@ -21,7 +21,7 @@ jobs:
         type:
           - test
           - view
-          - view_router
+          - view-backend
           - router
           # - full
         rust: [nightly-2020-05-30]

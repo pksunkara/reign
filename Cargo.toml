@@ -53,14 +53,15 @@ default-members = [
 ]
 
 [features]
-default = ["view-router", "framework"]
+default = ["view-backend", "framework"]
 cli = ["clap"]
 doc = []
 framework = ["reign_boot"]
 view = ["reign_view", "reign_derive/view"]
 router = ["reign_router", "reign_derive/router"]
-view-router = ["reign_view/view-router", "reign_derive/view-router", "view", "router"]
+view-backend = ["reign_view/view-backend", "reign_derive/view-backend", "view", "router"]
 session-redis = ["reign_router/session-redis"]
+file-handlers = ["reign_router/file-handlers"]
 
 [package.metadata.docs.rs]
 all-features = true

@@ -100,10 +100,8 @@ pub fn path(input: Path) -> TokenStream {
                     &format!(
                         "param{}{}",
                         if d.optional { "_opt" } else { "" },
-                        if d.regex.is_some() {
+                        if d.regex.is_some() || d.glob {
                             "_regex"
-                        } else if d.glob {
-                            "_glob"
                         } else {
                             ""
                         }
@@ -114,6 +112,10 @@ pub fn path(input: Path) -> TokenStream {
                 let regex = if let Some(regex) = d.regex {
                     quote! {
                         , #regex
+                    }
+                } else if d.glob {
+                    quote! {
+                        , ".+"
                     }
                 } else {
                     quote! {}

@@ -1,5 +1,7 @@
-use crate::{Chain, Constraint, Error, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR};
-use hyper::{Body, Request as HyperRequest, Response as HyperResponse, StatusCode};
+use crate::{Chain, Constraint, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR};
+use hyper::{
+    http::Error as HttpError, Body, Request as HyperRequest, Response as HyperResponse, StatusCode,
+};
 use log::{debug, error};
 use regex::{Regex, RegexSet};
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
@@ -47,7 +49,7 @@ impl<'a> Service<'a> {
         self,
         req: HyperRequest<Body>,
         ip: SocketAddr,
-    ) -> Result<HyperResponse<Body>, Error> {
+    ) -> Result<HyperResponse<Body>, HttpError> {
         let to_match = format!("{}{}", req.method().as_str(), req.uri().path());
         let to_match = to_match.trim_end_matches('/');
         let matches = self.regex_set.matches(to_match);
@@ -107,16 +109,19 @@ impl<'a> Service<'a> {
         handler: &Arc<Handler>,
         mut request: Request,
         route: &RouteRef,
-    ) -> Result<HyperResponse<Body>, Error> {
+    ) -> Result<HyperResponse<Body>, HttpError> {
         let chain = Chain {
             handler,
             middlewares: &route.middlewares,
         };
 
-        chain.run(&mut request).await.map_err(|err| {
-            error!("{}", err);
-            err
-        })
+        match chain.run(&mut request).await {
+            Ok(r) => Ok(r),
+            Err(err) => {
+                error!("{}", err);
+                err.respond()
+            }
+        }
     }
 }
 

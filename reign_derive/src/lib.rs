@@ -98,7 +98,7 @@ pub fn render(input: TokenStream) -> TokenStream {
 ///
 /// json!(user, status = 201)
 /// ```
-#[cfg(feature = "view-router")]
+#[cfg(feature = "view-backend")]
 #[proc_macro]
 pub fn json(input: TokenStream) -> TokenStream {
     let input: views::json::Json = parse_macro_input!(input);

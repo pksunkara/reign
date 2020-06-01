@@ -26,6 +26,8 @@ mod route;
 mod scope;
 mod service;
 
+#[cfg(feature = "file-handlers")]
+pub mod handlers;
 pub mod middleware;
 
 pub use error::*;

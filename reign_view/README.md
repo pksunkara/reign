@@ -435,7 +435,7 @@ usage of macros.
 * `views!` can be used to build the views.
 * `render!` can be used to render a view into a string.
 
-##### view-router
+##### view-backend
 
 * `views!` can be used to build the views.
 * Enables `render` helper and `render!` renders a view into response for [reign_router][] handler.
