@@ -48,7 +48,7 @@ impl SessionBackend for RedisBackend {
 
                 match conn.get(id).await {
                     Ok(value) => return Some(value),
-                    Err(e) => error!("Failed to run redis command, {}", e)
+                    Err(e) => error!("Failed to run redis command, {}", e),
                 }
             } else {
                 error!("Failed to get redis connection from pool");

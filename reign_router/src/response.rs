@@ -33,6 +33,18 @@ where
     }
 }
 
+impl<B> Response for (u16, Mime, B)
+where
+    B: Into<Body>,
+{
+    fn respond(self) -> Result<HyperResponse<Body>, Error> {
+        HyperResponse::builder()
+            .status(StatusCode::from_u16(self.0)?)
+            .header(header::CONTENT_TYPE, self.1.as_ref())
+            .body(self.2.into())
+    }
+}
+
 macro_rules! plain_response {
     ($type:ty) => {
         impl Response for $type {

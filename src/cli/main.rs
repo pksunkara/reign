@@ -2,8 +2,13 @@ use clap::{
     AppSettings::{ColoredHelp, VersionlessSubcommands},
     Clap,
 };
+use std::process::exit;
 
+mod generate;
 mod new;
+mod utils;
+
+use utils::term::{TERM_ERR, TERM_OUT};
 
 #[derive(Debug, Clap)]
 #[clap(name = "reign")]
@@ -17,13 +22,28 @@ struct Reign {
 #[derive(Debug, Clap)]
 enum ReignSubcommand {
     New(new::New),
+    #[clap(alias = "gen")]
+    Generate(generate::Generate),
 }
 
 fn main() {
     let program = Reign::parse();
 
-    match program.cmd {
+    let err = match program.cmd {
         ReignSubcommand::New(x) => x.run(),
+        ReignSubcommand::Generate(x) => x.run(),
     }
-    .unwrap()
+    .err();
+
+    let code = if let Some(e) = err {
+        e.print_err().unwrap();
+        1
+    } else {
+        0
+    };
+
+    TERM_ERR.flush().unwrap();
+    TERM_OUT.flush().unwrap();
+
+    exit(code)
 }

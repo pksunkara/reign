@@ -1,8 +1,8 @@
-use crate::{middleware::session::SessionData, ParamError};
+use crate::{middleware::session::SessionData, Error, ParamError};
 use hyper::{
     body::{to_bytes, Bytes},
     http::{request::Parts, Extensions},
-    Body, Error, HeaderMap, Method, Request as HyperRequest, Uri, Version,
+    Body, HeaderMap, Method, Request as HyperRequest, Uri, Version,
 };
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap as Map, net::SocketAddr};
@@ -80,7 +80,7 @@ impl Request {
     /// Retrieve the Request body.
     pub async fn body(&mut self) -> Result<Option<Bytes>, Error> {
         if let Some(body) = self.extensions_mut().remove::<Body>() {
-            Some(to_bytes(body).await).transpose()
+            Ok(Some(to_bytes(body).await?))
         } else {
             Ok(None)
         }
