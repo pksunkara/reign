@@ -1,7 +1,7 @@
 use crate::{middleware::session::SessionData, ParamError};
 use hyper::{
     body::{to_bytes, Bytes},
-    http::Extensions,
+    http::{request::Parts, Extensions},
     Body, Error, HeaderMap, Method, Request as HyperRequest, Uri, Version,
 };
 use serde::{Deserialize, Serialize};
@@ -10,34 +10,32 @@ use url::form_urlencoded::parse;
 
 #[derive(Debug)]
 pub struct Request {
-    method: Method,
-    version: Version,
-    uri: Uri,
-    headers: HeaderMap,
+    parts: Parts,
     ip: SocketAddr,
     pub(crate) params: Map<String, String>,
     pub(crate) query: Map<String, String>,
-    pub extensions: Extensions,
 }
 
 impl Request {
     pub(crate) fn new(ip: SocketAddr, req: HyperRequest<Body>) -> Self {
+        let (parts, body) = req.into_parts();
+
         let mut ret = Self {
-            method: req.method().clone(),
-            version: req.version(),
-            uri: req.uri().clone(),
-            headers: req.headers().clone(),
+            parts,
             ip,
             params: Map::new(),
-            query: req
-                .uri()
-                .query()
-                .map(|v| parse(v.as_bytes()).into_owned().collect())
-                .unwrap_or_else(Map::new),
-            extensions: Extensions::new(),
+            query: Map::new(),
         };
 
-        ret.extensions.insert::<Body>(req.into_body());
+        if let Some(query) = ret
+            .uri()
+            .query()
+            .map(|v| parse(v.as_bytes()).into_owned().collect())
+        {
+            ret.query = query;
+        }
+
+        ret.parts.extensions.insert(body);
         ret
     }
 
@@ -49,29 +47,39 @@ impl Request {
     /// Returns a reference to the associated Method.
     #[inline]
     pub fn method(&self) -> &Method {
-        &self.method
+        &self.parts.method
     }
 
     #[inline]
     pub fn version(&self) -> &Version {
-        &self.version
+        &self.parts.version
     }
 
     /// Returns a reference to the associated URI.
     #[inline]
     pub fn uri(&self) -> &Uri {
-        &self.uri
+        &self.parts.uri
     }
 
     /// Returns a reference to the associated HeaderMap.
     #[inline]
     pub fn headers(&self) -> &HeaderMap {
-        &self.headers
+        &self.parts.headers
+    }
+
+    #[inline]
+    pub fn extensions(&self) -> &Extensions {
+        &self.parts.extensions
+    }
+
+    #[inline]
+    pub fn extensions_mut(&mut self) -> &mut Extensions {
+        &mut self.parts.extensions
     }
 
     /// Retrieve the Request body.
     pub async fn body(&mut self) -> Result<Option<Bytes>, Error> {
-        if let Some(body) = self.extensions.remove::<Body>() {
+        if let Some(body) = self.extensions_mut().remove::<Body>() {
             Some(to_bytes(body).await).transpose()
         } else {
             Ok(None)
@@ -118,7 +126,7 @@ impl Request {
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
     {
-        self.extensions
+        self.extensions()
             .get::<SessionData<T>>()
             .and_then(|data| match data {
                 SessionData::Clean(data) => Some(data),
@@ -130,15 +138,15 @@ impl Request {
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
     {
-        self.extensions.insert(SessionData::Dirty(data));
+        self.extensions_mut().insert(SessionData::Dirty(data));
     }
 
     pub fn drop_session<T>(&mut self)
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
     {
-        if self.extensions.get::<SessionData<T>>().is_some() {
-            self.extensions.insert(SessionData::<T>::None);
+        if self.extensions().get::<SessionData<T>>().is_some() {
+            self.extensions_mut().insert(SessionData::<T>::None);
         }
     }
 }

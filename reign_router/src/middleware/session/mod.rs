@@ -182,13 +182,13 @@ where
 
             if let Some(data) = self.backend.read_session(id).await {
                 if let Ok(bytes) = deserialize::<T>(&data) {
-                    req.extensions.insert(SessionData::<T>::Clean(bytes));
+                    req.extensions_mut().insert(SessionData::<T>::Clean(bytes));
                     return true;
                 }
             }
         }
 
-        req.extensions.insert(SessionData::<T>::None);
+        req.extensions_mut().insert(SessionData::<T>::None);
         false
     }
 
@@ -199,7 +199,7 @@ where
         had_data: bool,
         id: &Option<String>,
     ) {
-        if let Some(data) = req.extensions.remove::<SessionData<T>>() {
+        if let Some(data) = req.extensions_mut().remove::<SessionData<T>>() {
             match data {
                 SessionData::Dirty(data) => {
                     if let Ok(bytes) = serialize(&data) {
@@ -256,7 +256,7 @@ where
 {
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
         let cookies = req
-            .extensions
+            .extensions()
             .get::<CookieJar>()
             .cloned()
             .unwrap_or_else(|| {

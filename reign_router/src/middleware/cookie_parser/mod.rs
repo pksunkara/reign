@@ -39,7 +39,7 @@ impl<'a> CookieParser<'a> {
 impl<'a> Middleware for CookieParser<'a> {
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
         let jar = self.parse(req);
-        req.extensions.insert(jar);
+        req.extensions_mut().insert(jar);
 
         chain.run(req)
     }
