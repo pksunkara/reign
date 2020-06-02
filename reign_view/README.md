@@ -438,9 +438,9 @@ usage of macros.
 ##### view-backend
 
 * `views!` can be used to build the views.
-* Enables `render` helper and `render!` renders a view into response for [reign_router][] handler.
-* Enables `redirect` helper for [reign_router][] handler.
-* Enables `json` helper and `json!` builds response for [reign_router][] handler
+* Enables `render` helper and `render!` renders a view into response for [reign_router][] backend handler.
+* Enables `redirect` helper for [reign_router][] backend handler.
+* Enables `json` helper and `json!` builds response for [reign_router][] backend handler
 
 # Appendix
 

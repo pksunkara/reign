@@ -7,7 +7,7 @@ use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use syn::parse_macro_input;
 
-#[cfg(feature = "router")]
+#[cfg(feature = "router-backend")]
 mod router;
 #[cfg(feature = "view")]
 mod views;
@@ -122,7 +122,7 @@ pub fn json(input: TokenStream) -> TokenStream {
 ///     Ok(id)
 /// }
 /// ```
-#[cfg(feature = "router")]
+#[cfg(feature = "router-backend")]
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
@@ -161,7 +161,7 @@ pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
 ///     r.get(p!("tree" / id*?), tree);
 /// }
 /// ```
-#[cfg(feature = "router")]
+#[cfg(feature = "router-backend")]
 #[proc_macro]
 #[proc_macro_error]
 pub fn p(input: TokenStream) -> TokenStream {

@@ -34,8 +34,8 @@ trybuild = "1.0"
 default = []
 doc = []
 view = ["reign_view", "regex", "Inflector", "lazy_static"]
-view-backend = ["view", "router"]
-router = []
+view-backend = ["view", "router-backend"]
+router-backend = []
 
 [package.metadata.docs.rs]
 all-features = true

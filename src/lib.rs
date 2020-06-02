@@ -7,7 +7,7 @@ pub mod prelude;
 
 #[cfg(feature = "framework")]
 pub use reign_boot::boot;
-#[cfg(feature = "router")]
+#[cfg(feature = "router-backend")]
 pub use reign_router as router;
 #[cfg(feature = "view")]
 pub use reign_view as view;

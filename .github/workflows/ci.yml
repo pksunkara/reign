@@ -22,7 +22,7 @@ jobs:
           - test
           - view
           - view-backend
-          - router
+          - router-backend
           # - full
         rust: [nightly-2020-05-30]
         os: [windows-latest, macos-latest, ubuntu-latest]
