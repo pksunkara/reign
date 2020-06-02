@@ -87,7 +87,7 @@ impl Request {
         Ok(self
             .params
             .get(name)
-            .ok_or(ParamError::RequiredParamNotFound(name.into()))?
+            .ok_or_else(|| ParamError::RequiredParamNotFound(name.into()))?
             .clone())
     }
 
@@ -99,10 +99,9 @@ impl Request {
         Ok(self
             .params
             .get(name)
-            .ok_or(ParamError::RequiredGlobParamNotFound(name.into()))?
+            .ok_or_else(|| ParamError::RequiredGlobParamNotFound(name.into()))?
             .clone()
-            .split("/")
-            .into_iter()
+            .split('/')
             .map(|x| x.into())
             .collect())
     }
@@ -112,7 +111,7 @@ impl Request {
             .params
             .get(name)
             .cloned()
-            .map(|x| x.split("/").into_iter().map(|x| x.into()).collect()))
+            .map(|x| x.split('/').map(|x| x.into()).collect()))
     }
 
     pub fn session<T>(&mut self) -> Option<&T>

@@ -16,6 +16,7 @@ impl<'a> Pipe<'a> {
         }
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn add<M>(mut self, middleware: M) -> Self
     where
         M: Middleware + Send + Sync + 'static,

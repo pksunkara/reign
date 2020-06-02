@@ -18,7 +18,6 @@ fn not_found() -> Result<Response<Body>, Error> {
 pub fn to_dir<'a>(base: &'a str, cache: Option<u32>) -> impl Fn(&mut Request) -> HandleFuture + 'a {
     move |req: &mut Request| {
         let mut path = PathBuf::from(base);
-        let cache = cache.clone();
 
         async move {
             for part in req.param_glob("path")? {

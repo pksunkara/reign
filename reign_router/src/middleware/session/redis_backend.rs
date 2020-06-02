@@ -27,8 +27,8 @@ impl SessionBackend for RedisBackend {
             if let Ok(mut conn) = self.pool.get().await {
                 let conn = conn.as_mut().unwrap();
 
-                if let Err(_) = conn.set_ex::<_, _, String>(id, content, ttl).await {
-                    error!("Failed to run redis command");
+                if let Err(e) = conn.set_ex::<_, _, String>(id, content, ttl).await {
+                    error!("Failed to run redis command, {}", e);
                 } else {
                     return true;
                 }
@@ -46,10 +46,9 @@ impl SessionBackend for RedisBackend {
             if let Ok(mut conn) = self.pool.get().await {
                 let conn = conn.as_mut().unwrap();
 
-                if let Ok(value) = conn.get(id).await {
-                    return Some(value);
-                } else {
-                    error!("Failed to run redis command");
+                match conn.get(id).await {
+                    Ok(value) => return Some(value),
+                    Err(e) => error!("Failed to run redis command, {}", e)
                 }
             } else {
                 error!("Failed to get redis connection from pool");
@@ -65,8 +64,8 @@ impl SessionBackend for RedisBackend {
             if let Ok(mut conn) = self.pool.get().await {
                 let conn = conn.as_mut().unwrap();
 
-                if let Err(_) = conn.del::<_, String>(id).await {
-                    error!("Failed to run redis command");
+                if let Err(e) = conn.del::<_, String>(id).await {
+                    error!("Failed to run redis command, {}", e);
                 }
             } else {
                 error!("Failed to get redis connection from pool");

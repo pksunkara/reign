@@ -49,7 +49,7 @@ impl<'a> Route<'a> {
 
     pub(crate) fn regex(&self) -> (String, String) {
         let methods = if self.methods.is_empty() {
-            format!("^(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|TRACE|CONNECT)")
+            "^(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|TRACE|CONNECT)".into()
         } else {
             format!(
                 "^(?:{})",

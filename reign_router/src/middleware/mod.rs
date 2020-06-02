@@ -6,6 +6,7 @@ pub trait Middleware {
 }
 
 pub struct Chain<'a> {
+    #[allow(clippy::borrowed_box)]
     pub(crate) handler: &'a Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>,
     pub(crate) middlewares: &'a [Arc<MiddlewareItem>],
 }
