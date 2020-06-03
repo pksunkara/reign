@@ -21,7 +21,7 @@ url = "2.1.1"
 mime = "0.3.16"
 hyper = "0.13.5"
 futures = "0.3.5"
-tokio = "0.2.21"
+tokio = { version = "0.2.21", features = ["io-util"] }
 log = "0.4.8"
 thiserror = "1.0.19"
 anyhow = "1.0.31"

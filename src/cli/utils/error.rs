@@ -1,4 +1,4 @@
-use crate::utils::term::{RED_BOLD, TERM_ERR, YELLOW};
+use crate::utils::term::{RED_BOLD, TERM_ERR};
 use console::Term;
 use handlebars::TemplateRenderError;
 use std::io;

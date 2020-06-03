@@ -22,7 +22,7 @@ pub struct Project {
 
 impl New {
     pub fn run(&self) -> Result {
-        let mut handlebars = Handlebars::new();
+        let handlebars = Handlebars::new();
 
         // TODO:(cli) Allow option to merge
         let project = PathBuf::from(&self.name);

@@ -2,7 +2,7 @@ use futures::FutureExt;
 use reign_router::{
     hyper::{body::to_bytes, Body, Request as Req, StatusCode},
     middleware::HeadersDefault,
-    service, HandleFuture, Pipe, Request, Response,
+    service, HandleFuture, Request, Response,
 };
 
 #[tokio::test]
@@ -12,7 +12,8 @@ async fn test_headers_default() {
     }
 
     let service = service(|r| {
-        r.pipe(Pipe::new("app").add(HeadersDefault::empty().add("x-powered-by", "reign")));
+        r.pipe("app")
+            .add(HeadersDefault::empty().add("x-powered-by", "reign"));
 
         r.scope_through("", &["app"], |r| {
             r.get("foo", index);

@@ -1,7 +1,7 @@
 use reign::{
     prelude::*,
     router::{
-        hyper::Response as Res, middleware::HeadersDefault, serve, Pipe, Request, Response, Router,
+        hyper::Response as Res, middleware::HeadersDefault, serve, Request, Response, Router,
     },
 };
 use serde_json::{from_str, to_string, Value};
@@ -117,13 +117,13 @@ async fn multi_params(
 }
 
 fn router(r: &mut Router) {
-    r.pipe(Pipe::new("common").add(HeadersDefault::empty().add("x-powered-by", "reign")));
-    r.pipe(Pipe::new("app").add(HeadersDefault::empty().add("x-content-type-options", "nosniff")));
-    r.pipe(
-        Pipe::new("api")
-            .add(HeadersDefault::empty().add("x-version", "1.0"))
-            .add(HeadersDefault::empty().add("content-type", "application/json")),
-    );
+    r.pipe("common")
+        .add(HeadersDefault::empty().add("x-powered-by", "reign"));
+    r.pipe("app")
+        .add(HeadersDefault::empty().add("x-content-type-options", "nosniff"));
+    r.pipe("api")
+        .add(HeadersDefault::empty().add("x-version", "1.0"))
+        .add(HeadersDefault::empty().add("content-type", "application/json"));
 
     r.scope_through("", &["common", "app"], |r| {
         r.get("str", str_);

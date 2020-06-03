@@ -90,7 +90,7 @@ macro_rules! method {
 #[derive(Default)]
 pub struct Router<'a> {
     in_scope: bool,
-    pipes: Map<&'a str, Pipe<'a>>,
+    pipes: Map<&'a str, Pipe>,
     scopes: Vec<Scope<'a>>,
     routes: Vec<Route<'a>>,
 }
@@ -103,12 +103,13 @@ impl<'a> Router<'a> {
         }
     }
 
-    pub fn pipe(&mut self, pipe: Pipe<'a>) {
+    pub fn pipe(&mut self, name: &'a str) -> &mut Pipe {
         if self.in_scope {
             panic!("Pipes are not allowed to be defined in scopes");
         }
 
-        self.pipes.insert(pipe.name, pipe);
+        self.pipes.insert(name, Pipe::new());
+        self.pipes.get_mut(name).expect(INTERNAL_ERR)
     }
 
     pub fn scope<P, R>(&mut self, path: P, f: R)
@@ -124,14 +125,14 @@ impl<'a> Router<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// use reign::router::{Router, Pipe, middleware::Runtime};
+    /// use reign::router::{Router, middleware::Runtime};
     /// # use reign::{prelude::*, router::{Request, Response, Error}};
     /// #
     /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
-    ///     r.pipe(Pipe::new("common").add(Runtime::default()));
+    ///     r.pipe("common").add(Runtime::default());
     ///
     ///     r.scope_through("foo", &["common"], |r| {
     ///         r.get("", foo);
