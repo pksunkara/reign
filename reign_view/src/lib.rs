@@ -14,22 +14,19 @@ mod slots;
 pub use slots::{slot_render, Slots};
 
 #[cfg(feature = "view-backend")]
-use hyper::{header, http::Error, Body, Response, StatusCode};
+use hyper::{header, http::Error as HttpError, Body, Response as HyperResponse, StatusCode};
 #[cfg(feature = "view-backend")]
 use std::fmt::{write, Display};
 
-/// Renders a view for [reign_router](https://docs.rs/reign_router) handler.
+/// Renders a view for [reign router](https://docs.rs/reign_router) endpoint handler
 ///
 /// The response is sent with content-type set as `text/html`.
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::{
-///     view::render,
-///     router::{HandleFuture, Request, futures::FutureExt},
-/// };
-/// # use std::fmt::{Formatter, Result, Display};
+/// use reign::{prelude::*, view::render};
+/// # use std::fmt::{Formatter, Result as FmtResult, Display};
 /// # use reign::router::serve;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
@@ -39,17 +36,16 @@ use std::fmt::{write, Display};
 /// }
 ///
 /// impl Display for CustomView<'_> {
-///   fn fmt(&self, f: &mut Formatter) -> Result {
+///   fn fmt(&self, f: &mut Formatter) -> FmtResult {
 ///       write!(f, "<h1>{}</h1>", self.msg)
 ///   }
 /// }
 ///
-/// fn handler(req: &mut Request) -> HandleFuture {
-///     async move {
-///         Ok(render(CustomView {
-///             msg: "Hello Reign!"
-///         }, 200)?)
-///     }.boxed()
+/// #[action]
+/// async fn handler(req: &mut Request) -> Result<impl Response, Error> {
+///     Ok(render(CustomView {
+///         msg: "Hello Reign!"
+///     }, 200)?)
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
@@ -80,53 +76,48 @@ use std::fmt::{write, Display};
 /// # });
 /// ```
 #[cfg(feature = "view-backend")]
-pub fn render<D: Display>(view: D, status: u16) -> Result<Response<Body>, Error> {
+pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, HttpError> {
     let mut content = String::new();
 
     match write(&mut content, format_args!("{}", view)) {
-        Ok(()) => match StatusCode::from_u16(status) {
-            Ok(status) => {
-                let mut response = Response::builder().status(status).body(Body::empty())?;
+        Ok(()) => {
+            let status = StatusCode::from_u16(status)?;
+            let mut response = HyperResponse::builder()
+                .status(status)
+                .body(Body::empty())?;
 
-                response.headers_mut().insert(
-                    header::CONTENT_TYPE,
-                    mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
-                );
+            response.headers_mut().insert(
+                header::CONTENT_TYPE,
+                mime::TEXT_HTML_UTF_8.as_ref().parse().unwrap(),
+            );
 
-                *response.body_mut() = content.into();
+            *response.body_mut() = content.into();
 
-                Ok(response)
-            }
-            Err(_) => Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::empty()),
-        },
-        Err(_) => Response::builder()
+            Ok(response)
+        }
+        Err(_) => HyperResponse::builder()
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::empty()),
     }
 }
 
-/// Sends a redirect for [reign_router](https://docs.rs/reign_router) handler.
+/// Sends a redirect for [reign router](https://docs.rs/reign_router) endpoint
+/// handler
 ///
 /// The response is sent with status code `303` and `location` header.
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::{
-///     view::redirect,
-///     router::{HandleFuture, Request, futures::FutureExt},
-/// };
+/// use reign::{prelude::*, view::redirect};
 /// # use reign::router::serve;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
 /// # use reqwest::{Client, redirect::Policy};
 ///
-/// fn handler(req: &mut Request) -> HandleFuture {
-///     async move {
-///         Ok(redirect("/dashboard")?)
-///     }.boxed()
+/// #[action]
+/// async fn handler(req: &mut Request) -> Result<impl Response, Error> {
+///     Ok(redirect("/dashboard")?)
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
@@ -164,8 +155,8 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<Response<Body>, Error>
 /// # });
 /// ```
 #[cfg(feature = "view-backend")]
-pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
-    let mut response = Response::builder()
+pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpError> {
+    let mut response = HyperResponse::builder()
         .status(StatusCode::SEE_OTHER)
         .body(Body::empty())?;
 
@@ -176,17 +167,15 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
     Ok(response)
 }
 
-/// Serializes and sends JSON for [reign_router](https://docs.rs/reign_router) handler.
+/// Serializes and sends JSON for [reign router](https://docs.rs/reign_router)
+/// endpoint handler
 ///
 /// The response is sent with content-type set as `application/json`.
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::{
-///     view::json,
-///     router::{HandleFuture, Request, futures::FutureExt},
-/// };
+/// use reign::{prelude::*, view::json};
 /// # use reign::router::serve;
 /// # use serde::Serialize;
 /// # use std::time::Duration;
@@ -197,12 +186,11 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
 ///   name: &'a str
 /// }
 ///
-/// fn handler(req: &mut Request) -> HandleFuture {
-///     async move {
-///         Ok(json(User {
-///             name: "Reign"
-///         }, 200)?)
-///     }.boxed()
+/// #[action]
+/// async fn handler(req: &mut Request) -> Result<impl Response, Error> {
+///     Ok(json(User {
+///         name: "Reign"
+///     }, 200)?)
 /// }
 /// # let mut rt = Runtime::new().unwrap();
 /// #
@@ -233,26 +221,24 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<Response<Body>, Error> {
 /// # });
 /// ```
 #[cfg(feature = "view-backend")]
-pub fn json<S: serde::Serialize>(value: S, status: u16) -> Result<Response<Body>, Error> {
+pub fn json<S: serde::Serialize>(value: S, status: u16) -> Result<HyperResponse<Body>, HttpError> {
     match serde_json::to_string::<S>(&value) {
-        Ok(content) => match StatusCode::from_u16(status) {
-            Ok(status) => {
-                let mut response = Response::builder().status(status).body(Body::empty())?;
+        Ok(content) => {
+            let status = StatusCode::from_u16(status)?;
+            let mut response = HyperResponse::builder()
+                .status(status)
+                .body(Body::empty())?;
 
-                response.headers_mut().insert(
-                    header::CONTENT_TYPE,
-                    mime::APPLICATION_JSON.as_ref().parse().unwrap(),
-                );
+            response.headers_mut().insert(
+                header::CONTENT_TYPE,
+                mime::APPLICATION_JSON.as_ref().parse().unwrap(),
+            );
 
-                *response.body_mut() = content.into();
+            *response.body_mut() = content.into();
 
-                Ok(response)
-            }
-            Err(_) => Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::empty()),
-        },
-        Err(_) => Response::builder()
+            Ok(response)
+        }
+        Err(_) => HyperResponse::builder()
             .status(StatusCode::INTERNAL_SERVER_ERROR)
             .body(Body::empty()),
     }

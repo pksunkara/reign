@@ -1,10 +1,12 @@
 use crate::{Error, Path, Request};
-use hyper::{Body, Method, Response};
+use hyper::{Body, Method, Response as HyperResponse};
 use std::{future::Future, pin::Pin, sync::Arc};
 
-pub(crate) type Handler = Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>;
+/// Return type of a middleware handle or an endpoint handle when `action` attribute is not used
 pub type HandleFuture<'a> =
-    Pin<Box<dyn Future<Output = Result<Response<Body>, Error>> + Send + 'a>>;
+    Pin<Box<dyn Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'a>>;
+
+pub(crate) type Handler = Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>;
 pub(crate) type Constraint = Box<dyn Fn(&Request) -> bool + Send + Sync + 'static>;
 
 #[derive(Default, Clone)]

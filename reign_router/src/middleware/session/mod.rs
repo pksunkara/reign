@@ -1,3 +1,5 @@
+//! Contains types needed for session management middleware
+
 use crate::{
     middleware::cookie_parser::CookieParser, Chain, HandleFuture, Middleware, Request, INTERNAL_ERR,
 };
@@ -21,31 +23,27 @@ use std::{
 
 pub use cookie::SameSite;
 
-#[cfg(feature = "session-redis")]
-mod redis_backend;
+pub mod backends;
 
-#[cfg(feature = "session-redis")]
-pub use redis_backend::RedisBackend;
-
+/// Represents type that can store session data and is used by the session middleware
 pub trait SessionBackend {
-    /// Persists a session, either creating a new session or updating an existing session.
+    /// Persists a session, either creating a new session or updating an existing session
     fn persist_session<'a>(
         &'a self,
         identifier: &'a str,
         content: &'a [u8],
     ) -> Pin<Box<dyn Future<Output = bool> + Send + 'a>>;
 
-    /// Retrieves a session from the underlying storage.
+    /// Retrieves a session from the underlying storage
     ///
     /// The returned future will resolve to an `Option<Vec<u8>>` on success, where a value of
-    /// `None` indicates that the session is not available for use and a new session should be
-    /// established.
+    /// `None` indicates that the session is not available for use.
     fn read_session<'a>(
         &'a self,
         identifier: &'a str,
     ) -> Pin<Box<dyn Future<Output = Option<Vec<u8>>> + Send + 'a>>;
 
-    /// Drops a session from the underlying storage.
+    /// Drops a session from the underlying storage
     fn drop_session<'a>(
         &'a self,
         identifier: &'a str,
@@ -61,6 +59,7 @@ where
     None,
 }
 
+/// Manages the session lifecycle
 pub struct Session<'a, T, B>
 where
     T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
@@ -83,6 +82,21 @@ where
     T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
     B: SessionBackend + Send + Sync,
 {
+    /// Instantiates the middleware with type of session data and the backend info
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use reign::router::{Router, middleware::session::{Session, backends::RedisBackend}};
+    /// use serde::{Serialize, Deserialize};
+    ///
+    /// #[derive(Serialize, Deserialize)]
+    /// pub struct User(String);
+    ///
+    /// fn router(r: &mut Router) {
+    ///     r.pipe("common").add(Session::<, _>::new(RedisBackend::pool(REDIS.pool().clone())));
+    /// }
+    /// ```
     pub fn new(backend: B) -> Self {
         Self {
             name: "_reign_session",

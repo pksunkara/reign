@@ -3,6 +3,7 @@ use bb8_redis::{bb8::Pool, redis::AsyncCommands, RedisConnectionManager};
 use futures::{future::BoxFuture, FutureExt};
 use log::error;
 
+/// Redis backend for session data
 pub struct RedisBackend {
     ttl: usize,
     pool: Pool<RedisConnectionManager>,

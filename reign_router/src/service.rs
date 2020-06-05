@@ -1,4 +1,4 @@
-use crate::{Chain, Constraint, Handler, MiddlewareItem, Request, Router, INTERNAL_ERR};
+use crate::{Chain, Constraint, Handler, MiddlewareItem, Request, Response, Router, INTERNAL_ERR};
 use hyper::{
     http::Error as HttpError, Body, Request as HyperRequest, Response as HyperResponse, StatusCode,
 };
@@ -12,6 +12,7 @@ pub(crate) struct RouteRef {
     pub(crate) constraints: Vec<Option<Arc<Constraint>>>,
 }
 
+/// Thread safe structure that optimizes the given router for responding to requests
 #[derive(Clone)]
 pub struct Service<'a> {
     router: Arc<Router<'a>>,
@@ -45,6 +46,30 @@ impl<'a> Service<'a> {
         }
     }
 
+    /// Respond to a given hyper Request and IP address
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use reign::router::{service, Router};
+    ///
+    /// fn router(r: &mut Router) {}
+    ///
+    /// #[tokio::test]
+    /// async fn test() {
+    ///     let service = service(router);
+    ///
+    ///     let response = service
+    ///         .call(
+    ///             Req::get("https://reign.rs/get")
+    ///                 .body(Body::empty())
+    ///                 .unwrap(),
+    ///             "10.10.10.10:80".parse().unwrap(),
+    ///         )
+    ///         .await
+    ///         .unwrap();
+    /// }
+    /// ```
     pub async fn call(
         self,
         req: HyperRequest<Body>,
@@ -125,6 +150,32 @@ impl<'a> Service<'a> {
     }
 }
 
+/// Converts the router into a service that responds to a given hyper Request
+///
+/// Useful in tests without needing to spin up the server
+///
+/// # Examples
+///
+/// ```no_run
+/// use reign::router::{service, Router};
+///
+/// fn router(r: &mut Router) {}
+///
+/// #[tokio::test]
+/// async fn test() {
+///     let service = service(router);
+///
+///     let response = service
+///         .call(
+///             Req::get("https://reign.rs/get")
+///                 .body(Body::empty())
+///                 .unwrap(),
+///             "10.10.10.10:80".parse().unwrap(),
+///         )
+///         .await
+///         .unwrap();
+/// }
+/// ```
 pub fn service<'a, R>(f: R) -> Service<'a>
 where
     R: Fn(&mut Router),

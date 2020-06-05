@@ -110,12 +110,8 @@ pub fn json(input: TokenStream) -> TokenStream {
 ///
 /// # Examples
 ///
-/// ```ignore
-/// use anyhow::Error;
-/// use reign::{
-///     prelude::*,
-///     router::{Request, Response}
-/// };
+/// ```
+/// use reign::prelude::*;
 ///
 /// #[action]
 /// async fn name(req: &mut Request, id: String) -> Result<impl Response, Error> {
@@ -135,11 +131,20 @@ pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// # Examples
 ///
-/// ```ignore
+/// ```
 /// use reign::{
 ///     prelude::*,
 ///     router::{Router}
 /// };
+/// #
+/// # #[action]
+/// # async fn foobar(req: &mut Request) -> Result<impl Response, Error> { Ok("foobar") }
+/// #
+/// # #[action]
+/// # async fn number(req: &mut Request) -> Result<impl Response, Error> { Ok("number") }
+/// #
+/// # #[action]
+/// # async fn tree(req: &mut Request) -> Result<impl Response, Error> { Ok("tree") }
 ///
 /// fn router(r: &mut Router) {
 ///     // Required param

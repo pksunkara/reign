@@ -9,6 +9,8 @@ of use in mind followed by future extensibility, modularization and customizatio
 This library also provides multiple helpers and feature gates which an user can use
 to customize, allowing the library to be used directly with or without [reign_router][].
 
+Please refer to [Guides](https://reign.rs/guides) on several how-to scenairos.
+
 Please refer to [API documentation](https://docs.rs/reign_view) for more details.
 
 **NOTE**: Minimum supported Rust version is **1.45.0**
@@ -24,8 +26,7 @@ Please refer to [API documentation](https://docs.rs/reign_view) for more details
 
 # Quickstart
 
-1. Add [reign](https://docs.rs/reign) to your code base with
-   default features ommitted and `view` feature enabled
+1. Add [Reign][] to your code base with default features ommitted and `view` feature enabled
 
     ```toml
     [dependencies]

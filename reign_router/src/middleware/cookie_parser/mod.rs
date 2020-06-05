@@ -1,9 +1,12 @@
+//! Contains types needed for cookie parsing middleware
+
 use crate::{Chain, HandleFuture, Middleware, Request};
 use cookie::Cookie;
 use hyper::header::{HeaderValue, COOKIE};
 
 pub use cookie::CookieJar;
 
+/// Parses the cookie and adds a CookieJar to the request storage
 #[derive(Default)]
 pub struct CookieParser<'a> {
     secret: Option<&'a str>,

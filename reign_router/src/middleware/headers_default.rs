@@ -2,6 +2,7 @@ use crate::{Chain, HandleFuture, Middleware, Request};
 use futures::FutureExt;
 use hyper::header::{HeaderName, HeaderValue};
 
+/// Adds some default headers to all responses
 #[derive(Debug, Clone)]
 pub struct HeadersDefault {
     headers: Vec<(HeaderName, HeaderValue)>,

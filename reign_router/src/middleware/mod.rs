@@ -1,10 +1,33 @@
+//! Contains some common middlewares
+
 use crate::{HandleFuture, MiddlewareItem, Request};
 use std::sync::Arc;
 
+/// Represents a type which can be used as a middleware
+///
+/// ```
+/// use reign::router::{Chain, HandleFuture, Middleware, Request, futures::FutureExt};
+///
+/// pub struct Logger {}
+///
+/// impl Middleware for Logger {
+///     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
+///         async move {
+///             println!("Request: from {} on {}", req.ip(), req.uri().path());
+///             let response = chain.run(req).await?;
+///             println!("Response: status {}", response.status());
+///
+///             Ok(response)
+///         }.boxed()
+///     }
+/// }
+/// ```
 pub trait Middleware {
+    /// Handler for the main logic in the middleware
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m>;
 }
 
+/// Middleware chain passed to a middleware handler
 pub struct Chain<'a> {
     #[allow(clippy::borrowed_box)]
     pub(crate) handler: &'a Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>,

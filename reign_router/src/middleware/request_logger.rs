@@ -4,12 +4,23 @@ use futures::FutureExt;
 use hyper::header::CONTENT_LENGTH;
 use log::{log, log_enabled, Level};
 
+/// Logs the request and then response if possible
 pub struct RequestLogger {
     level: Level,
 }
 
 impl RequestLogger {
-    /// Constructs a new `RequestLogger` instance.
+    /// Instantiates the middleware with log level
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use reign::router::{Router, middleware::RequestLogger, log::Level};
+    ///
+    /// fn router(r: &mut Router) {
+    ///     r.pipe("common").add(RequestLogger::new(Level::Info));
+    /// }
+    /// ```
     pub fn new(level: Level) -> Self {
         RequestLogger { level }
     }

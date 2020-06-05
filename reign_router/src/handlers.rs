@@ -1,7 +1,10 @@
+//! Contains some common endpoint handlers
+
 use crate::{Error, HandleFuture, Request};
 use futures::FutureExt;
 use hyper::{
     header::{HeaderValue, CONTENT_TYPE, IF_MODIFIED_SINCE},
+    http::Error as HttpError,
     Body, Response, StatusCode,
 };
 use hyper_staticfile::FileResponseBuilder;
@@ -15,9 +18,25 @@ fn not_found() -> Result<Response<Body>, Error> {
         .body(Body::empty())?)
 }
 
-pub fn to_dir<'a>(base: &'a str, cache: Option<u32>) -> impl Fn(&mut Request) -> HandleFuture + 'a {
+/// Route the globbed endpoint to a directory for serving static content
+///
+/// The endpoint should contain a glob path parameter called `path`.
+///
+/// # Examples
+///
+/// ```
+/// use reign::{prelude::*, router::{handlers::to_dir, Router}};
+///
+/// fn router(r: &mut Router) {
+///     r.get(p!(path*), to_dir(&["src", "assets"], None));
+/// }
+/// ```
+pub fn to_dir<'a>(
+    from: &'a [&'a str],
+    cache: Option<u32>,
+) -> impl Fn(&mut Request) -> HandleFuture + 'a {
     move |req: &mut Request| {
-        let mut path = PathBuf::from(base);
+        let mut path = from.into_iter().fold(PathBuf::new(), |p, x| p.join(x));
 
         async move {
             for part in req.param_glob("path")? {
@@ -35,7 +54,8 @@ pub fn to_dir<'a>(base: &'a str, cache: Option<u32>) -> impl Fn(&mut Request) ->
             };
 
             let mime_type =
-                HeaderValue::from_str(from_path(&path).first_or_octet_stream().as_ref())?;
+                HeaderValue::from_str(from_path(&path).first_or_octet_stream().as_ref())
+                    .map_err(HttpError::from)?;
 
             // TODO:(router:file) Compression, IF_NONE_MATCH
             let file = File::open(path).await?;

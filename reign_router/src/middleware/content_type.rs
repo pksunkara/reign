@@ -3,6 +3,9 @@ use futures::FutureExt;
 use hyper::{header::CONTENT_TYPE, Body, Response, StatusCode};
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
+/// Only allows certain content-type headers for request bodies
+///
+/// By default, JSON and URL encoded are allowed.
 #[derive(Debug, Clone)]
 pub struct ContentType<'a> {
     subtypes: Vec<&'a str>,
