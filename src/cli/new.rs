@@ -1,16 +1,22 @@
-use crate::utils::Result;
+use crate::{
+    templates::project,
+    utils::{render::ToRender, Result},
+};
 use clap::Clap;
 use handlebars::Handlebars;
-use inflector::cases::snakecase::to_snake_case;
+use inflector::cases::{snakecase::to_snake_case, titlecase::to_title_case};
 use serde::Serialize;
-use std::{
-    fs::{create_dir_all, File},
-    path::PathBuf,
-};
+use serde_json::json;
+use std::path::PathBuf;
 
 #[derive(Debug, Clap)]
 pub struct New {
     /// Name of the project
+    name: String,
+}
+
+#[derive(Serialize)]
+pub struct Name {
     name: String,
 }
 
@@ -26,20 +32,51 @@ impl New {
 
         // TODO:(cli) Allow option to merge
         let project = PathBuf::from(&self.name);
-        let src = project.join("src");
-        let controllers = src.join("controllers");
-        let models = src.join("models");
 
-        create_dir_all(&models)?;
-        create_dir_all(&controllers)?;
-
-        handlebars.render_template_to_write(
-            include_str!("templates/project/Cargo.toml"),
+        handlebars.to_render(
+            project::CARGO_TOML,
             &Project {
                 name: to_snake_case(&self.name),
                 reign_version: env!("CARGO_PKG_VERSION").into(),
             },
-            File::create(project.join("Cargo.toml"))?,
+            &project,
+            &["Cargo.toml"],
+        )?;
+        handlebars.to_render(project::MAIN, &json!({}), &project, &["src", "main.rs"])?;
+        handlebars.to_render(project::ERROR, &json!({}), &project, &["src", "error.rs"])?;
+        handlebars.to_render(project::CONFIG, &json!({}), &project, &["src", "config.rs"])?;
+        handlebars.to_render(project::ROUTES, &json!({}), &project, &["src", "routes.rs"])?;
+        handlebars.to_render(
+            project::MODELS,
+            &json!({}),
+            &project,
+            &["src", "models", "mod.rs"],
+        )?;
+        handlebars.to_render(
+            project::CONTROLLERS,
+            &json!({}),
+            &project,
+            &["src", "controllers", "mod.rs"],
+        )?;
+        handlebars.to_render(
+            project::PAGES_CONTROLLER,
+            &json!({}),
+            &project,
+            &["src", "controllers", "pages.rs"],
+        )?;
+        handlebars.to_render(
+            project::LAYOUT,
+            &Name {
+                name: to_title_case(&self.name),
+            },
+            &project,
+            &["src", "views", "layouts", "application.html"],
+        )?;
+        handlebars.to_render(
+            project::VIEW,
+            &json!({}),
+            &project,
+            &["src", "views", "pages", "home.html"],
         )?;
 
         Ok(())

@@ -36,7 +36,7 @@ pub fn to_dir<'a>(
     cache: Option<u32>,
 ) -> impl Fn(&mut Request) -> HandleFuture + 'a {
     move |req: &mut Request| {
-        let mut path = from.into_iter().fold(PathBuf::new(), |p, x| p.join(x));
+        let mut path = from.iter().fold(PathBuf::new(), |p, x| p.join(x));
 
         async move {
             for part in req.param_glob("path")? {

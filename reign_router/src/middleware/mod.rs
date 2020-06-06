@@ -52,6 +52,7 @@ mod request_logger;
 mod runtime;
 
 pub mod cookie_parser;
+#[cfg(feature = "session")]
 pub mod session;
 
 pub use content_type::ContentType;

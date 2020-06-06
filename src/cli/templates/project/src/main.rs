@@ -1,10 +1,12 @@
 use reign::{boot, prelude::views, router::serve};
 
+views!("src", "views");
+
 mod controllers;
 mod models;
 
 mod routes;
-mod errors;
+mod error;
 mod config;
 
 #[tokio::main]

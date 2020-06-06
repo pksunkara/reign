@@ -1,4 +1,5 @@
 mod error;
+pub mod render;
 pub mod term;
 
 pub use error::Error;

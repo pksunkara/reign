@@ -1,6 +1,6 @@
 use reign::router::{
     anyhow::Error as AnyError,
-    hyper::{http::Error as HttpError, Body, Response as Res, StatusCode},
+    hyper::{http::Error as HttpError, Body, Response as HyperResponse, StatusCode},
     Error as ReignError, Response,
 };
 use thiserror::Error;
@@ -16,10 +16,10 @@ pub enum Error {
 }
 
 impl Response for Error {
-    fn respond(self) -> Result<Res<Body>, HttpError> {
+    fn respond(self) -> Result<HyperResponse<Body>, HttpError> {
         match self {
-            Reign(e) => e.respond(),
-            _ => Res::builder()
+            Self::Reign(e) => e.respond(),
+            _ => HyperResponse::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(Body::empty()),
         }

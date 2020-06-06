@@ -1,9 +1,12 @@
-use crate::{middleware::session::SessionData, Error, ParamError};
+#[cfg(feature = "session")]
+use crate::middleware::session::SessionData;
+use crate::{Error, ParamError};
 use hyper::{
     body::{to_bytes, Bytes},
     http::{request::Parts, Extensions},
     Body, HeaderMap, Method, Request as HyperRequest, Uri, Version,
 };
+#[cfg(feature = "session")]
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap as Map, net::SocketAddr};
 use url::form_urlencoded::parse;
@@ -332,6 +335,7 @@ impl Request {
     ///     }
     /// }
     /// ```
+    #[cfg(feature = "session")]
     pub fn session<T>(&mut self) -> Option<&T>
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
@@ -361,6 +365,7 @@ impl Request {
     ///     Ok("Saved session")
     /// }
     /// ```
+    #[cfg(feature = "session")]
     pub fn save_session<T>(&mut self, data: T)
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
@@ -385,6 +390,7 @@ impl Request {
     ///     Ok("Deleted session")
     /// }
     /// ```
+    #[cfg(feature = "session")]
     pub fn delete_session<T>(&mut self)
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,

@@ -6,6 +6,7 @@ use std::process::exit;
 
 mod generate;
 mod new;
+mod templates;
 mod utils;
 
 use utils::term::{TERM_ERR, TERM_OUT};
