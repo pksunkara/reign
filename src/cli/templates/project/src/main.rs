@@ -6,12 +6,13 @@ mod controllers;
 mod models;
 
 mod routes;
-mod error;
+
 mod config;
+mod error;
 
 #[tokio::main]
 async fn main() {
-    config::CONFIG.set(boot()).unwrap();
+    boot().load(&config::CONFIG);
 
     let addr = "127.0.0.1:8080";
 

@@ -3,62 +3,42 @@
 #![doc(html_root_url = "https://docs.rs/reign_boot/0.2.1")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-use dotenv::from_filename;
+pub use once_cell;
+
+use once_cell::sync::OnceCell;
 use serde::Deserialize;
-use std::env;
+use std::fmt::Debug;
 
-// TODO:(config) Have a config struct so that it loads envs and all panics happen during boot
+mod env;
 
-fn build_env_file_heirarchy(environment: String) -> Vec<String> {
-    let mut heirarchy: Vec<String> = environment.split('.').map(String::from).collect();
-    let length = heirarchy.len();
-
-    for i in 0..length {
-        for j in i + 1..length {
-            heirarchy[i] = format!("{}.{}", heirarchy[j], heirarchy[i]);
-        }
-    }
-
-    heirarchy.reverse();
-    heirarchy
-}
-
-fn load_env_files() {
-    let environment = env::var("REIGN_ENV").unwrap_or_else(|_| "development".to_string());
-
-    from_filename(".env").ok();
-    from_filename(".env.local").ok();
-
-    for item in build_env_file_heirarchy(environment) {
-        from_filename(&format!(".env.{}", item)).ok();
-        from_filename(&format!(".env.{}.local", item)).ok();
-    }
-}
-
-pub fn boot<T>() -> T
-where
-    T: for<'de> Deserialize<'de>,
-{
-    load_env_files();
+pub fn boot() -> Config {
+    env::load_env_files();
 
     // TODO:(log) Allow custom loggers by adding an option to exclude this call
     env_logger::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp(None)
         .init();
 
-    // TODO:(env) default value
-    envy::from_env::<T>().unwrap()
+    Config {}
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub struct Config {}
 
-    #[test]
-    fn test_build_env_file_heirarchy() {
-        assert_eq!(
-            build_env_file_heirarchy(String::from("joe.qa.staging")),
-            ["staging", "staging.qa", "staging.qa.joe"]
-        );
+impl Config {
+    pub fn load<T>(&self, cell: &OnceCell<T>) -> &Self
+    where
+        T: for<'de> Deserialize<'de> + Debug,
+    {
+        cell.set(envy::from_env::<T>().unwrap()).unwrap();
+        self
+    }
+
+    pub fn prefixed<T>(&self, cell: &OnceCell<T>, prefix: &str) -> &Self
+    where
+        T: for<'de> Deserialize<'de> + Debug,
+    {
+        cell.set(envy::prefixed(prefix).from_env::<T>().unwrap())
+            .unwrap();
+        self
     }
 }

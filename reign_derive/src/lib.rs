@@ -7,11 +7,14 @@ use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use syn::parse_macro_input;
 
+#[cfg(feature = "framework")]
+mod framework;
 #[cfg(feature = "router-backend")]
 mod router;
 #[cfg(feature = "view")]
 mod views;
 
+#[cfg(feature = "view")]
 mod utils;
 
 pub(crate) const INTERNAL_ERR: &str =
@@ -173,4 +176,13 @@ pub fn p(input: TokenStream) -> TokenStream {
     let input: router::path::Path = parse_macro_input!(input);
 
     router::path::path(input).into()
+}
+
+#[cfg(feature = "framework")]
+#[proc_macro_derive(Config)]
+#[proc_macro_error]
+pub fn config(input: TokenStream) -> TokenStream {
+    let input: syn::DeriveInput = parse_macro_input!(input);
+
+    framework::config::config(input).into()
 }

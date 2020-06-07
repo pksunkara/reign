@@ -33,6 +33,10 @@ impl New {
         // TODO:(cli) Allow option to merge
         let project = PathBuf::from(&self.name);
 
+        let name = Name {
+            name: to_title_case(&self.name),
+        };
+
         handlebars.to_render(
             project::CARGO_TOML,
             &Project {
@@ -42,16 +46,29 @@ impl New {
             &project,
             &["Cargo.toml"],
         )?;
+        handlebars.to_render(project::README, &name, &project, &["README.md"])?;
+        handlebars.to_render(
+            project::ENV,
+            &Name {
+                name: to_snake_case(&self.name),
+            },
+            &project,
+            &[".env"],
+        )?;
+        handlebars.to_render(project::GITIGNORE, &json!({}), &project, &[".gitignore"])?;
+
         handlebars.to_render(project::MAIN, &json!({}), &project, &["src", "main.rs"])?;
         handlebars.to_render(project::ERROR, &json!({}), &project, &["src", "error.rs"])?;
         handlebars.to_render(project::CONFIG, &json!({}), &project, &["src", "config.rs"])?;
         handlebars.to_render(project::ROUTES, &json!({}), &project, &["src", "routes.rs"])?;
+
         handlebars.to_render(
             project::MODELS,
             &json!({}),
             &project,
             &["src", "models", "mod.rs"],
         )?;
+
         handlebars.to_render(
             project::CONTROLLERS,
             &json!({}),
@@ -64,11 +81,10 @@ impl New {
             &project,
             &["src", "controllers", "pages.rs"],
         )?;
+
         handlebars.to_render(
             project::LAYOUT,
-            &Name {
-                name: to_title_case(&self.name),
-            },
+            &name,
             &project,
             &["src", "views", "layouts", "application.html"],
         )?;
@@ -77,6 +93,19 @@ impl New {
             &json!({}),
             &project,
             &["src", "views", "pages", "home.html"],
+        )?;
+
+        handlebars.to_render(
+            project::CSS,
+            &json!({}),
+            &project,
+            &["src", "assets", "css", "app.css"],
+        )?;
+        handlebars.to_render(
+            project::JS,
+            &json!({}),
+            &project,
+            &["src", "assets", "js", "app.js"],
         )?;
 
         Ok(())

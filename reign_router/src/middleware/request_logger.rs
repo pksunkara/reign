@@ -45,6 +45,7 @@ impl Middleware for RequestLogger {
             let duration = Utc::now().signed_duration_since(start).num_microseconds();
 
             log!(
+                target: "reign_router",
                 self.level,
                 "{} - - [{}] \"{} {} {:?}\" {} {} - {}",
                 req.ip(),

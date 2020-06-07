@@ -33,6 +33,7 @@ trybuild = "1.0"
 [features]
 default = []
 doc = []
+framework = ["Inflector"]
 view = ["reign_view", "regex", "Inflector", "lazy_static"]
 view-backend = ["view", "router-backend"]
 router-backend = []
