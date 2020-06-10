@@ -11,10 +11,8 @@ use hyper::{
 };
 use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
 
-pub use anyhow;
 pub use futures;
 pub use hyper;
-pub use log;
 
 mod error;
 mod path;

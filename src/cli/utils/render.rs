@@ -23,7 +23,7 @@ impl ToRender for Handlebars<'_> {
         let path_in_project = path.iter().fold(PathBuf::new(), |p, x| p.join(x));
         let full_path = project.join(path_in_project.clone());
 
-        create_dir_all(full_path.clone().parent().expect(INTERNAL_ERR))?;
+        create_dir_all(full_path.parent().expect(INTERNAL_ERR))?;
 
         TERM_ERR.write_line(&format!(
             "    {} {}",

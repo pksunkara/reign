@@ -9,19 +9,20 @@ use serde::Serialize;
 use serde_json::json;
 use std::path::PathBuf;
 
+/// Create a new Reign application
 #[derive(Debug, Clap)]
 pub struct New {
-    /// Name of the project
+    /// Name of the application
     name: String,
 }
 
 #[derive(Serialize)]
-pub struct Name {
+struct Name {
     name: String,
 }
 
 #[derive(Serialize)]
-pub struct Project {
+struct Project {
     name: String,
     reign_version: String,
 }

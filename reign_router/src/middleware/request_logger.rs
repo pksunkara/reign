@@ -15,7 +15,7 @@ impl RequestLogger {
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, middleware::RequestLogger, log::Level};
+    /// use reign::{router::{Router, middleware::RequestLogger}, log::Level};
     ///
     /// fn router(r: &mut Router) {
     ///     r.pipe("common").add(RequestLogger::new(Level::Info));

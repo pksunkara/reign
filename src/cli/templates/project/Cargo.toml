@@ -8,4 +8,5 @@ publish = false
 reign = { version = "{{ reign_version }}", features = ["file-handlers"] }
 tokio = { version = "0.2.21", features = ["full"] }
 thiserror = "1.0.19"
+anyhow = "1.0.31"
 serde = { version = "1.0.110", features = ["derive"] }

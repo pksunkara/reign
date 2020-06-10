@@ -18,9 +18,10 @@ impl Error {
     }
 
     fn color(self) -> Self {
-        match self {
-            _ => self,
-        }
+        self
+        // match self {
+        //     _ => self,
+        // }
     }
 
     pub fn print(self, term: &Term) -> io::Result<()> {

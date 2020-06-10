@@ -1,0 +1,36 @@
+[package]
+name = "reign_model"
+version = "0.2.1"
+authors = [
+	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
+]
+edition = "2018"
+description = "Opinionated Fullstack Web Framework in Rust"
+repository = "https://github.com/pksunkara/reign"
+keywords = ["fullstack", "web", "framework", "reign", "model"]
+categories = []
+license = "MIT"
+readme = "README.md"
+
+[lib]
+name = "reign_model"
+path = "src/lib.rs"
+
+[dependencies]
+log = "0.4.8"
+thiserror = "1.0.19"
+anyhow = "1.0.31"
+diesel = { path = "../../../reign-rs/diesel/diesel" }
+tokio-diesel = { path = "../../../reign-rs/tokio-diesel", version = "0.3.0" }
+chrono = "0.4.11"
+
+[dev-dependencies]
+reign = { path = "../" }
+version-sync = "0.9.0"
+
+[features]
+default = []
+doc = []
+
+[package.metadata.docs.rs]
+all-features = true

@@ -1,7 +1,8 @@
 use crate::controllers::*;
 use reign::{
+    log::Level,
     prelude::*,
-    router::{handlers::to_dir, log::Level, middleware::RequestLogger, Router},
+    router::{handlers::to_dir, middleware::RequestLogger, Router},
 };
 
 pub fn router(r: &mut Router) {

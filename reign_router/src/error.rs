@@ -1,5 +1,4 @@
 use crate::Response;
-use anyhow::Error as AnyError;
 use hyper::{
     http::{header::ToStrError as HttpToStrError, Error as HttpError},
     Body, Error as HyperError, Response as HyperResponse, StatusCode,
@@ -36,7 +35,7 @@ pub enum Error {
     #[error(transparent)]
     HeaderStr(#[from] HttpToStrError),
     #[error(transparent)]
-    Other(#[from] AnyError),
+    Other(#[from] anyhow::Error),
 }
 
 impl Response for Error {

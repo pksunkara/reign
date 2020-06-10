@@ -9,10 +9,12 @@ use syn::parse_macro_input;
 
 #[cfg(feature = "framework")]
 mod framework;
+#[cfg(feature = "model")]
+mod model;
 #[cfg(feature = "router-backend")]
 mod router;
 #[cfg(feature = "view")]
-mod views;
+mod view;
 
 #[cfg(feature = "view")]
 mod utils;
@@ -44,9 +46,9 @@ pub(crate) const INTERNAL_ERR: &str =
 #[cfg(feature = "view")]
 #[proc_macro]
 pub fn views(input: TokenStream) -> TokenStream {
-    let input: views::render::Views = parse_macro_input!(input);
+    let input: view::render::Views = parse_macro_input!(input);
 
-    views::render::views(input).into()
+    view::render::views(input).into()
 }
 
 /// Shorthand notation for rendering a view.
@@ -72,9 +74,9 @@ pub fn views(input: TokenStream) -> TokenStream {
 #[proc_macro]
 #[proc_macro_error]
 pub fn render(input: TokenStream) -> TokenStream {
-    let input: views::render::Render = parse_macro_input!(input);
+    let input: view::render::Render = parse_macro_input!(input);
 
-    views::render::render(input).into()
+    view::render::render(input).into()
 }
 
 /// Shorthand notation for returning a json response.
@@ -104,9 +106,9 @@ pub fn render(input: TokenStream) -> TokenStream {
 #[cfg(feature = "view-backend")]
 #[proc_macro]
 pub fn json(input: TokenStream) -> TokenStream {
-    let input: views::json::Json = parse_macro_input!(input);
+    let input: view::json::Json = parse_macro_input!(input);
 
-    views::json::json(input).into()
+    view::json::json(input).into()
 }
 
 /// Helper for defining a [reign_router](https://docs.rs/reign_router) handler.
@@ -185,4 +187,13 @@ pub fn config(input: TokenStream) -> TokenStream {
     let input: syn::DeriveInput = parse_macro_input!(input);
 
     framework::config::config(input).into()
+}
+
+#[cfg(feature = "model")]
+#[proc_macro_derive(Model, attributes(model))]
+#[proc_macro_error]
+pub fn model(input: TokenStream) -> TokenStream {
+    let input: syn::DeriveInput = parse_macro_input!(input);
+
+    model::model::model(input).into()
 }

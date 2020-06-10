@@ -117,7 +117,7 @@ pub fn action(input: ItemFn) -> TokenStream {
             };
 
             quote! {
-                use ::reign::router::anyhow::Context;
+                use ::anyhow::Context;
                 #run_fn
                 #from_str
             }
@@ -144,7 +144,7 @@ pub fn action(input: ItemFn) -> TokenStream {
                 match _called {
                     Ok(r) => Ok(r.respond()?),
                     Err(e) => {
-                        ::reign::router::log::error!("{}", e);
+                        ::reign::log::error!("{}", e);
                         Ok(e.respond()?)
                     },
                 }
