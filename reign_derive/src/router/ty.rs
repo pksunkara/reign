@@ -1,4 +1,4 @@
-use syn::{GenericArgument, Path, PathArguments, PathSegment, Type, TypePath};
+use syn::{GenericArgument, Path, PathArguments, PathSegment, Type, TypeGroup, TypePath};
 
 pub fn subty_if_name(ty: Type, name: &str) -> Option<Type> {
     subty_if(ty, |seg| seg.ident == name)
@@ -25,7 +25,10 @@ where
         })
 }
 
-pub fn only_last_segment(ty: Type) -> Option<PathSegment> {
+pub fn only_last_segment(mut ty: Type) -> Option<PathSegment> {
+    while let Type::Group(TypeGroup { elem, .. }) = ty {
+        ty = *elem;
+    }
     match ty {
         Type::Path(TypePath {
             qself: None,
