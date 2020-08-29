@@ -13,5 +13,6 @@ pub mod query;
 
 pub use error::Error;
 
+// TODO:
 // pub(crate) const INTERNAL_ERR: &str =
 //     "Internal error on reign_model. Please create an issue on https://github.com/pksunkara/reign";

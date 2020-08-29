@@ -7,6 +7,8 @@
 pub use maplit;
 
 #[doc(hidden)]
+pub mod common;
+#[doc(hidden)]
 pub mod parse;
 mod slots;
 
@@ -17,6 +19,9 @@ pub use slots::{slot_render, Slots};
 use hyper::{header, http::Error as HttpError, Body, Response as HyperResponse, StatusCode};
 #[cfg(feature = "view-backend")]
 use std::fmt::{write, Display};
+
+pub(crate) const INTERNAL_ERR: &str =
+    "Internal error on reign_view. Please create an issue on https://github.com/pksunkara/reign";
 
 /// Renders a view for [reign router](https://docs.rs/reign_router) endpoint handler
 ///

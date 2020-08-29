@@ -5,7 +5,10 @@ use clap::{
 use std::process::exit;
 
 mod generate;
+
 mod new;
+mod server;
+
 mod templates;
 mod utils;
 
@@ -23,6 +26,8 @@ struct Reign {
 #[derive(Debug, Clap)]
 enum ReignSubcommand {
     New(new::New),
+    #[clap(alias = "s")]
+    Server(server::Server),
     #[clap(alias = "gen")]
     Generate(generate::Generate),
 }
@@ -32,6 +37,7 @@ fn main() {
 
     let err = match program.cmd {
         ReignSubcommand::New(x) => x.run(),
+        ReignSubcommand::Server(x) => x.run(),
         ReignSubcommand::Generate(x) => x.run(),
     }
     .err();

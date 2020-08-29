@@ -24,7 +24,7 @@ jobs:
           - view-backend
           - router-backend
           # - full
-        rust: [nightly-2020-05-30]
+        rust: [stable]
         os: [windows-latest, macos-latest, ubuntu-latest]
         target:
           - i686-pc-windows-msvc
@@ -64,7 +64,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features --target ${{ matrix.target }}
+          args: --features "session file-handlers" --target ${{ matrix.target }}
       - name: Test Example
         if: matrix.type != 'test'
         shell: bash

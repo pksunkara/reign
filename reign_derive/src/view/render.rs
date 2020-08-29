@@ -1,16 +1,14 @@
 use crate::{utils::Options, INTERNAL_ERR};
 use inflector::cases::pascalcase::to_pascal_case;
-use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
 use proc_macro2::{Span, TokenStream};
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use regex::Regex;
-use reign_view::parse::{parse, tokenize};
-use std::collections::HashMap;
-use std::env;
+#[cfg(feature = "hot-reload")]
+use serde_json::from_str;
+#[cfg(feature = "hot-reload")]
 use std::fs::read_to_string;
-use std::path::PathBuf;
-use std::sync::Mutex;
+use std::{collections::HashMap, env, path::PathBuf};
 use syn::{
     parse::{Parse, ParseStream, Result},
     parse_str,
@@ -19,9 +17,9 @@ use syn::{
     Expr, Ident, LitStr,
 };
 
-lazy_static! {
-    static ref IDENTMAP: Mutex<HashMap<String, Vec<(String, bool)>>> = Mutex::new(HashMap::new());
-}
+#[cfg(feature = "hot-reload")]
+static DIR: OnceCell<PathBuf> = OnceCell::new();
+static IDENTMAP: OnceCell<HashMap<String, Vec<(String, bool)>>> = OnceCell::new();
 
 // TODO: Options after the paths (including changing `crate::views`)
 // Can't use parse_separated_non_empty here
@@ -61,90 +59,48 @@ impl Parse for Render {
     }
 }
 
-fn file_regex() -> Regex {
-    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)\.html$").expect(INTERNAL_ERR)
-}
-
-fn folder_regex() -> Regex {
-    Regex::new(r"^([[:alpha:]]([[:word:]]*[[:alnum:]])?)").expect(INTERNAL_ERR)
-}
-
-fn recurse(path: &PathBuf, relative_path: &str) -> Vec<proc_macro2::TokenStream> {
-    let mut views = vec![];
-
-    for entry in path.read_dir().unwrap() {
-        if let Ok(entry) = entry {
-            let new_path = entry.path();
-            let file_name_os_str = entry.file_name();
-            let file_name = file_name_os_str.to_str().unwrap();
-
-            if new_path.is_dir() {
-                if !folder_regex().is_match(file_name) {
-                    continue;
-                }
-
-                let ident = Ident::new(file_name, Span::call_site());
-                let sub_relative_path = format!("{}:{}", relative_path, file_name);
-                let sub_views = recurse(&new_path, &sub_relative_path);
-
-                views.push(quote! {
-                    pub mod #ident {
-                        #(#sub_views)*
-                    }
-                });
-
-                continue;
-            }
-
-            if !file_regex().is_match(file_name) {
-                continue;
-            }
-
-            let file_base_name = file_name.trim_end_matches(".html");
-            let cased = to_pascal_case(file_base_name);
-            let ident = Ident::new(&cased, Span::call_site());
-
-            let (tokens, idents, types) =
-                tokenize(parse(read_to_string(new_path).unwrap().replace("\r\n", "\n")).unwrap());
-
-            let file_key = format!("{}:{}", relative_path, file_base_name)
-                .trim_start_matches(':')
-                .to_string();
-
-            IDENTMAP.lock().unwrap().insert(
-                file_key,
-                idents.iter().map(|x| (format!("{}", x.0), x.1)).collect(),
-            );
-
-            let idents: Vec<Ident> = idents.iter().map(|x| x.0.clone()).collect();
-
-            views.push(quote! {
-                pub struct #ident<'a> {
-                    pub _slots: ::reign::view::Slots<'a>,
-                    #(pub #idents: #types),*
-                }
-
-                impl<'a> std::fmt::Display for #ident<'a> {
-                    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                        #tokens
-                        Ok(())
-                    }
-                }
-            });
-        }
-    }
-
-    views
-}
-
-pub fn views(input: Views) -> TokenStream {
+fn get_dir(input: Views) -> PathBuf {
     let mut dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
     for i in input.paths.into_iter() {
         dir.push(i.value());
     }
 
-    let views = recurse(&dir, "");
+    dir
+}
+
+#[cfg(feature = "hot-reload")]
+pub fn views(input: Views) -> TokenStream {
+    let dir = get_dir(input);
+
+    DIR.set(dir).expect(INTERNAL_ERR);
+
+    quote! {
+        pub mod views;
+    }
+}
+
+#[cfg(not(feature = "hot-reload"))]
+pub fn views(input: Views) -> TokenStream {
+    let dir = get_dir(input);
+    let mut map = HashMap::new();
+
+    let views = reign_view::common::recurse(
+        &dir,
+        "",
+        &mut map,
+        |ident, files| {
+            quote! {
+                pub mod #ident {
+                    #(#files)*
+                }
+            }
+        },
+        |_, _, file| file,
+        |_, views| views,
+    );
+
+    IDENTMAP.set(map).expect(INTERNAL_ERR);
 
     quote! {
         pub mod views {
@@ -153,7 +109,28 @@ pub fn views(input: Views) -> TokenStream {
     }
 }
 
+fn read_manifest() {
+    #[cfg(feature = "hot-reload")]
+    if let None = IDENTMAP.get() {
+        let mut dir = DIR.get().expect(INTERNAL_ERR).clone();
+
+        dir.push("_manifest.json");
+
+        let manifest = read_to_string(dir);
+
+        if manifest.is_err() {
+            abort_call_site!("expected _manifest.json to exist and readable");
+        }
+
+        IDENTMAP
+            .set(from_str(&manifest.expect(INTERNAL_ERR)).expect(INTERNAL_ERR))
+            .expect(INTERNAL_ERR);
+    }
+}
+
 fn view_path(input: &Render) -> TokenStream {
+    read_manifest();
+
     let parts = input.parts();
     let (last, elements) = parts.split_last().unwrap();
 
@@ -170,15 +147,14 @@ fn view_path(input: &Render) -> TokenStream {
 
 fn capture(input: &Render) -> TokenStream {
     let path = view_path(input);
-    let ident_map = IDENTMAP.lock().unwrap();
-    let value = ident_map.get(&input.id());
+    let value = IDENTMAP.get().expect(INTERNAL_ERR).get(&input.id());
 
     if value.is_none() {
         abort_call_site!("expected a path referencing to a view file");
     }
 
     let idents: Vec<TokenStream> = value
-        .unwrap()
+        .expect(INTERNAL_ERR)
         .iter()
         .map(|x| {
             let ident = Ident::new(&x.0, Span::call_site());

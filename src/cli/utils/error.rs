@@ -9,6 +9,8 @@ pub enum Error {
     #[error(transparent)]
     Render(#[from] TemplateRenderError),
     #[error(transparent)]
+    Notify(#[from] notify::Error),
+    #[error(transparent)]
     Io(#[from] io::Error),
 }
 

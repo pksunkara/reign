@@ -21,13 +21,13 @@ pub(crate) fn load_env_files() {
 
     from_filename(".env").ok();
 
-    for item in heirarchy {
+    for item in &heirarchy {
         from_filename(&format!(".env.{}", item)).ok();
     }
 
     from_filename(".env.local").ok();
 
-    for item in heirarchy {
+    for item in &heirarchy {
         from_filename(&format!(".env.{}.local", item)).ok();
     }
 }
