@@ -1,15 +1,38 @@
-# The URL the site will be built for
 base_url = "https://reign.rs"
 
-# Whether to automatically compile all Sass files in the sass directory
+title = "Reign"
+description = "Opinionated Fullstack Web Framework in Rust"
+
 compile_sass = false
-
-# Whether to do syntax highlighting
-# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
 highlight_code = true
-
-# Whether to build a search index to be used later on by a JavaScript library
+highlight_theme = "material-light"
 build_search_index = true
 
+default_language = "en"
+
+languages = [
+	{ code = "ru", search = true },
+]
+
+[translations]
+
+[translations.en]
+search = "Search"
+release = "Release"
+language = "Language"
+guide = "Guide"
+reference = "Reference"
+code = "Code"
+
+[translations.ru]
+search = "Поиск"
+release = "Релиз"
+language = "Язык"
+guide = "Руководство"
+reference = "Ссылка"
+code = "Код"
+
 [extra]
-# Put all your custom variables here
+releases = [
+]
+languages = { en = "English", ru = "Pусский" }

@@ -1,0 +1,36 @@
+<div id="inputs">
+  <div id="search-input">
+    <label>{{ trans(key = "search", lang = lang) }}</label>
+    <div>
+      <input id="search_form" placeholder="{{ trans(key = "search", lang = lang) }}" />
+    </div>
+  </div>
+  {% set parts = current_path | split(pat = '/') %}
+  {% if parts.0 == lang %}
+    {% set parts = parts | slice(start = 1) %}
+  {% endif %}
+  {% set selected_release = parts.0 %}
+  {% set md = page.relative_path | split(pat = '/') | slice(start = 1) | join(sep = '/') %}
+  <div id="release-input">
+    <label>{{ trans(key = "release", lang = lang) }}</label>
+    <div>
+      <select id="release-switcher">
+        <option {% if selected_release == "edge" %}selected {% endif %}value="{{ get_url(path = '@/edge/' ~ md) | safe }}">Edge</option>
+        {% for release in config.extra.releases %}
+          <option {% if selected_release == release %}selected {% endif %}value="{{ get_url(path = '@/' ~ release ~ '/' ~ md) | safe }}">{{ release }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div id="language-input">
+    <label>{{ trans(key = "language", lang = lang) }}</label>
+    <div>
+      <select id="language-switcher">
+        <option selected value="{{ current_url | safe }}">{{ config.extra.languages[lang] }}</option>
+        {% for translation in page.translations %}
+          <option value="{{ translation.permalink | safe }}">{{ config.extra.languages[translation.lang] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+</div>

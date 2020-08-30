@@ -1,0 +1,60 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ page.title }}{% endblock title %}
+
+
+{% block content %}
+<div id="sidebar-with-content">
+  <div id="sidebar">
+    <input type="checkbox" id="nav-check">
+
+    {% include "shared/logo.html" %}
+
+    {% set section = get_section(path = page.ancestors.2) %}
+    <ul class="nav">
+      {% for subsection_path in section.subsections %}
+        {% set subsection = get_section(path = subsection_path) %}
+        <li>
+          <span class="subsection">{{ subsection.title }}</span>
+          <ul {% if subsection_path != page.ancestors.3 %}style="display: none;"{% endif %}>
+            {% for subpage in subsection.pages %}
+              <li>
+                <a href="{{ subpage.permalink }}">{{ subpage.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <main id="content">
+    {% include "shared/inputs.html" %}
+
+    <article id="{{ page.slug }}">
+      {% block page %}
+      <h1 class="post-title">{{ page.title }}</h1>
+
+      <div class="toc">
+        <ul>
+          {% for header in page.toc %}
+            <li>
+              <a href="#{{ header.id }}">{{ header.title }}</a>
+              <ul>
+                {% for child in header.children %}
+                  <li>
+                    <a href="#{{ child.id }}">{{ child.title }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      {{ page.content | safe }}
+      {% endblock page %}
+    </article>
+  </main>
+</div>
+{% endblock content %}
