@@ -16,13 +16,18 @@ fn build_env_file_heirarchy(environment: String) -> Vec<String> {
 }
 
 pub(crate) fn load_env_files() {
-    let environment = env::var("REIGN_ENV").unwrap_or_else(|_| "development".to_string());
+    let environment = env::var("REIGN_ENV").unwrap_or("development".to_string());
+    let heirarchy = build_env_file_heirarchy(environment);
 
     from_filename(".env").ok();
+
+    for item in heirarchy {
+        from_filename(&format!(".env.{}", item)).ok();
+    }
+
     from_filename(".env.local").ok();
 
-    for item in build_env_file_heirarchy(environment) {
-        from_filename(&format!(".env.{}", item)).ok();
+    for item in heirarchy {
         from_filename(&format!(".env.{}.local", item)).ok();
     }
 }
