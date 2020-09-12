@@ -90,15 +90,16 @@ pub fn views(input: Views) -> TokenStream {
         "",
         &mut map,
         |ident, files| {
-            quote! {
+            Ok(quote! {
                 pub mod #ident {
                     #(#files)*
                 }
-            }
+            })
         },
-        |_, _, file| file,
-        |_, views| views,
-    );
+        |_, _, file| Ok(file),
+        |_, views| Ok(views),
+    )
+    .expect(INTERNAL_ERR);
 
     IDENTMAP.set(map).expect(INTERNAL_ERR);
 
@@ -112,11 +113,9 @@ pub fn views(input: Views) -> TokenStream {
 fn read_manifest() {
     #[cfg(feature = "hot-reload")]
     if let None = IDENTMAP.get() {
-        let mut dir = DIR.get().expect(INTERNAL_ERR).clone();
+        let dir = DIR.get().expect(INTERNAL_ERR).clone();
 
-        dir.push("_manifest.json");
-
-        let manifest = read_to_string(dir);
+        let manifest = read_to_string(dir.join("_manifest.json"));
 
         if manifest.is_err() {
             abort_call_site!("expected _manifest.json to exist and readable");

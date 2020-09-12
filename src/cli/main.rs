@@ -5,7 +5,6 @@ use clap::{
 use std::process::exit;
 
 mod generate;
-
 mod new;
 mod server;
 
