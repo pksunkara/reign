@@ -1,21 +1,21 @@
 use crate::{
     server::write::{write_file, write_manifest},
-    utils::Result,
+    utils::{Result, INTERNAL_ERR},
 };
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Ident, Span};
 use quote::quote;
-use reign_view::common::{recurse, Manifest};
-use std::path::Path;
+use reign_view::common::{recurse, Manifest, FILE_REGEX, FOLDER_REGEX};
+use std::path::{Path, PathBuf};
 
-pub fn build(views: &Path) -> Result {
-    let manifest = build_all_views(views)?;
+pub fn parse(views: &Path) -> Result {
+    let manifest = parse_all_views(views)?;
 
     write_manifest(views, &manifest)?;
     Ok(())
 }
 
-pub fn build_all_views(views: &Path) -> Result<Manifest> {
+fn parse_all_views(views: &Path) -> Result<Manifest> {
     let mut manifest = Manifest::new();
 
     recurse(
@@ -45,4 +45,35 @@ pub fn build_all_views(views: &Path) -> Result<Manifest> {
     )?;
 
     Ok(manifest)
+}
+
+pub fn is_view_folder(full_path: &Path, paths: &[PathBuf]) -> bool {
+    paths.iter().any(|path| {
+        path.strip_prefix(full_path)
+            .expect(INTERNAL_ERR)
+            .components()
+            .map(|c| c.as_os_str().to_string_lossy())
+            .all(|x| FOLDER_REGEX.is_match(&x))
+    })
+}
+
+pub fn has_any_view_files(full_path: &Path, paths: &[PathBuf]) -> bool {
+    let mut has = false;
+
+    for path in paths {
+        if let Some((last, view)) = path
+            .strip_prefix(full_path)
+            .expect(INTERNAL_ERR)
+            .components()
+            .map(|c| c.as_os_str().to_string_lossy())
+            .collect::<Vec<_>>()
+            .split_last()
+        {
+            if FILE_REGEX.is_match(&last) && view.iter().all(|x| FOLDER_REGEX.is_match(&x)) {
+                has = true;
+            }
+        }
+    }
+
+    has
 }

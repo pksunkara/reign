@@ -1,9 +1,8 @@
 use crate::{
-    server::{view::build, write::write_file},
+    server::view::{has_any_view_files, is_view_folder, parse},
     utils::{
         self,
         term::{RED_BOLD, TERM_ERR},
-        INTERNAL_ERR,
     },
 };
 use clap::Clap;
@@ -11,9 +10,8 @@ use notify::{
     event::{CreateKind, DataChange, EventKind, ModifyKind, RemoveKind},
     Error, Event, RecommendedWatcher, RecursiveMode, Watcher,
 };
-use regex::Regex;
-use reign_view::common::{tokenize_view, FILE_REGEX, FOLDER_REGEX};
 use std::{
+    ffi::OsStr,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -21,152 +19,89 @@ use std::{
 mod view;
 mod write;
 
+// TODO:(cli) Live reload not seeming to help compile time
+
+// TODO:(cli) view directory
+// TODO:(cli) features for using when building/running
+// TODO:(cli) debounce events
+// TODO:(cli) rename folder/file
+
 /// Start the Reign server
 #[derive(Debug, Clap)]
-pub struct Server {
-    // TODO:(cli) view directory
-}
+pub struct Server {}
 
 impl Server {
     pub fn run(&self) -> utils::Result {
         let cargo = Path::new("Cargo.toml");
 
-        if let Err(e) = cargo.canonicalize() {
-            TERM_ERR.write_line(&format!(
-                "    {} {}",
-                RED_BOLD.apply_to("error"),
-                "reading Cargo.toml"
-            ))?;
-            eprintln!("{}", e);
-        }
+        check_path(cargo, "Cargo.toml")?;
 
-        let views = Path::new("src").join("views");
+        let src = Path::new("src");
+        let views = src.join("views");
 
-        if let Err(e) = views.canonicalize() {
-            TERM_ERR.write_line(&format!(
-                "    {} {}",
-                RED_BOLD.apply_to("error"),
-                "reading src/views"
-            ))?;
-            eprintln!("{}", e);
-        }
-
-        build(&views)?;
+        check_path(src, "src")?;
+        check_path(&views, "src/views")?;
 
         // TODO:(cli) Maintain dep graph to reload views that depend on views and build
         // just those views instead of rebuilding everything. Also for views that changed
         // maintain manifest such that manifest is updated only if idents changed
 
-        let _view_watcher = self.view_watcher(views)?;
+        let _view_watcher = self.view_watcher(&views)?;
 
-        self.build();
+        Command::new("cargo")
+            .args(&["watch", "-x", "run --features reign/hot-reload"])
+            .status()?;
+
         Ok(())
     }
 
-    fn build(&self) {
-        Command::new("cargo")
-            .args(&["build", "--features", "reign/hot-reload"])
-            .status()
-            .unwrap();
-
-        Command::new("cargo")
-            .args(&["run", "--features", "reign/hot-reload"])
-            .status()
-            .unwrap();
-    }
-
-    // fn build_watcher() -> utils::Result<RecommendedWatcher> {
-    //     let mut watcher = Watcher::new_immediate(|res: Result<Event, Error>| match res {
-    //         Ok(event) => {
-    //             println!("{:#?}", event);
-    //         }
-    //         Err(e) => println!("watch error: {:?}", e),
-    //     });
-
-    //     watcher.watch(&views, RecursiveMode::Recursive)?;
-    //     Ok(watcher)
-    // }
-
-    fn view_watcher(&self, views: PathBuf) -> utils::Result<RecommendedWatcher> {
+    fn view_watcher(&self, views: &Path) -> utils::Result<RecommendedWatcher> {
         let full_path = views.canonicalize()?;
+
+        parse(views)?;
 
         let mut watcher: RecommendedWatcher =
             Watcher::new_immediate(move |res: Result<Event, Error>| match res {
                 Ok(event) => match event.kind {
-                    EventKind::Modify(ModifyKind::Data(DataChange::Content)) => {
-                        println!("changed content {:?}", event);
-
-                        for path in &event.paths {
-                            if let Some((last, view)) = path
-                                .strip_prefix(&full_path)
-                                .expect(INTERNAL_ERR)
-                                .components()
-                                .map(|c| c.as_os_str().to_string_lossy())
-                                .collect::<Vec<_>>()
-                                .split_last()
-                            {
-                                if FILE_REGEX.is_match(&last)
-                                    && view.iter().all(|x| FOLDER_REGEX.is_match(&x))
-                                {
-                                    let file_base_name = last.trim_end_matches(".html");
-                                    let key = format!("{}:{}", view.join(":"), file_base_name);
-
-                                    println!("{:#?}", key);
-
-                                    // TODO: Reload everything
-
-                                    let (tokens, vars) = tokenize_view(path, file_base_name);
-
-                                    let vars = vars
-                                        .into_iter()
-                                        .map(|(i, b)| (i.to_string(), b))
-                                        .collect::<Vec<_>>();
-
-                                    let new_path = path
-                                        .parent()
-                                        .expect(INTERNAL_ERR)
-                                        .join(format!("{}.rs", file_base_name));
-
-                                    write_file(&new_path, tokens.to_string()).unwrap();
-
-                                    println!("{:#?}", vars);
-                                }
-                            }
-                        }
-                    }
-                    EventKind::Create(CreateKind::Folder)
-                        if check_regex(&event.paths, &FOLDER_REGEX) =>
+                    EventKind::Modify(ModifyKind::Data(DataChange::Content))
+                    | EventKind::Create(CreateKind::File)
+                    | EventKind::Remove(RemoveKind::File)
+                        if has_any_view_files(&full_path, &event.paths) =>
                     {
-                        println!("created folder")
-                    }
-                    EventKind::Create(CreateKind::File)
-                        if check_regex(&event.paths, &FILE_REGEX) =>
-                    {
-                        println!("created file")
+                        parse(&full_path).unwrap();
                     }
                     EventKind::Remove(RemoveKind::Folder)
-                        if check_regex(&event.paths, &FOLDER_REGEX) =>
+                        if is_view_folder(&full_path, &event.paths) =>
                     {
-                        println!("removed folder")
+                        parse(&full_path).unwrap();
                     }
-                    EventKind::Remove(RemoveKind::File)
-                        if check_regex(&event.paths, &FILE_REGEX) =>
-                    {
-                        println!("removed file")
-                    }
-                    // TODO:(cli) Rename folder/file
                     _ => {}
                 },
                 Err(e) => println!("watch error: {:?}", e),
             })?;
 
-        watcher.watch(&views, RecursiveMode::Recursive)?;
+        watcher.watch(views, RecursiveMode::Recursive)?;
         Ok(watcher)
     }
 }
 
-fn check_regex(paths: &[PathBuf], regex: &Regex) -> bool {
+fn check_path(path: &Path, name: &str) -> utils::Result {
+    if let Err(e) = path.canonicalize() {
+        TERM_ERR.write_line(&format!(
+            "    {} reading {}",
+            RED_BOLD.apply_to("error"),
+            name
+        ))?;
+        eprintln!("{}", e);
+    }
+
+    Ok(())
+}
+
+fn _has_any_rust_files(paths: &[PathBuf]) -> bool {
+    let rs = OsStr::new("rs");
+
     paths
         .iter()
-        .any(|x| regex.is_match(&x.file_name().expect(INTERNAL_ERR).to_string_lossy()))
+        .any(|path| matches!(path.extension(), Some(ext) if ext == rs))
 }
