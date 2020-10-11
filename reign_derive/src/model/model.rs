@@ -9,10 +9,17 @@ use quote::quote;
 use std::collections::HashMap as Map;
 use syn::{
     punctuated::Punctuated, token::Comma, Attribute, Data, DataStruct, DeriveInput, Field, Fields,
-    Ident, Index, Visibility,
+    Ident, Visibility,
 };
 
 pub fn model(input: DeriveInput) -> TokenStream {
+    quote! {
+        #[derive(::reign::prelude::ModelHidden, ::diesel::Queryable)]
+        #input
+    }
+}
+
+pub fn model_hidden(input: DeriveInput) -> TokenStream {
     match input.data {
         Data::Struct(DataStruct {
             fields: Fields::Named(ref fields),
@@ -32,7 +39,7 @@ pub fn model(input: DeriveInput) -> TokenStream {
             &Punctuated::<Field, Comma>::new(),
             &input.attrs,
         )),
-        _ => abort_call_site!("`#[derive(Model)]` only supports non-tuple structs"),
+        _ => abort_call_site!("`#[model]` only supports non-tuple structs"),
     }
 }
 
@@ -40,22 +47,20 @@ fn gen_for_struct(model: Model) -> TokenStream {
     // TODO:(model) generics
     let fields = model.fields.iter().map(|x| &x.0).collect::<Vec<_>>();
 
-    let gen_queryable = model.gen_queryable(None, &fields);
     let gen_query = model.gen_query();
     let gen_query_new = model.gen_query_new();
     let gen_query_filters = model.gen_query_filters();
     let gen_query_limit_offset = model.gen_query_limit_offset();
-    let gen_main_methods = model.gen_methods(None);
+    let gen_methods = model.gen_methods(None);
     let gen_loader = model.gen_loader(None, &fields);
     let gen_tags = model.gen_tags();
 
     quote! {
-        #gen_queryable
         #gen_query
         #gen_query_new
         #gen_query_limit_offset
         #gen_query_filters
-        #gen_main_methods
+        #gen_methods
         #gen_loader
         #(#gen_tags)*
     }
@@ -136,6 +141,7 @@ impl Model {
         }
     }
 
+    // TODO:(model) custom filter by just forwarding to `filter`
     fn gen_query_filters(&self) -> TokenStream {
         let table_ident = self.table_ident();
         let query_ident = self.query_ident();
@@ -208,40 +214,9 @@ impl Model {
             .collect::<Vec<_>>();
 
         quote! {
+            #[derive(::diesel::Queryable)]
             #vis struct #ident {
                 #(#fields),*
-            }
-        }
-    }
-
-    fn gen_queryable(&self, tag: Option<&str>, fields: &[&Field]) -> TokenStream {
-        // TODO:(model) deserialize_as support
-        let field_types = fields.iter().map(|x| &x.ty).collect::<Vec<_>>();
-        let (field_indices, field_idents) = fields
-            .iter()
-            .enumerate()
-            .map(|(i, x)| (Index::from(i), x.ident.as_ref().expect(INTERNAL_ERR)))
-            .unzip::<_, _, Vec<_>, Vec<_>>();
-
-        let ident = if let Some(tag) = tag {
-            self.tag_ident(tag)
-        } else {
-            self.ident.clone()
-        };
-
-        quote! {
-            impl<__DB: ::diesel::backend::Backend, __ST> ::diesel::deserialize::Queryable<__ST, __DB> for #ident
-            where
-                (#(#field_types,)*): ::diesel::deserialize::Queryable<__ST, __DB>,
-            {
-                type Row = <(#(#field_types,)*) as ::diesel::deserialize::Queryable<__ST, __DB>>::Row;
-
-                fn build(row: Self::Row) -> Self {
-                    let row: (#(#field_types,)*) = ::diesel::deserialize::Queryable::build(row);
-                    Self {
-                        #(#field_idents: (row.#field_indices.into()),)*
-                    }
-                }
             }
         }
     }
@@ -394,13 +369,11 @@ impl Model {
 
         for (tag, fields) in map.iter() {
             let gen_struct = self.gen_struct(tag, fields);
-            let gen_queryable = self.gen_queryable(Some(tag), fields);
             let gen_methods = self.gen_methods(Some(tag));
             let gen_loader = self.gen_loader(Some(tag), fields);
 
             ret.push(quote! {
                 #gen_struct
-                #gen_queryable
                 #gen_methods
                 #gen_loader
             });

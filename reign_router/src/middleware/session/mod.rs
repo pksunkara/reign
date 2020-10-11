@@ -94,7 +94,7 @@ where
     /// pub struct User(String);
     ///
     /// fn router(r: &mut Router) {
-    ///     r.pipe("common").add(Session::<, _>::new(RedisBackend::pool(REDIS.pool().clone())));
+    ///     r.pipe("common").add(Session::<User, _>::new(RedisBackend::pool(REDIS.pool().clone())));
     /// }
     /// ```
     pub fn new(backend: B) -> Self {

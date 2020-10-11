@@ -190,9 +190,18 @@ pub fn config(input: TokenStream) -> TokenStream {
 }
 
 #[cfg(feature = "model")]
-#[proc_macro_derive(Model, attributes(model))]
+#[doc(hidden)]
+#[proc_macro_derive(ModelHidden, attributes(model))]
 #[proc_macro_error]
-pub fn model(input: TokenStream) -> TokenStream {
+pub fn model_hidden(input: TokenStream) -> TokenStream {
+    let input: syn::DeriveInput = parse_macro_input!(input);
+
+    model::model::model_hidden(input).into()
+}
+
+#[cfg(feature = "model")]
+#[proc_macro_attribute]
+pub fn model(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::DeriveInput = parse_macro_input!(input);
 
     model::model::model(input).into()
