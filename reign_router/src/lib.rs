@@ -9,6 +9,8 @@ use hyper::{
     service::{make_service_fn, service_fn},
     Error as HyperError, Method,
 };
+use paste::paste;
+
 use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
 
 pub use futures;
@@ -45,6 +47,36 @@ use service::RouteRef;
 pub(crate) const INTERNAL_ERR: &str =
     "Internal error on reign_router. Please create an issue on https://github.com/pksunkara/reign";
 
+macro_rules! method {
+    ($method:ident) => {
+        paste! {
+            #[doc = " Define an endpoint with path that allows only `" $method:upper "` HTTP method"]
+            ///
+            /// # Examples
+            ///
+            /// ```
+            /// use reign::router::Router;
+            /// # use reign::prelude::*;
+            /// #
+            /// # #[action]
+            /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
+            ///
+            /// fn router(r: &mut Router) {
+            #[doc = "     r." $method "(\"foo\", foo);"]
+            /// }
+            /// ```
+            #[inline]
+            pub fn $method<P, H>(&mut self, path: P, handler: H)
+            where
+                P: Into<Path<'a>>,
+                H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+            {
+                self.any(&[Method::[<$method:snake:upper>]], path, handler);
+            }
+        }
+    };
+}
+
 /// Router that contains the routing rules and helpers to define them
 ///
 /// # Examples
@@ -80,13 +112,16 @@ pub struct Router<'a> {
 }
 
 impl<'a> Router<'a> {
+    // TODO: Investigate possibility for replacing this with generic (maybe even const)
     pub(crate) fn in_scope() -> Self {
         Self {
             in_scope: true,
             ..Default::default()
         }
     }
+}
 
+impl<'a> Router<'a> {
     /// Define a middleware pipe that can be used later
     ///
     /// # Examples
@@ -187,221 +222,15 @@ impl<'a> Router<'a> {
         self.scopes.push(scope);
     }
 
-    /// Define an endpoint with path that allows only `GET` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.get("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn get<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::GET], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `POST` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.post("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn post<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::POST], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `PUT` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.put("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn put<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::PUT], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `PATCH` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.patch("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn patch<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::PATCH], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `DELETE` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.delete("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn delete<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::DELETE], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `HEAD` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.head("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn head<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::HEAD], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `OPTIONS` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.options("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn options<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::OPTIONS], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `TRACE` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.trace("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn trace<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::TRACE], path, handler);
-    }
-
-    /// Define an endpoint with path that allows only `CONNECT` HTTP method
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::Router;
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.connect("foo", foo);
-    /// }
-    /// ```
-    #[inline]
-    pub fn connect<P, H>(&mut self, path: P, handler: H)
-    where
-        P: Into<Path<'a>>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
-    {
-        self.any(&[Method::CONNECT], path, handler);
-    }
+    method!(get);
+    method!(post);
+    method!(put);
+    method!(patch);
+    method!(delete);
+    method!(head);
+    method!(options);
+    method!(trace);
+    method!(connect);
 
     /// Define an endpoint with path that allows any of the given HTTP methods
     ///
@@ -516,7 +345,9 @@ impl<'a> Router<'a> {
         self.routes
             .push(Route::new(path).constraint(constraint).handler(handler));
     }
+}
 
+impl<'a> Router<'a> {
     pub(crate) fn regex(&self) -> Vec<(String, String)> {
         let mut regexes = self.routes.iter().map(|x| x.regex()).collect::<Vec<_>>();
 
