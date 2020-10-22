@@ -193,7 +193,11 @@ impl<'a> Router<'a> {
         P: Into<Path<'a>>,
         R: Fn(&mut Router),
     {
-        // TODO: Panic when pipes are not defined?
+        debug_assert!(
+            pipes.len() > 0,
+            "`pipes` param should not be empty in `scope_through`"
+        );
+
         self.scopes.push(Scope::new(path).through(pipes).to(f));
     }
 

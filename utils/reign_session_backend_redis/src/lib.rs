@@ -1,9 +1,15 @@
-use crate::middleware::session::SessionBackend;
-use bb8_redis::{bb8::Pool, redis::AsyncCommands, RedisConnectionManager};
-use futures::{future::BoxFuture, FutureExt};
-use log::error;
+#![cfg_attr(feature = "doc", feature(external_doc))]
+#![doc(html_logo_url = "https://reign.rs/images/media/reign.png")]
+#![doc(html_root_url = "https://docs.rs/reign_session_backend_redis/0.2.1")]
+#![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-// TODO: Think about making this a separate crate
+use bb8_redis::{bb8::Pool, redis::AsyncCommands, RedisConnectionManager};
+use log::error;
+use reign_router::{
+    futures::{future::BoxFuture, FutureExt},
+    middleware::session::SessionBackend,
+};
+
 /// Redis backend for session data
 pub struct RedisBackend {
     ttl: usize,

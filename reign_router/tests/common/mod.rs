@@ -1,6 +1,7 @@
 use reqwest::{header::CONTENT_TYPE, Client, StatusCode};
-use std::time::Duration;
 use tokio::time::delay_for;
+
+use std::time::Duration;
 
 #[allow(dead_code)]
 pub async fn content_type_test() {

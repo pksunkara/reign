@@ -51,7 +51,8 @@ mod headers_default;
 mod request_logger;
 mod runtime;
 
-pub mod cookie_parser;
+#[cfg(feature = "cookie")]
+pub mod cookie;
 #[cfg(feature = "session")]
 pub mod session;
 

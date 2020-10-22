@@ -1,11 +1,12 @@
 //! Contains types needed for session management middleware
 
 use crate::{
-    middleware::cookie_parser::CookieParser, Chain, HandleFuture, Middleware, Request, INTERNAL_ERR,
+    middleware::cookie::{CookieJar, CookieParser},
+    Chain, HandleFuture, Middleware, Request,
 };
+
 use base64::{encode_config, URL_SAFE_NO_PAD};
 use bincode::{deserialize, serialize};
-use cookie::CookieJar;
 use futures::FutureExt;
 use hyper::{header::SET_COOKIE, Body, Response};
 use log::trace;
@@ -15,15 +16,17 @@ use rand::{
 };
 use rand_chacha::ChaChaCore;
 use serde::{Deserialize, Serialize};
+
 use std::{
     future::Future,
     pin::Pin,
     sync::{Arc, Mutex, PoisonError},
 };
 
-pub use cookie::SameSite;
+pub use cookie_r::SameSite;
 
-pub mod backends;
+const INTERNAL_ERR: &str =
+    "Internal error on reign_router/middleware/session. Please create an issue on https://github.com/pksunkara/reign";
 
 /// Represents type that can store session data and is used by the session middleware
 pub trait SessionBackend {
@@ -87,14 +90,14 @@ where
     /// # Examples
     ///
     /// ```ignore
-    /// use reign::router::{Router, middleware::session::{Session, backends::RedisBackend}};
+    /// use reign::router::{Router, middleware::session::Session};
     /// use serde::{Serialize, Deserialize};
     ///
     /// #[derive(Serialize, Deserialize)]
     /// pub struct User(String);
     ///
     /// fn router(r: &mut Router) {
-    ///     r.pipe("common").add(Session::<User, _>::new(RedisBackend::pool(REDIS.pool().clone())));
+    ///     r.pipe("common").add(Session::<User, _>::new(MemoryBackend::new());
     /// }
     /// ```
     pub fn new(backend: B) -> Self {

@@ -1,31 +1,27 @@
 [package]
-name = "reign_model"
+name = "reign_session_backend_redis"
 version = "0.2.1"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Opinionated Fullstack Web Framework in Rust"
+description = "Redis backend for reign session middleware"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["fullstack", "web", "framework", "reign", "model"]
+keywords = ["session", "redis", "web", "reign", "router"]
 categories = ["web-programming"]
 license = "MIT"
 readme = "README.md"
 
 [lib]
-name = "reign_model"
+name = "reign_session_backend_redis"
 path = "src/lib.rs"
 
 [dependencies]
+reign_router = { version = "0.2.1", path = "../../reign_router", features = ["session"] }
 log = "0.4.8"
-thiserror = "1.0.19"
-anyhow = "1.0.31"
-diesel = { path = "../../../reign-rs/diesel/diesel" }
-tokio-diesel = { path = "../../../reign-rs/tokio-diesel", version = "0.3.0" }
-chrono = "0.4.11"
+bb8-redis = "0.5.0"
 
 [dev-dependencies]
-reign = { path = "../" }
 version-sync = "0.9.0"
 
 [features]

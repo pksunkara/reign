@@ -1,10 +1,11 @@
 //! Contains types needed for cookie parsing middleware
 
 use crate::{Chain, HandleFuture, Middleware, Request};
-use cookie::Cookie;
+
+use cookie_r::Cookie;
 use hyper::header::{HeaderValue, COOKIE};
 
-pub use cookie::CookieJar;
+pub use cookie_r::CookieJar;
 
 /// Parses the cookie and adds a CookieJar to the request storage
 #[derive(Default)]

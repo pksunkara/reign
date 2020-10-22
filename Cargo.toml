@@ -8,7 +8,7 @@ edition = "2018"
 description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
 keywords = ["fullstack", "web", "framework", "reign"]
-categories = []
+categories = ["web-programming"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 autoexamples = false
@@ -58,8 +58,11 @@ members = [
 	"reign_router",
 	"reign_view",
 
+	"utils/*",
+
 	"examples/*",
 ]
+# TODO: Look into removing this
 default-members = [
 	".",
 	"reign_boot",
@@ -67,6 +70,8 @@ default-members = [
 	"reign_model",
 	"reign_router",
 	"reign_view",
+
+	"utils/*",
 ]
 
 [features]
@@ -81,9 +86,12 @@ model = ["reign_model", "reign_derive/model"]
 view = ["reign_view", "reign_derive/view"]
 router-backend = ["reign_router", "reign_derive/router-backend", "log"]
 view-backend = ["reign_view/view-backend", "reign_derive/view-backend", "view", "router-backend"]
+
+cookie = ["reign_router/cookie", "router-backend"]
 session = ["reign_router/session", "router-backend"]
-session-redis = ["reign_router/session-redis", "router-backend", "session"]
+
 file-handlers = ["reign_router/file-handlers", "router-backend"]
+
 hot-reload = ["reign_view/hot-reload", "reign_derive/hot-reload"]
 
 [package.metadata.docs.rs]
