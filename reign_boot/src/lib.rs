@@ -5,8 +5,11 @@
 
 pub use once_cell;
 
+use env_logger::{from_env as logger_from_env, Env};
+use envy::{from_env, prefixed};
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
+
 use std::fmt::Debug;
 
 mod env;
@@ -15,7 +18,7 @@ pub fn boot() -> Config {
     env::load_env_files();
 
     // TODO:(log) Allow custom loggers by adding an option to exclude this call
-    env_logger::from_env(env_logger::Env::default().default_filter_or("info"))
+    logger_from_env(Env::default().default_filter_or("info"))
         .format_timestamp(None)
         .init();
 
@@ -29,7 +32,7 @@ impl Config {
     where
         T: for<'de> Deserialize<'de> + Debug,
     {
-        cell.set(envy::from_env::<T>().unwrap()).unwrap();
+        cell.set(from_env::<T>().unwrap()).unwrap();
         self
     }
 
@@ -37,8 +40,7 @@ impl Config {
     where
         T: for<'de> Deserialize<'de> + Debug,
     {
-        cell.set(envy::prefixed(prefix).from_env::<T>().unwrap())
-            .unwrap();
+        cell.set(prefixed(prefix).from_env::<T>().unwrap()).unwrap();
         self
     }
 }

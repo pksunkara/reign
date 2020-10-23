@@ -16,6 +16,7 @@ languages = [
 
 [translations]
 
+# TODO: blog
 [translations.en]
 search = "Search"
 release = "Release"

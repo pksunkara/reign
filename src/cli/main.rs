@@ -27,7 +27,7 @@ enum ReignSubcommand {
     New(new::New),
     #[clap(alias = "s")]
     Server(server::Server),
-    #[clap(alias = "gen")]
+    #[clap(alias = "g")]
     Generate(generate::Generate),
 }
 
