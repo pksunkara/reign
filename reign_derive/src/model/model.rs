@@ -6,11 +6,12 @@ use inflector::{
 use proc_macro2::TokenStream;
 use proc_macro_error::abort_call_site;
 use quote::quote;
-use std::collections::HashMap as Map;
 use syn::{
     punctuated::Punctuated, token::Comma, Attribute, Data, DataStruct, DeriveInput, Field, Fields,
     Ident, Visibility,
 };
+
+use std::collections::HashMap as Map;
 
 pub fn model(input: DeriveInput) -> TokenStream {
     quote! {
@@ -108,33 +109,31 @@ impl Model {
 
     fn gen_query(&self) -> TokenStream {
         let query_ident = self.query_ident();
+        let table_ident = self.table_ident();
         let vis = &self.vis;
 
         quote! {
-            #vis struct #query_ident<T, M, SS> {
+            #vis struct #query_ident<T, M> {
                 _phantom: std::marker::PhantomData<(T, M)>,
                 limit: Option<i64>,
                 offset: Option<i64>,
-                statement: SS,
+                statement: schema::#table_ident::BoxedQuery<'static, ::diesel::pg::Pg>,
             }
         }
     }
 
     fn gen_query_new(&self) -> TokenStream {
-        let table_ident = self.table_ident();
         let query_ident = self.query_ident();
+        let table_ident = self.table_ident();
 
         quote! {
-            impl<T, M> #query_ident<T, M, ::diesel::query_builder::SelectStatement<schema::#table_ident::table>> {
+            impl<T, M> #query_ident<T, M> {
                 fn new() -> Self {
-                    use ::diesel::associations::HasTable;
-                    use ::diesel::query_builder::AsQuery;
-
                     Self {
                         _phantom: std::marker::PhantomData,
                         limit: None,
                         offset: None,
-                        statement: schema::#table_ident::table::table().as_query(),
+                        statement: schema::#table_ident::table.into_boxed(),
                     }
                 }
             }
@@ -153,25 +152,23 @@ impl Model {
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
         quote! {
-            impl<T, M, SS> #query_ident<T, M, SS> {
-                #(#field_vis fn #field_idents<E, X, O>(self, #field_idents: E) -> #query_ident<T, M, O>
+            impl<T, M> #query_ident<T, M> {
+                #(#field_vis fn #field_idents<E, X>(mut self, #field_idents: E) -> Self
                 where
-                    SS: ::diesel::query_dsl::filter_dsl::FilterDsl<
-                        ::diesel::expression::operators::Eq<schema::#table_ident::#field_idents, X>,
-                        Output = O,
-                    >,
                     E: ::diesel::expression::AsExpression<
                         ::diesel::dsl::SqlTypeOf<schema::#table_ident::#field_idents>,
                         Expression = X,
                     >,
-                    X: ::diesel::expression::Expression<SqlType = ::diesel::dsl::SqlTypeOf<schema::#table_ident::#field_idents>>,
+                    X: ::diesel::expression::BoxableExpression<
+                            schema::#table_ident::table,
+                            ::diesel::pg::Pg,
+                            SqlType = ::diesel::dsl::SqlTypeOf<schema::#table_ident::#field_idents>
+                        > + ::diesel::expression::ValidGrouping<(), IsAggregate = ::diesel::expression::is_aggregate::Never>
+                        + Send
+                        + 'static,
                 {
-                    #query_ident {
-                        _phantom: self._phantom,
-                        limit: self.limit,
-                        offset: self.offset,
-                        statement: self.statement.filter(schema::#table_ident::#field_idents.eq(#field_idents)),
-                    }
+                    self.statement = self.statement.filter(schema::#table_ident::#field_idents.eq(#field_idents));
+                    self
                 })*
             }
         }
@@ -183,7 +180,7 @@ impl Model {
 
         quote! {
             #[allow(dead_code, unreachable_code)]
-            impl<M, SS> #query_ident<::reign::model::query::All, M, SS> {
+            impl<M> #query_ident<::reign::model::query::All, M> {
                 #vis fn limit(mut self, limit: i64) -> Self {
                     self.limit = Some(limit);
                     self
@@ -202,6 +199,7 @@ impl Model {
         let vis = &self.vis;
 
         // TODO:(model) Forward attrs for fields and derives/attrs for struct
+        // TODO:(model) Write `table_name` attr if not present
         let fields = fields
             .iter()
             .map(|f| {
@@ -223,7 +221,6 @@ impl Model {
 
     fn gen_methods(&self, tag: Option<&str>) -> TokenStream {
         let query_ident = self.query_ident();
-        let table_ident = self.table_ident();
         let vis = &self.vis;
 
         let ident = if let Some(tag) = tag {
@@ -235,19 +232,11 @@ impl Model {
         quote! {
             #[allow(dead_code, unreachable_code)]
             impl #ident {
-                #vis fn all() -> #query_ident<
-                    ::reign::model::query::All,
-                    #ident,
-                    ::diesel::query_builder::SelectStatement<schema::#table_ident::table>
-                > {
+                #vis fn all() -> #query_ident<::reign::model::query::All, #ident> {
                     #query_ident::new()
                 }
 
-                #vis fn one() -> #query_ident<
-                    ::reign::model::query::One,
-                    #ident,
-                    ::diesel::query_builder::SelectStatement<schema::#table_ident::table>
-                > {
+                #vis fn one() -> #query_ident<::reign::model::query::One, #ident> {
                     #query_ident::new()
                 }
             }
@@ -271,24 +260,7 @@ impl Model {
             .collect::<Vec<_>>();
 
         quote! {
-            impl<S, W>
-                #query_ident<
-                    ::reign::model::query::All,
-                    #ident,
-                    ::diesel::query_builder::SelectStatement<
-                        schema::#table_ident::table,
-                        S,
-                        ::diesel::query_builder::distinct_clause::NoDistinctClause,
-                        W,
-                    >,
-                >
-            where
-                W: ::diesel::query_builder::QueryId
-                    + ::diesel::query_builder::QueryFragment<::diesel::pg::Pg>
-                    + ::diesel::query_builder::where_clause::ValidWhereClause<schema::#table_ident::table>
-                    + Send
-                    + 'static,
-            {
+            impl #query_ident<::reign::model::query::All, #ident> {
                 #vis async fn load(self) -> Result<Vec<#ident>, ::reign::model::tokio_diesel::AsyncError> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
 
@@ -312,24 +284,7 @@ impl Model {
                 }
             }
 
-            impl<S, W>
-                #query_ident<
-                    ::reign::model::query::One,
-                    #ident,
-                    ::diesel::query_builder::SelectStatement<
-                        schema::#table_ident::table,
-                        S,
-                        ::diesel::query_builder::distinct_clause::NoDistinctClause,
-                        W,
-                    >,
-                >
-            where
-                W: ::diesel::query_builder::QueryId
-                    + ::diesel::query_builder::QueryFragment<::diesel::pg::Pg>
-                    + ::diesel::query_builder::where_clause::ValidWhereClause<schema::#table_ident::table>
-                    + Send
-                    + 'static,
-            {
+            impl #query_ident<::reign::model::query::One, #ident> {
                 #vis async fn load(self) -> Result<Option<#ident>, ::reign::model::tokio_diesel::AsyncError> {
                     use ::reign::model::tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 

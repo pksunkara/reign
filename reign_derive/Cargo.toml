@@ -38,8 +38,8 @@ framework = ["Inflector"]
 model = ["Inflector"]
 view = ["reign_view", "regex", "Inflector", "once_cell"]
 view-backend = ["view", "router-backend"]
-hot-reload = ["serde_json"]
 router-backend = []
+hot-reload = ["serde_json"]
 
 [package.metadata.docs.rs]
 all-features = true

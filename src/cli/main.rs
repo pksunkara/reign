@@ -2,6 +2,7 @@ use clap::{
     AppSettings::{ColoredHelp, VersionlessSubcommands},
     Clap,
 };
+
 use std::process::exit;
 
 mod generate;
