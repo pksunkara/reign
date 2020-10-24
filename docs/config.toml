@@ -16,8 +16,8 @@ languages = [
 
 [translations]
 
-# TODO: blog
 [translations.en]
+news = "News"
 search = "Search"
 release = "Release"
 language = "Language"
@@ -26,6 +26,7 @@ reference = "Reference"
 code = "Code"
 
 [translations.ru]
+news = "Новости"
 search = "Поиск"
 release = "Релиз"
 language = "Язык"

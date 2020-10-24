@@ -1,0 +1,18 @@
+{% if config.extra.releases %}
+  {% set release = config.extra.releases.0 %}
+{% else %}
+  {% set release = 'edge' %}
+{% endif %}
+
+<header class="maxview">
+  <input type="checkbox" id="nav-check">
+
+  {% include "shared/logo.html" %}
+
+  <nav class="nav">
+    <a href="{{ get_url(path = '@/news/_index.md') }}">{{ trans(key = "news", lang = lang) }}</a>
+    <a href="{{ get_url(path = '@/' ~ release ~ '/guide/getting-started/installation.md', lang = lang) }}">{{ trans(key = "guide", lang = lang) }}</a>
+    <a href="https://docs.rs/reign">{{ trans(key = "reference", lang = lang) }}</a>
+    <a href="https://github.com/pksunkara/reign">{{ trans(key = "code", lang = lang) }}</a>
+  </nav>
+</header>

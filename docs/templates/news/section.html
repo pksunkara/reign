@@ -1,0 +1,20 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ section.title }}{% endblock title %}
+
+{% block content %}
+{% include "shared/header.html" %}
+
+<main id="content" class="maxview">
+  <section>
+    {% for page in paginator.pages %}
+      {% include "shared/date.html" %}
+      <h2>
+        <a href="{{ page.permalink | safe }}">{{ page.title }}</a>
+      </h2>
+      {{ page.summary | safe }}
+    {% endfor %}
+    {% include "shared/pagination.html" %}
+  </section>
+</main>
+{% endblock content %}

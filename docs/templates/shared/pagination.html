@@ -1,0 +1,9 @@
+<nav class="pagination">
+  {% if paginator.previous %}
+    <a class="newer-posts" href="{{ paginator.previous | safe }}">&larr; Newer Posts</a>
+  {% endif %}
+  <span class="page-number">Page {{ paginator.current_index }} of {{ paginator.number_pagers }}</span>
+  {% if paginator.next %}
+    <a class="older-posts" href="{{ paginator.next | safe }}">Older Posts &rarr;</a>
+  {% endif %}
+</nav>
