@@ -9,7 +9,7 @@ use syn::parse_macro_input;
 
 #[cfg(feature = "framework")]
 mod framework;
-#[cfg(feature = "model")]
+#[cfg(feature = "model-postgres")]
 mod model;
 #[cfg(feature = "router-backend")]
 mod router;
@@ -190,19 +190,10 @@ pub fn config(input: TokenStream) -> TokenStream {
     framework::config::config(input).into()
 }
 
-#[cfg(feature = "model")]
-#[doc(hidden)]
-#[proc_macro_derive(ModelHidden, attributes(model))]
+#[cfg(feature = "model-postgres")]
+#[proc_macro_derive(Model, attributes(model))]
 #[proc_macro_error]
-pub fn model_hidden(input: TokenStream) -> TokenStream {
-    let input: syn::DeriveInput = parse_macro_input!(input);
-
-    model::model::model_hidden(input).into()
-}
-
-#[cfg(feature = "model")]
-#[proc_macro_attribute]
-pub fn model(_: TokenStream, input: TokenStream) -> TokenStream {
+pub fn model(input: TokenStream) -> TokenStream {
     let input: syn::DeriveInput = parse_macro_input!(input);
 
     model::model::model(input).into()

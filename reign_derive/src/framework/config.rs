@@ -9,6 +9,7 @@ pub fn config(input: DeriveInput) -> TokenStream {
     let scream = Ident::new(&to_screaming_snake_case(&ident.to_string()), ident.span());
     let snake = Ident::new(&to_snake_case(&ident.to_string()), ident.span());
 
+    // TODO: Make this ergonomic by introducing Config trait
     quote! {
         pub static #scream: ::reign::once_cell::sync::OnceCell<#ident> = ::reign::once_cell::sync::OnceCell::new();
 

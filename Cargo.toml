@@ -75,17 +75,17 @@ default-members = [
 ]
 
 [features]
-default = ["view-backend", "model", "framework"]
+default = ["view-backend", "model-postgres", "framework"]
 cli = [
 	"reign_view", "clap", "handlebars", "serde", "serde_json", "Inflector", "console", "lazy_static",
 	"thiserror", "notify", "regex", "quote", "proc-macro2"
 ]
 doc = []
 framework = ["reign_boot", "reign_derive/framework"]
-model = ["reign_model", "reign_derive/model"]
 view = ["reign_view", "reign_derive/view"]
 router-backend = ["reign_router", "reign_derive/router-backend", "log"]
 view-backend = ["reign_view/view-backend", "reign_derive/view-backend", "view", "router-backend"]
+model-postgres = ["reign_model/model-postgres", "reign_derive/model-postgres"]
 
 cookie = ["reign_router/cookie", "router-backend"]
 session = ["reign_router/session", "router-backend"]

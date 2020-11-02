@@ -10,7 +10,7 @@ pub mod prelude;
 
 #[cfg(feature = "framework")]
 pub use reign_boot::*;
-#[cfg(feature = "model")]
+#[cfg(feature = "model-postgres")]
 pub use reign_model as model;
 #[cfg(feature = "router-backend")]
 pub use reign_router as router;

@@ -1,4 +1,6 @@
 #[allow(clippy::module_inception)]
 pub mod model;
 
-mod model_attr;
+mod attr;
+mod query;
+mod tag;

@@ -2,6 +2,7 @@ use crate::{
     router::ty::{only_last_segment, subty_if_name},
     INTERNAL_ERR,
 };
+
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
 use quote::quote;

@@ -20,9 +20,8 @@ path = "src/lib.rs"
 log = "0.4.8"
 thiserror = "1.0.19"
 anyhow = "1.0.31"
-diesel = { path = "../../../reign-rs/diesel/diesel" }
+diesel = { path = "../../../reign-rs/diesel/diesel", features = ["chrono"] }
 tokio-diesel = { path = "../../../reign-rs/tokio-diesel", version = "0.3.0" }
-chrono = "0.4.11"
 
 [dev-dependencies]
 reign = { path = "../" }
@@ -31,6 +30,7 @@ version-sync = "0.9.0"
 [features]
 default = []
 doc = []
+model-postgres = ["diesel/postgres"]
 
 [package.metadata.docs.rs]
 all-features = true
