@@ -327,6 +327,7 @@ pre {
 
 #sidebar-with-content #content {
   width: calc(100% - 16rem);
+  min-height: calc(100vh - 5em - 18px);
 }
 
 #sidebar {

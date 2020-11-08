@@ -1,0 +1,5 @@
+error: unexpected attribute: invalid
+ --> $DIR/model_attr_invalid.rs:4:9
+  |
+4 | #[model(invalid)]
+  |         ^^^^^^^

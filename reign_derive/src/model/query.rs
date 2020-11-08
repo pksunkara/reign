@@ -140,6 +140,7 @@ impl Model {
             .map(|x| (&x.field.vis, x.field.ident.as_ref().expect(INTERNAL_ERR)))
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
+        // TODO: (external) Use dummy mod once https://github.com/rust-analyzer/rust-analyzer/issues/1559
         quote! {
             impl<T, M> #query_ident<T, M> {
                 #(#field_vis fn #field_idents<E, X>(mut self, #field_idents: E) -> Self

@@ -12,9 +12,9 @@ mod error;
 
 #[tokio::main]
 async fn main() {
-    boot().load(&config::CONFIG);
+    boot().load::<config::App>();
 
-    let addr = "127.0.0.1:8080";
+    let addr = "127.0.0.1:8000";
 
     serve(addr, routes::router).await.unwrap()
 }

@@ -6,6 +6,9 @@
     feature = "hot-reload"
 ))]
 pub use reign_derive::*;
+
+#[cfg(feature = "framework")]
+pub use reign_boot::Config;
 #[cfg(feature = "router-backend")]
 pub use reign_router::{Error, Request, Response};
 #[cfg(feature = "view-backend")]

@@ -15,7 +15,7 @@ fn build_env_file_heirarchy(environment: String) -> Vec<String> {
     heirarchy
 }
 
-pub(crate) fn load_env_files() {
+pub fn load_env_files() {
     let environment = env::var("REIGN_ENV").unwrap_or("development".to_string());
     let heirarchy = build_env_file_heirarchy(environment);
 
