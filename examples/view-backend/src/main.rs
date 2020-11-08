@@ -1,7 +1,9 @@
-use reign::{
-    prelude::*,
-    router::{futures::FutureExt, serve, HandleFuture, Request, Router},
+use hyper::{
+    http::Error,
+    service::{make_service_fn, service_fn},
+    Body, Request, Response, Server,
 };
+use reign::prelude::*;
 
 #[derive(serde::Serialize)]
 struct User {
@@ -10,60 +12,44 @@ struct User {
 
 views!("src", "views");
 
-fn index(_: &mut Request) -> HandleFuture {
-    async {
-        let msg = "Hello Reign!";
+async fn handle(req: Request<Body>) -> Result<Response<Body>, Error> {
+    match req.uri().path() {
+        "/" => {
+            let msg = "Hello Reign!";
 
-        Ok(render!(app)?)
+            Ok(render!(app)?)
+        }
+        "/world" => Ok(redirect("/")?),
+        "/hey" => {
+            let msg = "Hey Reign!";
+
+            Ok(render!(app, status = 404)?)
+        }
+        "/json" => {
+            let user = User {
+                name: "Reign".to_string(),
+            };
+
+            Ok(json!(user)?)
+        }
+        "/json_err" => {
+            let user = User {
+                name: "Reign".to_string(),
+            };
+
+            Ok(json!(user, status = 422)?)
+        }
+        _ => Ok(Response::new(Body::empty())),
     }
-    .boxed()
-}
-
-fn world(_: &mut Request) -> HandleFuture {
-    async { Ok(redirect("/")?) }.boxed()
-}
-
-fn hey(_: &mut Request) -> HandleFuture {
-    async {
-        let msg = "Hey Reign!";
-
-        Ok(render!(app, status = 404)?)
-    }
-    .boxed()
-}
-
-fn json(_: &mut Request) -> HandleFuture {
-    async {
-        let user = User {
-            name: "Reign".to_string(),
-        };
-
-        Ok(json!(user)?)
-    }
-    .boxed()
-}
-
-fn json_err(_: &mut Request) -> HandleFuture {
-    async {
-        let user = User {
-            name: "Reign".to_string(),
-        };
-
-        Ok(json!(user, status = 422)?)
-    }
-    .boxed()
-}
-
-fn router(r: &mut Router) {
-    r.get("", index);
-    r.get("world", world);
-    r.get("hey", hey);
-    r.get("json", json);
-    r.get("json_err", json_err);
 }
 
 async fn server() {
-    serve("127.0.0.1:8080", router).await.unwrap()
+    let make_svc = make_service_fn(|_conn| async { Ok::<_, Error>(service_fn(handle)) });
+
+    Server::bind(&([127, 0, 0, 1], 8080).into())
+        .serve(make_svc)
+        .await
+        .unwrap()
 }
 
 #[tokio::main]

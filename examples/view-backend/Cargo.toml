@@ -8,6 +8,7 @@ publish = false
 [dependencies]
 reign = { path = "../..", features = ["view-backend"], default-features = false }
 tokio = { version = "0.2.21", features = ["full"] }
+hyper = "0.13.5"
 serde = { version = "1.0.110", features = ["derive"] }
 
 [dev-dependencies]

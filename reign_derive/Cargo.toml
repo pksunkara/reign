@@ -37,7 +37,7 @@ doc = []
 framework = ["Inflector"]
 model-postgres = ["Inflector"]
 view = ["reign_view", "regex", "Inflector", "once_cell"]
-view-backend = ["view", "router-backend"]
+view-backend = ["view"]
 router-backend = []
 hot-reload = ["serde_json"]
 

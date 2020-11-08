@@ -10,7 +10,7 @@ on:
 jobs:
   lint:
     name: Lint
-    needs: [fmt, clippy, clippy_hot_reload]
+    needs: [fmt, clippy, clippy_hot_reload, clippy_cli]
     runs-on: ubuntu-latest
     steps:
       - name: Done

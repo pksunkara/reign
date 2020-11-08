@@ -439,9 +439,9 @@ usage of macros.
 ##### view-backend
 
 * `views!` can be used to build the views.
-* Enables `render` helper and `render!` renders a view into response for [reign_router][] backend handler.
-* Enables `redirect` helper for [reign_router][] backend handler.
-* Enables `json` helper and `json!` builds response for [reign_router][] backend handler
+* Enables `render` helper and `render!` renders a view into [hyper][] response.
+* Enables `redirect` helper for [hyper][] response.
+* Enables `json` helper and `json!` serializes a value into [hyper][] response.
 
 # Appendix
 
@@ -488,4 +488,5 @@ Allowed patterns are described below with `expr` represents the above mentioned
 
 [ann]: #annotations
 [reign_router]: https://docs.rs/reign_router
+[hyper]: https://hyper.rs
 [Reign]: https://docs.rs/reign
