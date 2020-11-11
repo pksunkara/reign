@@ -125,7 +125,7 @@ fn router(r: &mut Router) {
         .add(HeadersDefault::empty().add("x-version", "1.0"))
         .add(HeadersDefault::empty().add("content-type", "application/json"));
 
-    r.scope_through("", &["common", "app"], |r| {
+    r.scope("").through(&["common", "app"]).to(|r| {
         r.get("str", str_);
         r.get("string", string);
         r.get("response", response);
@@ -146,24 +146,25 @@ fn router(r: &mut Router) {
 
         // r.get(Path::new().path("param_typed").param::<i32>("id"), param_typed);
 
-        r.scope(p!("scope_param" / id), |r| {
+        r.scope(p!("scope_param" / id)).to(|r| {
             r.get("bar", scope_param);
         });
 
-        r.scope(p!("scope_param_opt" / id?), |r| {
+        r.scope(p!("scope_param_opt" / id?)).to(|r| {
             r.get("bar", scope_param_opt);
         });
 
-        r.scope(p!("scope_param_regex" / id @ "[0-9]+"), |r| {
+        r.scope(p!("scope_param_regex" / id @ "[0-9]+")).to(|r| {
             r.get("bar", scope_param_regex);
         });
 
-        r.scope(p!("scope_param_opt_regex" / id? @ "[0-9]+"), |r| {
-            r.get("bar", scope_param_opt_regex);
-        });
+        r.scope(p!("scope_param_opt_regex" / id? @ "[0-9]+"))
+            .to(|r| {
+                r.get("bar", scope_param_opt_regex);
+            });
 
-        r.scope(p!("nested_scope" / foo), |r| {
-            r.scope(p!("foo" / bar), |r| {
+        r.scope(p!("nested_scope" / foo)).to(|r| {
+            r.scope(p!("foo" / bar)).to(|r| {
                 r.get("bar", nested_scope);
             });
         });

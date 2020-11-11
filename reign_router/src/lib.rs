@@ -97,7 +97,7 @@ macro_rules! method {
 /// fn router(r: &mut Router) {
 ///     r.get("foo", foo);
 ///
-///     r.scope("bar", |r| {
+///     r.scope("bar").to(|r| {
 ///         r.post("", bar);
 ///         r.delete("baz", baz);
 ///     });
@@ -127,8 +127,7 @@ impl<'a> Router<'a> {
         self.pipes.get_mut(name).expect(INTERNAL_ERR)
     }
 
-    /// Define a scope that prepends the given prefix for all the endpoints in the given router
-    /// definition
+    /// Define a scope with the given prefix
     ///
     /// # Examples
     ///
@@ -140,75 +139,18 @@ impl<'a> Router<'a> {
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
-    ///     r.scope("api", |r| {
+    ///     r.scope("api").to(|r| {
+    ///         // GET /api/foo
     ///         r.get("foo", foo);
     ///     });
     /// }
     /// ```
-    pub fn scope<P, R>(&mut self, path: P, f: R)
+    pub fn scope<P>(&mut self, path: P) -> &mut Scope<'a>
     where
         P: Into<Path<'a>>,
-        R: Fn(&mut Router),
     {
-        self.scopes.push(Scope::new(path).to(f));
-    }
-
-    /// Define a scope that runs a middleware pipe and prepends the given prefix for all the
-    /// endpoints defined in the given router definition
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::{Router, middleware::Runtime};
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.pipe("common").add(Runtime::default());
-    ///
-    ///     r.scope_through("api", &["common"], |r| {
-    ///         r.get("foo", foo);
-    ///    });
-    /// }
-    /// ```
-    pub fn scope_through<P, R>(&mut self, path: P, pipes: &[&'a str], f: R)
-    where
-        P: Into<Path<'a>>,
-        R: Fn(&mut Router),
-    {
-        debug_assert!(
-            pipes.len() > 0,
-            "`pipes` param should not be empty in `scope_through`"
-        );
-
-        self.scopes.push(Scope::new(path).through(pipes).to(f));
-    }
-
-    /// Define a scope directly using [`Scope`](./struct.Scope.html)
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::{Router, Scope, middleware::Runtime};
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.pipe("common").add(Runtime::default());
-    ///
-    ///     r.scope_as(Scope::new("api").through(&["common"]).constraint(|req| {
-    ///         req.uri().port().is_some() || req.query("bar").is_some()
-    ///     }).to(|r| {
-    ///         r.get("foo", foo);
-    ///     }));
-    /// }
-    /// ```
-    pub fn scope_as(&mut self, scope: Scope<'a>) {
-        self.scopes.push(scope);
+        self.scopes.push(Scope::new(path));
+        self.scopes.last_mut().expect(INTERNAL_ERR)
     }
 
     method!(get);

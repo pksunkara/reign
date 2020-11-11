@@ -13,7 +13,7 @@ fn index(_: &mut Request) -> HandleFuture {
 #[should_panic(expected = "can't find pipe with name `app`")]
 async fn test_invalid_pipe() {
     service(|r| {
-        r.scope_through("", &["app"], |r| {
+        r.scope("").through(&["app"]).to(|r| {
             r.get("", index);
         });
     });
@@ -23,16 +23,16 @@ async fn test_invalid_pipe() {
 #[should_panic(expected = "can't find pipe with name `secret`")]
 async fn test_scope_pipe_not_visible() {
     service(|r| {
-        r.scope("pipe", |r| {
+        r.scope("pipe").to(|r| {
             r.pipe("secret")
                 .add(HeadersDefault::empty().add("x-powered-by", "reign"));
 
-            r.scope_through("", &["secret"], |r| {
+            r.scope("").through(&["secret"]).to(|r| {
                 r.get("", index);
             });
         });
 
-        r.scope_through("", &["secret"], |r| {
+        r.scope("").through(&["secret"]).to(|r| {
             r.get("", index);
         });
     });
@@ -41,16 +41,16 @@ async fn test_scope_pipe_not_visible() {
 #[tokio::test]
 async fn test_pipe_in_scope() {
     let service = service(|r| {
-        r.scope("pipe", |r| {
+        r.scope("pipe").to(|r| {
             r.pipe("secret")
                 .add(HeadersDefault::empty().add("x-powered-by", "reign"));
 
-            r.scope_through("", &["secret"], |r| {
+            r.scope("").through(&["secret"]).to(|r| {
                 r.get("", index);
             });
         });
 
-        r.scope("", |r| {
+        r.scope("").to(|r| {
             r.get("", index);
         });
     });

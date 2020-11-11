@@ -15,7 +15,7 @@ async fn test_headers_default() {
         r.pipe("app")
             .add(HeadersDefault::empty().add("x-powered-by", "reign"));
 
-        r.scope_through("", &["app"], |r| {
+        r.scope("").through(&["app"]).to(|r| {
             r.get("foo", index);
         });
     });

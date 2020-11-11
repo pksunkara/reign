@@ -1,21 +1,38 @@
 use crate::{Constraint, Path, Request, RouteRef, Router};
 use std::sync::Arc;
 
-/// Scope can be used to define common path prefix, middleware or constraints for routes
+/// Scope can be used to define common path prefixes, middlewares or constraints for routes
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::router::{Router, Scope};
+/// use reign::router::Router;
 /// # use reign::prelude::*;
 /// #
 /// # #[action]
 /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
 ///
 /// fn router(r: &mut Router) {
-///     r.scope_as(Scope::new("api").to(|r| {
+///     r.scope("api").to(|r| {
 ///         r.get("foo", foo);
-///     }));
+///     });
+/// }
+/// ```
+///
+/// You can provide an empty path prefix if you want to group some routes under a middleware
+/// pipe or some constraint but don't want to alter their paths.
+///
+/// ```
+/// use reign::router::Router;
+/// # use reign::prelude::*;
+/// #
+/// # #[action]
+/// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
+///
+/// fn router(r: &mut Router) {
+///     r.scope("").to(|r| {
+///         r.get("foo", foo);
+///     });
 /// }
 /// ```
 #[derive(Default)]
@@ -29,46 +46,9 @@ pub struct Scope<'a> {
 impl<'a> Scope<'a> {
     /// Define an empty path prefix for this scope
     ///
-    /// This is used when you want to group some routes under a middleware pipe or
-    /// some constraint but don't want to alter their paths.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::{Router, Scope};
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.scope_as(Scope::empty().to(|r| {
-    ///         r.get("foo", foo);
-    ///     }));
-    /// }
-    /// ```
-    pub fn empty() -> Self {
-        Self::default()
-    }
+    /// This is used when.
 
-    /// Define the path prefix for this scope
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use reign::router::{Router, Scope};
-    /// # use reign::prelude::*;
-    /// #
-    /// # #[action]
-    /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
-    ///
-    /// fn router(r: &mut Router) {
-    ///     r.scope_as(Scope::new("api").to(|r| {
-    ///         r.get("foo", foo);
-    ///     }));
-    /// }
-    /// ```
-    pub fn new<P>(path: P) -> Self
+    pub(crate) fn new<P>(path: P) -> Self
     where
         P: Into<Path<'a>>,
     {
@@ -78,12 +58,12 @@ impl<'a> Scope<'a> {
         }
     }
 
-    /// Define the middlewares that run for all the routes under this scope
+    /// Define the middleware pipes that run for all the routes under this scope
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Scope, middleware::Runtime};
+    /// use reign::router::{Router, middleware::Runtime};
     /// # use reign::prelude::*;
     /// #
     /// # #[action]
@@ -92,12 +72,12 @@ impl<'a> Scope<'a> {
     /// fn router(r: &mut Router) {
     ///     r.pipe("common").add(Runtime::default());
     ///
-    ///     r.scope_as(Scope::new("api").through(&["common"]).to(|r| {
+    ///     r.scope("api").through(&["common"]).to(|r| {
     ///         r.get("foo", foo);
-    ///     }));
+    ///     });
     /// }
     /// ```
-    pub fn through(mut self, pipes: &[&'a str]) -> Self {
+    pub fn through(&mut self, pipes: &[&'a str]) -> &mut Self {
         self.pipes = pipes.to_vec();
         self
     }
@@ -109,19 +89,19 @@ impl<'a> Scope<'a> {
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Scope};
+    /// use reign::router::Router;
     /// # use reign::prelude::*;
     /// #
     /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
-    ///     r.scope_as(Scope::new("api").to(|r| {
+    ///     r.scope("api").to(|r| {
     ///         r.get("foo", foo);
-    ///     }));
+    ///     });
     /// }
     /// ```
-    pub fn to<R>(mut self, f: R) -> Self
+    pub fn to<R>(&mut self, f: R) -> &mut Self
     where
         R: Fn(&mut Router),
     {
@@ -144,14 +124,14 @@ impl<'a> Scope<'a> {
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
-    ///     r.scope_as(Scope::new("api").constraint(|req| {
-    ///         req.query("token").is_some()
+    ///     r.scope("api").constraint(|req| {
+    ///         req.uri().port().is_some() || req.query("bar").is_some()
     ///     }).to(|r| {
     ///         r.get("foo", foo);
-    ///     }));
+    ///     });
     /// }
     /// ```
-    pub fn constraint<C>(mut self, constraint: C) -> Self
+    pub fn constraint<C>(&mut self, constraint: C) -> &mut Self
     where
         C: Fn(&Request) -> bool + Send + Sync + 'static,
     {
