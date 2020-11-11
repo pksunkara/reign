@@ -5,21 +5,11 @@
 
 pub use once_cell;
 
-use env_logger::{from_env as logger_from_env, Env};
-
+mod boot;
 mod config;
 mod env;
+mod plugin;
 
-pub use config::{Config, ConfigLoader};
-
-// TODO: CLI tasks with feature
-pub fn boot() -> ConfigLoader {
-    env::load_env_files();
-
-    // TODO:(log) Allow custom loggers by adding an option to exclude this call
-    logger_from_env(Env::default().default_filter_or("info"))
-        .format_timestamp(None)
-        .init();
-
-    ConfigLoader {}
-}
+pub use boot::Reign;
+pub use config::Config;
+pub use plugin::Plugin;

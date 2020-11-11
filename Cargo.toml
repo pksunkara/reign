@@ -85,7 +85,7 @@ view = ["reign_view", "reign_derive/view"]
 view-backend = ["reign_view/view-backend", "reign_derive/view-backend", "view"]
 router-backend = ["reign_router", "reign_derive/router-backend", "log"]
 model-postgres = ["reign_model/model-postgres", "reign_derive/model-postgres"]
-framework = ["reign_boot", "reign_derive/framework"]
+framework = ["reign_boot", "reign_derive/framework", "reign_model/framework"]
 
 cookie = ["reign_router/cookie", "router-backend"]
 session = ["reign_router/session", "router-backend"]

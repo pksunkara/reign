@@ -108,6 +108,12 @@ impl Model {
         }
     }
 
+    pub fn db(&self) -> TokenStream {
+        quote! {
+            ::reign::model::DatabasePlugin::get()
+        }
+    }
+
     pub fn backend(&self) -> TokenStream {
         quote! {
             ::reign::model::diesel::pg::Pg

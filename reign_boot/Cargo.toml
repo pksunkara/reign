@@ -17,6 +17,7 @@ name = "reign_boot"
 path = "src/lib.rs"
 
 [dependencies]
+reign_router = { path = "../reign_router", version = "0.2.1" }
 dotenv = "0.15.0"
 env_logger = "0.7.1"
 envy = "0.4.1"

@@ -1,4 +1,8 @@
-use reign::{boot, prelude::views, router::serve};
+use reign::{
+    model::DatabasePlugin,
+    prelude::{views, Config},
+    Reign,
+};
 
 views!("src", "views");
 
@@ -10,11 +14,15 @@ mod routes;
 mod config;
 mod error;
 
+use config::App;
+
 #[tokio::main]
 async fn main() {
-    boot().load::<config::App>();
-
     let addr = "127.0.0.1:8000";
 
-    serve(addr, routes::router).await.unwrap()
+    Reign::build()
+        .env::<App>()
+        .add_plugin(DatabasePlugin::new(&App::get().database_url))
+        .serve(addr, routes::router)
+        .await
 }

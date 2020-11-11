@@ -72,10 +72,10 @@ impl Model {
         });
 
         quote! {
-            impl<DB> ::reign::model::diesel::deserialize::Queryable<(#(#field_sql_ty,)*), DB> for #ident
+            impl<B> ::reign::model::diesel::deserialize::Queryable<(#(#field_sql_ty,)*), B> for #ident
             where
-                DB: ::reign::model::diesel::backend::Backend,
-                (#(#field_ty,)*): ::reign::model::diesel::deserialize::FromStaticSqlRow<(#(#field_sql_ty,)*), DB>,
+                B: ::reign::model::diesel::backend::Backend,
+                (#(#field_ty,)*): ::reign::model::diesel::deserialize::FromStaticSqlRow<(#(#field_sql_ty,)*), B>,
             {
                 type Row = (#(#field_ty,)*);
 
@@ -213,6 +213,7 @@ impl Model {
         let query_ident = self.query_ident();
         let table_ident = &self.table_ident;
         let schema = self.schema();
+        let db = self.db();
         let vis = &self.vis;
 
         let field_idents = fields
@@ -234,13 +235,13 @@ impl Model {
                             select
                                 .limit(limit)
                                 .offset(offset)
-                                .load_async::<#ident>(&DB)
+                                .load_async::<#ident>(#db)
                                 .await
                         } else {
-                            select.limit(limit).load_async::<#ident>(&DB).await
+                            select.limit(limit).load_async::<#ident>(#db).await
                         }
                     } else {
-                        select.load_async::<#ident>(&DB).await
+                        select.load_async::<#ident>(#db).await
                     }
                 }
             }
@@ -255,7 +256,7 @@ impl Model {
 
                     select
                         .limit(1)
-                        .get_result_async::<#ident>(&DB)
+                        .get_result_async::<#ident>(#db)
                         .await
                         .optional()
                 }
