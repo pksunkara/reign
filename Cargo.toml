@@ -58,6 +58,7 @@ members = [
 	"reign_router",
 	"reign_view",
 
+	"plugins/*",
 	"utils/*",
 
 	"examples/*",
@@ -71,6 +72,7 @@ default-members = [
 	"reign_router",
 	"reign_view",
 
+	"plugins/*",
 	"utils/*",
 ]
 

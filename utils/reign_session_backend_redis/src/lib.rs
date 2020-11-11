@@ -1,9 +1,9 @@
 #![cfg_attr(feature = "doc", feature(external_doc))]
 #![doc(html_logo_url = "https://reign.rs/images/media/reign.png")]
-#![doc(html_root_url = "https://docs.rs/reign_session_backend_redis/0.2.1")]
+#![doc(html_root_url = "https://docs.rs/reign_session_backend_redis/0.0.0")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-use bb8_redis::{bb8::Pool, redis::AsyncCommands, RedisConnectionManager};
+use bb8_redis::{redis::AsyncCommands, RedisPool};
 use log::error;
 use reign_router::{
     futures::{future::BoxFuture, FutureExt},
@@ -13,15 +13,18 @@ use reign_router::{
 /// Redis backend for session data
 pub struct RedisBackend {
     ttl: usize,
-    pool: Pool<RedisConnectionManager>,
+    pool: RedisPool,
 }
 
 impl RedisBackend {
-    pub fn new(ttl: usize, pool: Pool<RedisConnectionManager>) -> Self {
-        Self { ttl, pool }
+    pub fn new(ttl: usize, pool: &RedisPool) -> Self {
+        Self {
+            ttl,
+            pool: pool.clone(),
+        }
     }
 
-    pub fn pool(pool: Pool<RedisConnectionManager>) -> Self {
+    pub fn pool(pool: &RedisPool) -> Self {
         Self::new(60 * 60 * 24 * 7, pool)
     }
 }

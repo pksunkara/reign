@@ -1,23 +1,23 @@
 [package]
-name = "reign_session_backend_redis"
+name = "reign_plugin_redis"
 version = "0.0.0"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Redis backend for reign session middleware"
+description = "Redis plugin for reign"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["session", "redis", "web", "reign", "router"]
+keywords = ["redis", "web", "reign", "plugin"]
 categories = ["web-programming"]
 license = "MIT"
 readme = "README.md"
 
 [lib]
-name = "reign_session_backend_redis"
+name = "reign_plugin_redis"
 path = "src/lib.rs"
 
 [dependencies]
-reign_router = { path = "../../reign_router", version = "0.2.1", features = ["session"] }
+reign_boot = { path = "../../reign_boot", version = "0.2.1" }
 log = "0.4.8"
 bb8-redis = "0.5.0"
 
