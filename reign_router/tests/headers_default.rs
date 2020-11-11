@@ -17,7 +17,7 @@ async fn test_headers_default() {
 
         r.scope_through("", &["app"], |r| {
             r.get("foo", index);
-        })
+        });
     });
 
     let res = service

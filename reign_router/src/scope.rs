@@ -125,7 +125,7 @@ impl<'a> Scope<'a> {
     where
         R: Fn(&mut Router),
     {
-        let mut router = Router::in_scope();
+        let mut router = Router::default();
         f(&mut router);
 
         self.router = router;

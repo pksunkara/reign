@@ -105,20 +105,9 @@ macro_rules! method {
 /// ```
 #[derive(Default)]
 pub struct Router<'a> {
-    in_scope: bool,
     pipes: Map<&'a str, Pipe>,
     scopes: Vec<Scope<'a>>,
     routes: Vec<Route<'a>>,
-}
-
-impl<'a> Router<'a> {
-    // TODO: Investigate possibility for replacing this with generic (maybe even const)
-    pub(crate) fn in_scope() -> Self {
-        Self {
-            in_scope: true,
-            ..Default::default()
-        }
-    }
 }
 
 impl<'a> Router<'a> {
@@ -134,10 +123,6 @@ impl<'a> Router<'a> {
     /// }
     /// ```
     pub fn pipe(&mut self, name: &'a str) -> &mut Pipe {
-        if self.in_scope {
-            panic!("Pipes are not allowed to be defined in scopes");
-        }
-
         self.pipes.insert(name, Pipe::new());
         self.pipes.get_mut(name).expect(INTERNAL_ERR)
     }
@@ -317,7 +302,7 @@ impl<'a> Router<'a> {
             Route::new(path)
                 .methods(methods)
                 .constraint(constraint)
-                .handler(move |req| handler(req)),
+                .handler(handler),
         );
     }
 
@@ -386,11 +371,11 @@ impl<'a> Router<'a> {
                     .2
                     .iter()
                     .flat_map(|x| {
-                        if let Some(pipe) = self.pipes.get(*x) {
-                            pipe.middlewares.clone()
-                        } else {
-                            vec![]
-                        }
+                        let pipe = self.pipes.get(*x);
+
+                        debug_assert!(pipe.is_some(), format!("can't find pipe with name `{}`", x));
+
+                        pipe.map(|p| p.middlewares.clone()).unwrap_or(vec![])
                     })
                     .collect::<Vec<_>>();
 
