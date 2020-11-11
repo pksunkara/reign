@@ -1,12 +1,12 @@
 // use percent_encoding::utf8_percent_encode;
 
 #[derive(Debug, Clone)]
-enum PathPart<'a> {
-    Static(&'a str),
-    Param(&'a str),
-    ParamOpt(&'a str),
-    ParamRegex(&'a str, &'a str),
-    ParamOptRegex(&'a str, &'a str),
+enum PathPart {
+    Static(String),
+    Param(String),
+    ParamOpt(String),
+    ParamRegex(String, String),
+    ParamOptRegex(String, String),
 }
 
 /// Path that is specified for a route in the router definition
@@ -29,11 +29,11 @@ enum PathPart<'a> {
 /// }
 /// ```
 #[derive(Debug, Default, Clone)]
-pub struct Path<'a> {
-    parts: Vec<PathPart<'a>>,
+pub struct Path {
+    parts: Vec<PathPart>,
 }
 
-impl<'a> Path<'a> {
+impl Path {
     /// Create a new empty path that has no path segments at all
     ///
     /// # Examples
@@ -69,8 +69,13 @@ impl<'a> Path<'a> {
     ///     r.get(Path::new().path("foo"), foo);
     /// }
     /// ```
-    pub fn path(mut self, value: &'a str) -> Self {
-        // TODO:(router:percent) /, ?, # should be encoded
+    pub fn path<S>(mut self, value: S) -> Self
+    where
+        S: Into<String>,
+    {
+        // TODO: router:url: /, ?, # should be encoded
+        let value = value.into();
+
         if !value.is_empty() {
             self.parts.push(PathPart::Static(value));
         }
@@ -93,8 +98,11 @@ impl<'a> Path<'a> {
     ///     r.get(Path::new().param("id"), foo);
     /// }
     /// ```
-    pub fn param(mut self, name: &'a str) -> Self {
-        self.parts.push(PathPart::Param(name));
+    pub fn param<S>(mut self, name: S) -> Self
+    where
+        S: Into<String>,
+    {
+        self.parts.push(PathPart::Param(name.into()));
         self
     }
 
@@ -113,8 +121,11 @@ impl<'a> Path<'a> {
     ///     r.get(Path::new().param_opt("id"), foo);
     /// }
     /// ```
-    pub fn param_opt(mut self, name: &'a str) -> Self {
-        self.parts.push(PathPart::ParamOpt(name));
+    pub fn param_opt<S>(mut self, name: S) -> Self
+    where
+        S: Into<String>,
+    {
+        self.parts.push(PathPart::ParamOpt(name.into()));
         self
     }
 
@@ -147,8 +158,13 @@ impl<'a> Path<'a> {
     ///     r.get(Path::new().param_regex("id", ".+"), foo);
     /// }
     /// ```
-    pub fn param_regex(mut self, name: &'a str, regex: &'a str) -> Self {
-        self.parts.push(PathPart::ParamRegex(name, regex));
+    pub fn param_regex<S, R>(mut self, name: S, regex: R) -> Self
+    where
+        S: Into<String>,
+        R: Into<String>,
+    {
+        self.parts
+            .push(PathPart::ParamRegex(name.into(), regex.into()));
         self
     }
 
@@ -181,8 +197,13 @@ impl<'a> Path<'a> {
     ///     r.get(Path::new().param_opt_regex("id", ".+"), foo);
     /// }
     /// ```
-    pub fn param_opt_regex(mut self, name: &'a str, regex: &'a str) -> Self {
-        self.parts.push(PathPart::ParamOptRegex(name, regex));
+    pub fn param_opt_regex<S, R>(mut self, name: S, regex: R) -> Self
+    where
+        S: Into<String>,
+        R: Into<String>,
+    {
+        self.parts
+            .push(PathPart::ParamOptRegex(name.into(), regex.into()));
         self
     }
 
@@ -203,8 +224,14 @@ impl<'a> Path<'a> {
     }
 }
 
-impl<'a> Into<Path<'a>> for &'a str {
-    fn into(self) -> Path<'a> {
+impl<'a> Into<Path> for &'a str {
+    fn into(self) -> Path {
+        Path::new().path(self)
+    }
+}
+
+impl Into<Path> for String {
+    fn into(self) -> Path {
         Path::new().path(self)
     }
 }

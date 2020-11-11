@@ -60,7 +60,7 @@ impl Parse for PathSegment {
     fn parse(input: ParseStream) -> Result<Self> {
         if input.peek(LitStr) {
             let lit: LitStr = input.parse()?;
-            // TODO:(router) only allow url encoded strings
+            // TODO: router: only allow url encoded strings
             Ok(PathSegment::Static(lit))
         } else {
             let dynamic: PathSegmentDynamic = input.parse()?;

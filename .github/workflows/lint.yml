@@ -48,7 +48,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --features "session file-handlers" -- -D warnings
+          args: --features "session" -- -D warnings
   clippy_hot_reload:
     name: Clippy (Hot Reload)
     runs-on: ubuntu-latest

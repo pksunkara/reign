@@ -23,7 +23,7 @@ use std::sync::Arc;
 /// }
 /// ```
 pub trait Middleware {
-    // TODO: Async trait
+    // TODO: external:rust: Async trait
     /// Handler for the main logic in the middleware
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m>;
 }

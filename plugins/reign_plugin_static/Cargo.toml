@@ -1,26 +1,30 @@
 [package]
-name = "reign_plugin_redis"
+name = "reign_plugin_static"
 version = "0.0.0"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Redis plugin for reign"
+description = "Static asset server plugin for reign"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["redis", "web", "reign", "plugin"]
+keywords = ["static", "assets", "web", "reign", "plugin"]
 categories = ["web-programming"]
 license = "MIT"
 readme = "README.md"
 
 [lib]
-name = "reign_plugin_redis"
+name = "reign_plugin_static"
 path = "src/lib.rs"
 
 [dependencies]
 reign_boot = { path = "../../reign_boot", version = "0.2.1" }
-bb8-redis = "0.5.0"
+reign_router = { path = "../../reign_router", version = "0.2.1" }
+mime_guess = "2.0.3"
+hyper-staticfile = "0.5.3"
+tokio = { version = "0.2.21", features = ["fs"] }
 
 [dev-dependencies]
+reign = { path = "../../" }
 version-sync = "0.9.0"
 
 [features]

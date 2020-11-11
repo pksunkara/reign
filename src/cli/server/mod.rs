@@ -42,7 +42,7 @@ impl Server {
         check_path(src, "src")?;
         check_path(&views, "src/views")?;
 
-        // TODO:(cli) Maintain dep graph to reload views that depend on views and build
+        // TODO: cli: Maintain dep graph to reload views that depend on views and build
         // just those views instead of rebuilding everything. Also for views that changed
         // maintain manifest such that manifest is updated only if idents changed
 

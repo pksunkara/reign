@@ -10,17 +10,17 @@ pub(crate) type Handler = Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync
 pub(crate) type Constraint = Box<dyn Fn(&Request) -> bool + Send + Sync + 'static>;
 
 #[derive(Default, Clone)]
-pub(crate) struct Route<'a> {
-    pub(crate) path: Path<'a>,
+pub(crate) struct Route {
+    pub(crate) path: Path,
     pub(crate) methods: Vec<Method>,
     pub(crate) handler: Option<Arc<Handler>>,
     pub(crate) constraint: Option<Arc<Constraint>>,
 }
 
-impl<'a> Route<'a> {
+impl Route {
     pub(crate) fn new<P>(path: P) -> Self
     where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
     {
         Self {
             path: path.into(),

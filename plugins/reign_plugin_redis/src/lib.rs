@@ -13,7 +13,10 @@ pub struct RedisPlugin {
 }
 
 impl RedisPlugin {
-    pub fn new<S: Into<String>>(url: S) -> Self {
+    pub fn new<S>(url: S) -> Self
+    where
+        S: Into<String>,
+    {
         Self { url: url.into() }
     }
 

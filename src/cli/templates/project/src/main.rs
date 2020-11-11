@@ -3,6 +3,7 @@ use reign::{
     prelude::{views, Config},
     Reign,
 };
+use reign_plugin_static::StaticPlugin;
 
 views!("src", "views");
 
@@ -23,6 +24,7 @@ async fn main() {
     Reign::build()
         .env::<App>()
         .add_plugin(DatabasePlugin::new(&App::get().database_url))
+        .add_plugin(StaticPlugin::new("assets").dir(&["src", "assets"]))
         .serve(addr, routes::router)
         .await
 }

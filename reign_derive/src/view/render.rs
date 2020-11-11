@@ -21,7 +21,7 @@ use syn::{
 static DIR: OnceCell<PathBuf> = OnceCell::new();
 static IDENTMAP: OnceCell<HashMap<String, Vec<(String, bool)>>> = OnceCell::new();
 
-// TODO: Options after the paths (including changing `crate::views`)
+// TODO: derive: Options after the paths (including changing `crate::views`)
 // Can't use parse_separated_non_empty here
 pub struct Views {
     paths: Punctuated<LitStr, Comma>,

@@ -1,5 +1,5 @@
-use futures::FutureExt;
 use reign_router::{
+    futures::FutureExt,
     hyper::{body::to_bytes, Body, Method, Request as Req, StatusCode},
     service, HandleFuture, Request, Response,
 };

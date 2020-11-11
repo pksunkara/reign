@@ -36,8 +36,6 @@ bincode =  { version = "1.2.1", optional = true }
 rand =  { version = "0.7.3", optional = true }
 rand_chacha =  { version = "0.2.2", optional = true }
 base64 =  { version = "0.12.1", optional = true }
-mime_guess = { version = "2.0.3", optional = true }
-hyper-staticfile = { version = "0.5.3", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
@@ -50,7 +48,6 @@ default = []
 doc = []
 cookie = ["cookie_r"]
 session = ["cookie", "serde", "bincode", "rand", "rand_chacha", "base64"]
-file-handlers = ["tokio/fs", "mime_guess", "hyper-staticfile"]
 
 [package.metadata.docs.rs]
 all-features = true

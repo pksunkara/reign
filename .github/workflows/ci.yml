@@ -73,7 +73,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features "session file-handlers" --target ${{ matrix.target }}
+          args: --features "session" --target ${{ matrix.target }}
       - name: Test Example
         if: matrix.type != 'test'
         shell: bash

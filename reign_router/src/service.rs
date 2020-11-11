@@ -178,7 +178,7 @@ impl<'a> Service<'a> {
 /// ```
 pub fn service<'a, R>(f: R) -> Service<'a>
 where
-    R: Fn(&mut Router),
+    R: FnOnce(&mut Router),
 {
     let mut router = Router::default();
     f(&mut router);

@@ -31,7 +31,7 @@ impl New {
     pub fn run(&self) -> Result {
         let handlebars = Handlebars::new();
 
-        // TODO:(cli) Allow option to merge
+        // TODO: cli: Allow option to merge
         let project = PathBuf::from(&self.name);
 
         let name = Name {

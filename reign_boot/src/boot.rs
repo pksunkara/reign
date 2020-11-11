@@ -10,12 +10,12 @@ pub struct Reign {
     pub(crate) plugins: Vec<Box<dyn Plugin>>,
 }
 
-// TODO: (cli) tasks with feature
+// TODO: cli: tasks with feature
 impl Reign {
     pub fn build() -> Self {
         load_env_files();
 
-        // TODO: (log) Allow custom loggers by adding an option to exclude this call
+        // TODO: framework:log: Allow custom loggers by adding an option to exclude this call
         from_env(Env::default().default_filter_or("info"))
             .format_timestamp(None)
             .init();
@@ -26,9 +26,14 @@ impl Reign {
     pub async fn serve<A, R>(self, addr: A, f: R)
     where
         A: ToSocketAddrs + Send + 'static,
-        R: Fn(&mut Router),
+        R: FnOnce(&mut Router) + 'static,
     {
-        // TODO: Plugin routes
-        serve(addr, f).await.unwrap()
+        let mut router_fn: Box<dyn FnOnce(&mut Router)> = Box::new(f);
+
+        for plugin in self.plugins {
+            router_fn = plugin.router(router_fn);
+        }
+
+        serve(addr, router_fn).await.unwrap()
     }
 }

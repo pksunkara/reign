@@ -37,7 +37,7 @@ use std::sync::Arc;
 /// ```
 #[derive(Default)]
 pub struct Scope<'a> {
-    pub(crate) path: Path<'a>,
+    pub(crate) path: Path,
     pub(crate) pipes: Vec<&'a str>,
     pub(crate) router: Router<'a>,
     pub(crate) constraint: Option<Arc<Constraint>>,
@@ -50,7 +50,7 @@ impl<'a> Scope<'a> {
 
     pub(crate) fn new<P>(path: P) -> Self
     where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
     {
         Self {
             path: path.into(),
@@ -103,7 +103,7 @@ impl<'a> Scope<'a> {
     /// ```
     pub fn to<R>(&mut self, f: R) -> &mut Self
     where
-        R: Fn(&mut Router),
+        R: FnOnce(&mut Router),
     {
         let mut router = Router::default();
         f(&mut router);

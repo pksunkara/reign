@@ -25,8 +25,6 @@ mod route;
 mod scope;
 mod service;
 
-#[cfg(feature = "file-handlers")]
-pub mod handlers;
 pub mod middleware;
 
 pub use error::*;
@@ -68,7 +66,7 @@ macro_rules! method {
             #[inline]
             pub fn $method<P, H>(&mut self, path: P, handler: H)
             where
-                P: Into<Path<'a>>,
+                P: Into<Path>,
                 H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
             {
                 self.any(&[Method::[<$method:snake:upper>]], path, handler);
@@ -107,7 +105,7 @@ macro_rules! method {
 pub struct Router<'a> {
     pipes: Map<&'a str, Pipe>,
     scopes: Vec<Scope<'a>>,
-    routes: Vec<Route<'a>>,
+    routes: Vec<Route>,
 }
 
 impl<'a> Router<'a> {
@@ -147,7 +145,7 @@ impl<'a> Router<'a> {
     /// ```
     pub fn scope<P>(&mut self, path: P) -> &mut Scope<'a>
     where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
     {
         self.scopes.push(Scope::new(path));
         self.scopes.last_mut().expect(INTERNAL_ERR)
@@ -180,7 +178,7 @@ impl<'a> Router<'a> {
     /// ```
     pub fn any<P, H>(&mut self, methods: &[Method], path: P, handler: H)
     where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
         H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
         self.routes
@@ -204,7 +202,7 @@ impl<'a> Router<'a> {
     /// ```
     pub fn all<P, H>(&mut self, path: P, handler: H)
     where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
         H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
         self.routes.push(Route::new(path).handler(handler));
@@ -236,7 +234,7 @@ impl<'a> Router<'a> {
         constraint: C,
         handler: H,
     ) where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
         C: Fn(&Request) -> bool + Send + Sync + 'static,
         H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
@@ -269,7 +267,7 @@ impl<'a> Router<'a> {
     /// ```
     pub fn all_with_constraint<P, C, H>(&mut self, path: P, constraint: C, handler: H)
     where
-        P: Into<Path<'a>>,
+        P: Into<Path>,
         C: Fn(&Request) -> bool + Send + Sync + 'static,
         H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
     {
@@ -353,7 +351,7 @@ impl<'a> Router<'a> {
 pub async fn serve<A, R>(addr: A, f: R) -> Result<(), HyperError>
 where
     A: ToSocketAddrs + Send + 'static,
-    R: Fn(&mut Router),
+    R: FnOnce(&mut Router),
 {
     let router_service = service(f);
 
