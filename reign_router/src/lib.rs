@@ -102,13 +102,13 @@ macro_rules! method {
 /// }
 /// ```
 #[derive(Default)]
-pub struct Router<'a> {
-    pipes: Map<&'a str, Pipe>,
-    scopes: Vec<Scope<'a>>,
+pub struct Router {
+    pipes: Map<String, Pipe>,
+    scopes: Vec<Scope>,
     routes: Vec<Route>,
 }
 
-impl<'a> Router<'a> {
+impl Router {
     /// Define a middleware pipe that can be used later
     ///
     /// # Examples
@@ -120,9 +120,14 @@ impl<'a> Router<'a> {
     ///     r.pipe("common").add(Runtime::default());
     /// }
     /// ```
-    pub fn pipe(&mut self, name: &'a str) -> &mut Pipe {
-        self.pipes.insert(name, Pipe::new());
-        self.pipes.get_mut(name).expect(INTERNAL_ERR)
+    pub fn pipe<S>(&mut self, name: S) -> &mut Pipe
+    where
+        S: Into<String>,
+    {
+        let name = name.into();
+
+        self.pipes.insert(name.clone(), Pipe::new());
+        self.pipes.get_mut(&name).expect(INTERNAL_ERR)
     }
 
     /// Define a scope with the given prefix
@@ -143,7 +148,7 @@ impl<'a> Router<'a> {
     ///     });
     /// }
     /// ```
-    pub fn scope<P>(&mut self, path: P) -> &mut Scope<'a>
+    pub fn scope<P>(&mut self, path: P) -> &mut Scope
     where
         P: Into<Path>,
     {
@@ -276,7 +281,7 @@ impl<'a> Router<'a> {
     }
 }
 
-impl<'a> Router<'a> {
+impl Router {
     pub(crate) fn regex(&self) -> Vec<(String, String)> {
         let mut regexes = self.routes.iter().map(|x| x.regex()).collect::<Vec<_>>();
 
@@ -311,7 +316,7 @@ impl<'a> Router<'a> {
                     .2
                     .iter()
                     .flat_map(|x| {
-                        let pipe = self.pipes.get(*x);
+                        let pipe = self.pipes.get(x);
 
                         debug_assert!(pipe.is_some(), format!("can't find pipe with name `{}`", x));
 

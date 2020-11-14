@@ -24,6 +24,7 @@ use std::sync::Arc;
 /// ```
 pub trait Middleware {
     // TODO: external:rust: Async trait
+    // TODO: ergonomics: Look at conduit's middleware for inspiration
     /// Handler for the main logic in the middleware
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m>;
 }

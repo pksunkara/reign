@@ -36,18 +36,14 @@ use std::sync::Arc;
 /// }
 /// ```
 #[derive(Default)]
-pub struct Scope<'a> {
+pub struct Scope {
     pub(crate) path: Path,
-    pub(crate) pipes: Vec<&'a str>,
-    pub(crate) router: Router<'a>,
+    pub(crate) pipes: Vec<String>,
+    pub(crate) router: Router,
     pub(crate) constraint: Option<Arc<Constraint>>,
 }
 
-impl<'a> Scope<'a> {
-    /// Define an empty path prefix for this scope
-    ///
-    /// This is used when.
-
+impl Scope {
     pub(crate) fn new<P>(path: P) -> Self
     where
         P: Into<Path>,
@@ -77,8 +73,12 @@ impl<'a> Scope<'a> {
     ///     });
     /// }
     /// ```
-    pub fn through(&mut self, pipes: &[&'a str]) -> &mut Self {
-        self.pipes = pipes.to_vec();
+    pub fn through<I, S>(&mut self, pipes: I) -> &mut Self
+    where
+        I: IntoIterator<Item = S>,
+        S: ToString,
+    {
+        self.pipes = pipes.into_iter().map(|x| x.to_string()).collect();
         self
     }
 
@@ -143,11 +143,48 @@ impl<'a> Scope<'a> {
         (self.path.regex(), self.router.regex())
     }
 
-    pub(crate) fn refs(&self) -> (Option<Arc<Constraint>>, Vec<RouteRef>, Vec<&str>) {
+    pub(crate) fn refs(&self) -> (Option<Arc<Constraint>>, Vec<RouteRef>, Vec<String>) {
         (
             self.constraint.clone(),
             self.router.refs(),
             self.pipes.clone(),
         )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_through() {
+        let mut scope = Scope::new("");
+        let scope = scope.through(vec![String::from("one"), String::from("two")]);
+
+        assert_eq!(scope.pipes, vec!["one", "two"]);
+    }
+
+    #[test]
+    fn test_through_str() {
+        let mut scope = Scope::new("");
+        let scope = scope.through(vec!["one", "two"]);
+
+        assert_eq!(scope.pipes, vec!["one", "two"]);
+    }
+
+    #[test]
+    fn test_through_slice() {
+        let mut scope = Scope::new("");
+        let scope = scope.through(&[String::from("one"), String::from("two")]);
+
+        assert_eq!(scope.pipes, vec!["one", "two"]);
+    }
+
+    #[test]
+    fn test_through_slice_str() {
+        let mut scope = Scope::new("");
+        let scope = scope.through(&["one", "two"]);
+
+        assert_eq!(scope.pipes, vec!["one", "two"]);
     }
 }

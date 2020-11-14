@@ -14,15 +14,15 @@ pub(crate) struct RouteRef {
 
 /// Thread safe structure that optimizes the given router for responding to requests
 #[derive(Clone)]
-pub struct Service<'a> {
-    router: Arc<Router<'a>>,
+pub struct Service {
+    router: Arc<Router>,
     regexes: Arc<Vec<Regex>>,
     regex_set: Arc<RegexSet>,
     refs: Arc<Vec<RouteRef>>,
 }
 
-impl<'a> Service<'a> {
-    pub(crate) fn new(router: Router<'a>) -> Self {
+impl Service {
+    pub(crate) fn new(router: Router) -> Self {
         let refs = router.refs();
 
         let regexes = router
@@ -176,7 +176,7 @@ impl<'a> Service<'a> {
 ///         .unwrap();
 /// }
 /// ```
-pub fn service<'a, R>(f: R) -> Service<'a>
+pub fn service<R>(f: R) -> Service
 where
     R: FnOnce(&mut Router),
 {

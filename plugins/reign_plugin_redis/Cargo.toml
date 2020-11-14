@@ -1,6 +1,6 @@
 [package]
 name = "reign_plugin_redis"
-version = "0.0.0"
+version = "0.2.1"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
@@ -30,6 +30,3 @@ doc = []
 
 [package.metadata.docs.rs]
 all-features = true
-
-[package.metadata.workspaces]
-independent = true
