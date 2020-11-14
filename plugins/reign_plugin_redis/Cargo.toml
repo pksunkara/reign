@@ -17,8 +17,9 @@ name = "reign_plugin_redis"
 path = "src/lib.rs"
 
 [dependencies]
-reign_boot = { path = "../../reign_boot", version = "0.2.1" }
+reign_plugin = { path = "../../reign_plugin", version = "0.2.1" }
 bb8-redis = "0.5.0"
+once_cell = "1.4.0"
 
 [dev-dependencies]
 version-sync = "0.9.0"

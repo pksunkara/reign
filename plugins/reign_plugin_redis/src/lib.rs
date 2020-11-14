@@ -4,7 +4,8 @@
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
 use bb8_redis::{bb8::Pool, RedisConnectionManager, RedisPool};
-use reign_boot::{once_cell::sync::OnceCell, Plugin};
+use once_cell::sync::OnceCell;
+use reign_plugin::Plugin;
 
 static REDIS: OnceCell<RedisPool> = OnceCell::new();
 

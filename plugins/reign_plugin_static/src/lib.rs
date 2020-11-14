@@ -3,8 +3,10 @@
 #![doc(html_root_url = "https://docs.rs/reign_plugin_static/0.0.0")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-use reign_boot::Plugin;
-use reign_router::{Path, Router};
+use reign_plugin::{
+    reign_router::{Path, Router},
+    Plugin,
+};
 
 mod handlers;
 

@@ -1,7 +1,10 @@
-use crate::{env::load_env_files, plugin::Plugin};
+use crate::env::load_env_files;
 
 use env_logger::{from_env, Env};
-use reign_router::{serve, Router};
+use reign_plugin::{
+    reign_router::{serve, Router},
+    Plugin,
+};
 
 use std::net::ToSocketAddrs;
 

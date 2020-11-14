@@ -55,6 +55,7 @@ members = [
 	"reign_boot",
 	"reign_derive",
 	"reign_model",
+	"reign_plugin",
 	"reign_router",
 	"reign_view",
 
@@ -69,6 +70,7 @@ default-members = [
 	"reign_boot",
 	"reign_derive",
 	"reign_model",
+	"reign_plugin",
 	"reign_router",
 	"reign_view",
 

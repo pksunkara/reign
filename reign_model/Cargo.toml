@@ -22,7 +22,8 @@ thiserror = "1.0.19"
 anyhow = "1.0.31"
 diesel = { path = "../../../reign-rs/diesel/diesel", features = ["chrono"] }
 tokio-diesel = { path = "../../../reign-rs/tokio-diesel", version = "0.3.0" }
-reign_boot = { path = "../reign_boot", version = "0.2.1", optional = true }
+reign_plugin = { path = "../reign_plugin", version = "0.2.1", optional = true }
+once_cell = { version = "1.4.0", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
@@ -31,7 +32,7 @@ version-sync = "0.9.0"
 [features]
 default = []
 doc = []
-framework = ["reign_boot"]
+framework = ["reign_plugin", "once_cell"]
 model-postgres = ["diesel/postgres"]
 
 [package.metadata.docs.rs]

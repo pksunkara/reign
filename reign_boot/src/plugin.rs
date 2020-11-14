@@ -1,21 +1,13 @@
 use crate::boot::Reign;
 
-use reign_router::Router;
-
-pub trait Plugin {
-    fn init(&self) {}
-
-    fn router(&self, f: Box<dyn FnOnce(&mut Router)>) -> Box<dyn FnOnce(&mut Router)> {
-        f
-    }
-}
+use reign_plugin::Plugin;
 
 impl Reign {
     pub fn add_plugin<P>(mut self, plugin: P) -> Self
     where
         P: Plugin + 'static,
     {
-        // TODO: plugin: Maybe use spawn_blocking to allow async
+        // TODO: plugin: Maybe use tokio::block_in_place to allow async
         // Initialize the plugin
         plugin.init();
 

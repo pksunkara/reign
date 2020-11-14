@@ -2,7 +2,7 @@
 
 use hyper_staticfile::FileResponseBuilder;
 use mime_guess::from_path;
-use reign_router::{
+use reign_plugin::reign_router::{
     futures::FutureExt,
     hyper::{
         header::{HeaderValue, CONTENT_TYPE, IF_MODIFIED_SINCE},

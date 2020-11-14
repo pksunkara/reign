@@ -1,5 +1,6 @@
 use diesel::r2d2::{ConnectionManager, Pool};
-use reign_boot::{once_cell::sync::OnceCell, Plugin};
+use once_cell::sync::OnceCell;
+use reign_plugin::Plugin;
 
 #[cfg(feature = "model-postgres")]
 use diesel::PgConnection as Connection;

@@ -17,8 +17,7 @@ name = "reign_plugin_static"
 path = "src/lib.rs"
 
 [dependencies]
-reign_boot = { path = "../../reign_boot", version = "0.2.1" }
-reign_router = { path = "../../reign_router", version = "0.2.1" }
+reign_plugin = { path = "../../reign_plugin", version = "0.2.1" }
 mime_guess = "2.0.3"
 hyper-staticfile = "0.5.3"
 tokio = { version = "0.2.21", features = ["fs"] }

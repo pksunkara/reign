@@ -1,5 +1,5 @@
 [package]
-name = "reign_boot"
+name = "reign_plugin"
 version = "0.2.1"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
@@ -7,22 +7,17 @@ authors = [
 edition = "2018"
 description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["fullstack", "web", "framework", "reign"]
+keywords = ["plugin", "fullstack", "web", "framework", "reign"]
 categories = ["web-programming"]
 license = "MIT"
 readme = "README.md"
 
 [lib]
-name = "reign_boot"
+name = "reign_plugin"
 path = "src/lib.rs"
 
 [dependencies]
-reign_plugin = { path = "../reign_plugin", version = "0.2.1" }
-dotenv = "0.15.0"
-env_logger = "0.7.1"
-envy = "0.4.1"
-serde = "1.0.110"
-once_cell = "1.4.0"
+reign_router = { path = "../reign_router", version = "0.2.1" }
 
 [dev-dependencies]
 version-sync = "0.9.0"
