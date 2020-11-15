@@ -1,5 +1,5 @@
 use reign::{
-    model::DatabasePlugin,
+    model::Database,
     prelude::{views, Config},
     Reign,
 };
@@ -23,7 +23,7 @@ async fn main() {
 
     Reign::build()
         .env::<App>()
-        .add_plugin(DatabasePlugin::new(&App::get().database_url))
+        .add_plugin(Database::new(&App::get().database_url))
         .add_plugin(StaticPlugin::new("assets").dir(&["src", "assets"]))
         .serve(addr, routes::router)
         .await

@@ -6,6 +6,7 @@
 pub use diesel;
 pub use tokio_diesel;
 
+mod connection;
 mod error;
 #[cfg(feature = "framework")]
 mod plugin;
@@ -13,6 +14,5 @@ mod plugin;
 #[doc(hidden)]
 pub mod query;
 
+pub use connection::Database;
 pub use error::Error;
-#[cfg(feature = "framework")]
-pub use plugin::DatabasePlugin;

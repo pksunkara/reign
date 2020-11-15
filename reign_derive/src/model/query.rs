@@ -104,6 +104,8 @@ impl Model {
 
             impl<T, M> #query_ident<T, M> {
                 fn new() -> Self {
+                    use ::reign::model::diesel::QueryDsl;
+
                     Self {
                         _phantom: std::marker::PhantomData,
                         limit: None,
@@ -150,6 +152,8 @@ impl Model {
                         + Send
                         + 'static,
                 {
+                    use ::reign::model::diesel::{ExpressionMethods, QueryDsl};
+
                     self.statement = self.statement.filter(#schema::#table_ident::#field_ident.eq(#field_ident));
                     self
                 })*
@@ -214,6 +218,7 @@ impl Model {
             impl #query_ident<::reign::model::query::All, #ident> {
                 #vis async fn load(self) -> Result<Vec<#ident>, ::reign::model::tokio_diesel::AsyncError> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
+                    use ::reign::model::diesel::QueryDsl;
 
                     let select = self.statement.select((
                         #(#schema::#table_ident::#field_ident,)*
@@ -238,6 +243,7 @@ impl Model {
             impl #query_ident<::reign::model::query::One, #ident> {
                 #vis async fn load(self) -> Result<Option<#ident>, ::reign::model::tokio_diesel::AsyncError> {
                     use ::reign::model::tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
+                    use ::reign::model::diesel::QueryDsl;
 
                     let select = self.statement.select((
                         #(#schema::#table_ident::#field_ident,)*

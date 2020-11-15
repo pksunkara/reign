@@ -123,7 +123,7 @@ impl Model {
 
     pub fn db(&self) -> TokenStream {
         quote! {
-            ::reign::model::DatabasePlugin::get()
+            ::reign::model::Database::get()
         }
     }
 

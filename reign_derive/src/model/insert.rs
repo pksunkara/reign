@@ -133,6 +133,7 @@ impl Model {
             impl #insert_ident<#ident> {
                 #vis async fn save(self) -> Result<#ident, ::reign::model::tokio_diesel::AsyncError> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
+                    use ::reign::model::diesel::ExpressionMethods;
 
                     ::reign::model::diesel::insert_into(#schema::#table_ident::table)
                         .values((
