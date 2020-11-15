@@ -2,11 +2,13 @@ use crate::{
     templates::project,
     utils::{render::ToRender, Result},
 };
+
 use clap::Clap;
 use handlebars::Handlebars;
 use inflector::cases::{snakecase::to_snake_case, titlecase::to_title_case};
 use serde::Serialize;
 use serde_json::json;
+
 use std::path::PathBuf;
 
 /// Create a new Reign application
@@ -31,7 +33,7 @@ impl New {
     pub fn run(&self) -> Result {
         let handlebars = Handlebars::new();
 
-        // TODO: cli: Allow option to merge
+        // TODO: cli:new: Allow option to merge
         let project = PathBuf::from(&self.name);
 
         let name = Name {

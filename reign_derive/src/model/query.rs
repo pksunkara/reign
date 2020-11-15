@@ -4,14 +4,13 @@ use crate::{
 };
 
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::{Ident, Index};
 
 impl Model {
     pub fn gen_query(&self) -> TokenStream {
         let gen_queryable = self.gen_queryable(&self.ident, &self.fields);
         let gen_query_struct = self.gen_query_struct();
-        let gen_query_new = self.gen_query_new();
         let gen_query_filters = self.gen_query_filters();
         let gen_query_limit_offset = self.gen_query_limit_offset();
         let gen_query_methods = self.gen_query_methods(&self.ident);
@@ -20,9 +19,8 @@ impl Model {
         quote! {
             #gen_queryable
             #gen_query_struct
-            #gen_query_new
-            #gen_query_limit_offset
             #gen_query_filters
+            #gen_query_limit_offset
             #gen_query_methods
             #gen_query_action
         }
@@ -41,7 +39,7 @@ impl Model {
     }
 
     fn query_ident(&self) -> Ident {
-        Ident::new(&format!("Query{}", self.ident), self.ident.span())
+        format_ident!("Query{}", self.ident)
     }
 
     // Generates Queryable
@@ -88,7 +86,7 @@ impl Model {
         }
     }
 
-    // Generates struct for `SELECT` statements
+    // Generates struct & constructor for `SELECT` statements
     fn gen_query_struct(&self) -> TokenStream {
         let query_ident = self.query_ident();
         let table_ident = &self.table_ident;
@@ -103,16 +101,7 @@ impl Model {
                 offset: Option<i64>,
                 statement: #schema::#table_ident::BoxedQuery<'static, #backend>,
             }
-        }
-    }
 
-    // Generates the constructor for `SELECT` struct
-    fn gen_query_new(&self) -> TokenStream {
-        let query_ident = self.query_ident();
-        let table_ident = &self.table_ident;
-        let schema = self.schema();
-
-        quote! {
             impl<T, M> #query_ident<T, M> {
                 fn new() -> Self {
                     Self {
@@ -134,25 +123,25 @@ impl Model {
         let schema = self.schema();
         let backend = self.backend();
 
-        let (field_vis, field_idents) = self
+        let (field_vis, field_ident) = self
             .fields
             .iter()
             .map(|x| (&x.field.vis, x.field.ident.as_ref().expect(INTERNAL_ERR)))
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
-        // TODO: (external) Use dummy mod once https://github.com/rust-analyzer/rust-analyzer/issues/1559
+        // TODO: external: Use dummy mod once https://github.com/rust-analyzer/rust-analyzer/issues/1559
         quote! {
             impl<T, M> #query_ident<T, M> {
-                #(#field_vis fn #field_idents<E, X>(mut self, #field_idents: E) -> Self
+                #(#field_vis fn #field_ident<E, X>(mut self, #field_ident: E) -> Self
                 where
                     E: ::reign::model::diesel::expression::AsExpression<
-                        ::reign::model::diesel::dsl::SqlTypeOf<#schema::#table_ident::#field_idents>,
+                        ::reign::model::diesel::dsl::SqlTypeOf<#schema::#table_ident::#field_ident>,
                         Expression = X,
                     >,
                     X: ::reign::model::diesel::expression::BoxableExpression<
                             #schema::#table_ident::table,
                             #backend,
-                            SqlType = ::reign::model::diesel::dsl::SqlTypeOf<#schema::#table_ident::#field_idents>
+                            SqlType = ::reign::model::diesel::dsl::SqlTypeOf<#schema::#table_ident::#field_ident>
                         >
                         + ::reign::model::diesel::expression::ValidGrouping<
                             (),
@@ -161,7 +150,7 @@ impl Model {
                         + Send
                         + 'static,
                 {
-                    self.statement = self.statement.filter(#schema::#table_ident::#field_idents.eq(#field_idents));
+                    self.statement = self.statement.filter(#schema::#table_ident::#field_ident.eq(#field_ident));
                     self
                 })*
             }
@@ -216,7 +205,7 @@ impl Model {
         let db = self.db();
         let vis = &self.vis;
 
-        let field_idents = fields
+        let field_ident = fields
             .iter()
             .map(|x| x.field.ident.as_ref().expect(INTERNAL_ERR))
             .collect::<Vec<_>>();
@@ -227,7 +216,7 @@ impl Model {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
 
                     let select = self.statement.select((
-                        #(#schema::#table_ident::#field_idents,)*
+                        #(#schema::#table_ident::#field_ident,)*
                     ));
 
                     if let Some(limit) = self.limit {
@@ -251,7 +240,7 @@ impl Model {
                     use ::reign::model::tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 
                     let select = self.statement.select((
-                        #(#schema::#table_ident::#field_idents,)*
+                        #(#schema::#table_ident::#field_ident,)*
                     ));
 
                     select

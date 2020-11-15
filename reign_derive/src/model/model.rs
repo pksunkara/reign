@@ -28,12 +28,16 @@ pub fn model(input: DeriveInput) -> TokenStream {
 }
 
 fn gen_for_struct(model: Model) -> TokenStream {
-    // TODO:(model) generics
+    // TODO: model: generics
     let gen_query = model.gen_query();
+    let gen_insert = model.gen_insert();
+    let gen_update = model.gen_update();
     let gen_tags = model.gen_tags();
 
     quote! {
         #gen_query
+        #gen_insert
+        #gen_update
         #(#gen_tags)*
     }
 }
@@ -43,16 +47,23 @@ pub struct ModelField {
     pub field: Field,
     pub attrs: Vec<Attr>,
     pub column_ident: Ident,
+    pub no_insert: bool,
+    pub no_update: bool,
 }
 
 impl ModelField {
     fn new(field: &Field) -> Self {
         let attrs = Attr::parse_attributes(&field.attrs, false);
+
         let mut column_ident = field.ident.as_ref().expect(INTERNAL_ERR).clone();
+        let mut no_insert = false;
+        let mut no_update = false;
 
         for attr in &attrs {
             match attr {
                 Attr::ColumnName(_, value) => column_ident = value.clone(),
+                Attr::NoInsert(_) => no_insert = true,
+                Attr::NoUpdate(_) => no_update = true,
                 _ => {}
             }
         }
@@ -61,6 +72,8 @@ impl ModelField {
             field: field.to_owned(),
             attrs,
             column_ident,
+            no_insert,
+            no_update,
         }
     }
 }

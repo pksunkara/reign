@@ -8,7 +8,7 @@ use crate::{
 
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::{Field, Ident};
 
 use std::collections::HashMap as Map;
@@ -39,17 +39,19 @@ impl Model {
 
                 let gen_tag_struct = self.gen_tag_struct(&ident, fields);
                 let gen_tag_query = self.gen_tag_query(&ident, fields);
+                let gen_tag_insert = self.gen_tag_insert(&ident, fields);
 
                 quote! {
                     #gen_tag_struct
                     #gen_tag_query
+                    #gen_tag_insert
                 }
             })
             .collect()
     }
 
     fn tag_ident(&self, tag: &str) -> Ident {
-        Ident::new(&format!("{}{}", self.ident, tag), self.ident.span())
+        format_ident!("{}{}", self.ident, tag)
     }
 
     // Generates tagged structs

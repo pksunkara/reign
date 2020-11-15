@@ -83,3 +83,18 @@ async fn test_pipe_in_scope() {
     assert!(!res.headers().contains_key("x-powered-by"));
     assert_eq!(to_bytes(res.into_body()).await.unwrap(), "index");
 }
+
+#[tokio::test]
+#[should_panic(expected = "can't find pipe with name `secret`")]
+async fn test_pipe_in_upper_scope() {
+    service(|r| {
+        r.pipe("secret")
+            .add(HeadersDefault::empty().add("x-powered-by", "reign"));
+
+        r.scope("pipe").to(|r| {
+            r.scope("").through(&["secret"]).to(|r| {
+                r.get("", index);
+            });
+        });
+    });
+}
