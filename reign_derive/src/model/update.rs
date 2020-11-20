@@ -1,7 +1,4 @@
-use crate::{
-    model::model::{Model, ModelField},
-    INTERNAL_ERR,
-};
+use crate::{model::model::Model, INTERNAL_ERR};
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};

@@ -1,0 +1,11 @@
+error: `table_name` is not allowed on field
+ --> $DIR/model_field_attr.rs:5:13
+  |
+5 |     #[model(table_name = users)]
+  |             ^^^^^^^^^^
+
+error: `primary_key` is not allowed on field
+  --> $DIR/model_field_attr.rs:11:13
+   |
+11 |     #[model(primary_key(foo))]
+   |             ^^^^^^^^^^^

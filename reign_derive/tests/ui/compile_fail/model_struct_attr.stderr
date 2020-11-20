@@ -1,0 +1,23 @@
+error: `no_insert` is not allowed on struct
+ --> $DIR/model_struct_attr.rs:4:9
+  |
+4 | #[model(no_insert)]
+  |         ^^^^^^^^^
+
+error: `no_update` is not allowed on struct
+  --> $DIR/model_struct_attr.rs:10:9
+   |
+10 | #[model(no_update)]
+   |         ^^^^^^^^^
+
+error: `tag` is not allowed on struct
+  --> $DIR/model_struct_attr.rs:16:9
+   |
+16 | #[model(tag(id))]
+   |         ^^^
+
+error: `column_name` is not allowed on struct
+  --> $DIR/model_struct_attr.rs:22:9
+   |
+22 | #[model(column_name = id)]
+   |         ^^^^^^^^^^^

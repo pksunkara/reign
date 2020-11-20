@@ -1,8 +1,5 @@
 use crate::{
-    model::{
-        attr::Attr,
-        model::{Model, ModelField},
-    },
+    model::model::{Model, ModelField},
     INTERNAL_ERR,
 };
 
@@ -18,18 +15,14 @@ impl Model {
         let mut map = Map::<String, Vec<ModelField>>::new();
 
         for mf in &self.fields {
-            for attr in &mf.attrs {
-                if let Attr::Tag(_, tags) = attr {
-                    for tag in tags {
-                        let tag = to_pascal_case(&tag.to_string());
+            for tag in &mf.tags {
+                let tag = to_pascal_case(&tag.to_string());
 
-                        if !map.contains_key(&tag) {
-                            map.insert(tag.clone(), vec![]);
-                        }
-
-                        map.get_mut(&tag).expect(INTERNAL_ERR).push(mf.clone());
-                    }
+                if !map.contains_key(&tag) {
+                    map.insert(tag.clone(), vec![]);
                 }
+
+                map.get_mut(&tag).expect(INTERNAL_ERR).push(mf.clone());
             }
         }
 
@@ -38,11 +31,13 @@ impl Model {
                 let ident = self.tag_ident(tag);
 
                 let gen_tag_struct = self.gen_tag_struct(&ident, fields);
+                let gen_tag_id = self.gen_tag_id(&ident, fields);
                 let gen_tag_query = self.gen_tag_query(&ident, fields);
                 let gen_tag_insert = self.gen_tag_insert(&ident, fields);
 
                 quote! {
                     #gen_tag_struct
+                    #gen_tag_id
                     #gen_tag_query
                     #gen_tag_insert
                 }
@@ -56,8 +51,6 @@ impl Model {
 
     // Generates tagged structs
     fn gen_tag_struct(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
-        let vis = &self.vis;
-
         let fields = fields
             .iter()
             .map(|mf| {
@@ -69,7 +62,10 @@ impl Model {
             })
             .collect::<Vec<_>>();
 
+        let vis = &self.vis;
+
         quote! {
+            #[allow(dead_code, unreachable_code)]
             #vis struct #ident {
                 #(#fields),*
             }

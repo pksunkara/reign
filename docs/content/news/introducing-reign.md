@@ -8,6 +8,10 @@ After months of work, I am ecstatic to finally announce **Reign**!
 
 <!-- more -->
 
+## Vision
+
+Productivity of [Rails](https://rubyonrails.org) with the safety and performance of [Rust](https://rust-lang.org)
+
 ## Router Features
 
 #### Glob path parameters

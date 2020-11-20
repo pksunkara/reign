@@ -30,8 +30,11 @@ impl Database {
         }
     }
 
-    pub fn get() -> &'static Pool<ConnectionManager<Connection>> {
+    pub fn get_opt() -> Option<&'static Pool<ConnectionManager<Connection>>> {
         DB.get()
-            .expect("Database must be connected before using it")
+    }
+
+    pub fn get() -> &'static Pool<ConnectionManager<Connection>> {
+        Self::get_opt().expect("Database must be connected before using it")
     }
 }

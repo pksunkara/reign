@@ -1,0 +1,5 @@
+error: unable to find column `email` used for primary key
+  --> $DIR/primary_key.rs:13:25
+   |
+13 | #[model(primary_key(id, email))]
+   |                         ^^^^^
