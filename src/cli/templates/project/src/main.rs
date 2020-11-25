@@ -8,7 +8,9 @@ use reign_plugin_static::StaticPlugin;
 views!("src", "views");
 
 mod controllers;
+
 mod models;
+mod schema;
 
 mod routes;
 

@@ -1,56 +1,28 @@
-use crate::models::{Article, Articles};
-use diesel::prelude::*;
-use gotham::handler::HandlerFuture;
-use gotham::helpers::http::response::*;
-use gotham::hyper::{Body, Response, StatusCode};
-use gotham::state::State;
-use mime;
+use crate::{error::Error, models::Article};
+
 use reign::prelude::*;
-use std::pin::Pin;
 
-pub fn list(state: State) -> Pin<Box<HandlerFuture>> {
-    use futures::prelude::*;
-    use gotham::{handler::IntoHandlerError, state::FromState};
+#[action]
+pub async fn list(_req: &mut Request) -> Result<impl Response, Error> {
+    let articles = Article::all().load().await?;
 
-    let repo = crate::Repo::borrow_from(&state).clone();
-
-    async move {
-        let articles = match repo
-            .run(move |connection| Articles.load::<Article>(&connection))
-            .await
-        {
-            Ok(rows) => rows,
-            Err(e) => return Err((state, e.into_handler_error())),
-        };
-
-        Ok((state, render!(articles::list)))
-    }
-    .boxed()
+    Ok(render!(articles::list)?)
 }
 
-pub fn show(state: State) -> Pin<Box<HandlerFuture>> {
-    use futures::prelude::*;
-    use gotham::{handler::IntoHandlerError, state::FromState};
-
-    let id = crate::routes::IdExtractor::borrow_from(&state).id;
-    let repo = crate::Repo::borrow_from(&state).clone();
-
-    async move {
-        let article = match repo
-            .run(move |connection| Articles.find(id).first::<Article>(&connection))
-            .await
-        {
-            Ok(rows) => rows,
-            Err(e) => return Err((state, e.into_handler_error())),
-        };
-
-        Ok((state, render!(articles::show)))
-    }
-    .boxed()
+#[action]
+pub async fn new(_req: &mut Request) -> Result<impl Response, Error> {
+    Ok(render!(articles::new)?)
 }
 
-pub fn create(state: State) -> (State, Response<Body>) {
-    let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Article Create");
+#[action]
+pub async fn create(_req: &mut Request) -> Result<impl Response, Error> {
+    Ok("Article Create")
+}
 
-    (state, response)
+#[action]
+pub async fn show(_req: &mut Request, id: i32) -> Result<impl Response, Error> {
+    // TODO: Better ergonomics for 404 instead of unwrap
+    let article = Article::one().id(id).load().await?.unwrap();
+
+    Ok(render!(articles::show)?)
 }

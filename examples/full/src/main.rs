@@ -1,19 +1,34 @@
-reign::prelude::views!("src", "views");
+use reign::{
+    model::Database,
+    prelude::{views, Config},
+    Reign,
+};
+use reign_plugin_redis::RedisPlugin;
+use reign_plugin_static::StaticPlugin;
 
-pub mod controllers;
-pub mod models;
+views!("src", "views");
 
-mod routes;
+mod controllers;
+
+mod models;
 mod schema;
 
-pub type Repo = gotham_middleware_diesel::Repo<diesel::sqlite::SqliteConnection>;
+mod routes;
+
+mod config;
+mod error;
+
+use config::App;
 
 #[tokio::main]
 async fn main() {
-    reign::boot();
+    let addr = "127.0.0.1:8000";
 
-    let database_url = "file:sqlite.db";
-    let addr = "127.0.0.1:8080";
-
-    routes::router(addr).await.unwrap();
+    Reign::build()
+        .env::<App>()
+        .add_plugin(Database::new(&App::get().database_url))
+        .add_plugin(RedisPlugin::new(&App::get().redis_url))
+        .add_plugin(StaticPlugin::new("assets").dir(&["src", "assets"]))
+        .serve(addr, routes::router)
+        .await
 }

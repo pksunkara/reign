@@ -216,7 +216,7 @@ impl Model {
 
         quote! {
             impl #query_ident<::reign::model::query::All, #ident> {
-                #vis async fn load(self) -> Result<Vec<#ident>, ::reign::model::tokio_diesel::AsyncError> {
+                #vis async fn load(self) -> Result<Vec<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
                     use ::reign::model::diesel::QueryDsl;
 
@@ -224,7 +224,7 @@ impl Model {
                         #(#schema::#table_ident::#field_ident,)*
                     ));
 
-                    if let Some(limit) = self.limit {
+                    let ret = if let Some(limit) = self.limit {
                         if let Some(offset) = self.offset {
                             select
                                 .limit(limit)
@@ -236,12 +236,14 @@ impl Model {
                         }
                     } else {
                         select.load_async::<#ident>(#db).await
-                    }
+                    };
+
+                    Ok(ret?)
                 }
             }
 
             impl #query_ident<::reign::model::query::One, #ident> {
-                #vis async fn load(self) -> Result<Option<#ident>, ::reign::model::tokio_diesel::AsyncError> {
+                #vis async fn load(self) -> Result<Option<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
                     use ::reign::model::diesel::QueryDsl;
 
@@ -249,11 +251,11 @@ impl Model {
                         #(#schema::#table_ident::#field_ident,)*
                     ));
 
-                    select
+                    Ok(select
                         .limit(1)
                         .get_result_async::<#ident>(#db)
                         .await
-                        .optional()
+                        .optional()?)
                 }
             }
         }

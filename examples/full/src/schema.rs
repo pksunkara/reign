@@ -1,4 +1,4 @@
-table! {
+diesel::table! {
     articles (id) {
         id -> Integer,
         title -> Text,

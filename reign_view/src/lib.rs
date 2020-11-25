@@ -31,7 +31,7 @@ pub(crate) const INTERNAL_ERR: &str =
 ///
 /// ```
 /// use reign::{prelude::*, view::render};
-/// # use std::fmt::{Formatter, Result as FmtResult, Display};
+/// use std::fmt::{Formatter, Result as FmtResult, Display};
 /// # use reign::router::serve;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
@@ -181,8 +181,8 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpE
 ///
 /// ```
 /// use reign::{prelude::*, view::json};
+/// use serde::Serialize;
 /// # use reign::router::serve;
-/// # use serde::Serialize;
 /// # use std::time::Duration;
 /// # use tokio::{runtime::Runtime, select, time::delay_for};
 ///

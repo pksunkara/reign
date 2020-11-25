@@ -1,12 +1,20 @@
 [package]
-name = "examples_basic"
+name = "examples_full"
 version = "0.0.0"
 authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
 edition = "2018"
 publish = false
 
 [dependencies]
-reign = { path = "../.." }
-diesel = { version = "1.4.3", features = ["sqlite"] }
-tokio = { version = "0.2", features = ["full"] }
-serde = { version = "1", features = ["derive"] }
+reign = { path = "../..", features = ["session"] }
+reign_plugin_redis = { path = "../../plugins/reign_plugin_redis" }
+reign_plugin_static = { path = "../../plugins/reign_plugin_static" }
+reign_session_backend_redis = { path = "../../utils/reign_session_backend_redis" }
+diesel = { path = "../../../../reign-rs/diesel/diesel" }
+tokio = { version = "0.2.21", features = ["full"] }
+thiserror = "1.0.19"
+anyhow = "1.0.31"
+serde = { version = "1.0.110", features = ["derive"] }
+
+[build-dependencies]
+walkdir = "2.3"

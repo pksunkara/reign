@@ -16,7 +16,7 @@ async fn all_johns() -> Vec<User> {
 }
 
 fn connect() {
-    Database::new("postgres://postgres@localhost:5432/reign_example").connect();
+    Database::new("postgres://postgres@localhost:5432/reign_examples_model_postgres").connect();
 }
 
 #[tokio::main]

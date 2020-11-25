@@ -1,4 +1,5 @@
 use crate::utils::Result;
+
 use clap::Clap;
 
 mod model;

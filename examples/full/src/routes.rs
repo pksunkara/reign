@@ -1,38 +1,29 @@
 use crate::controllers::*;
-use gotham::middleware::logger::RequestLogger;
-use gotham_derive::*;
-use gotham_middleware_diesel::{DieselMiddleware, Repo};
-use reign::{log::Level, prelude::*, router::middleware::ContentType};
-use serde::Deserialize;
 
-#[derive(Deserialize, StateData, StaticResponseExtender)]
-pub struct IdExtractor {
-    pub id: i32,
-}
+use reign::{
+    log::Level,
+    prelude::*,
+    router::{
+        middleware::{ContentType, RequestLogger},
+        Router,
+    },
+};
 
-#[router]
-fn router() {
-    pipelines!(
-        common: [
-            RequestLogger::new(Level::Info),
-        ],
-        app: [
-            ContentType::default(),
-            DieselMiddleware::new(repo),
-        ],
-    );
+pub fn router(r: &mut Router) {
+    r.pipe("common").add(RequestLogger::new(Level::Info));
+    r.pipe("app").add(ContentType::default());
 
-    scope!("/", [common, app], {
-        scope!("/articles", {
-            get!("/", articles::list);
-            post!("/", articles::create);
+    r.scope("").through(&["common", "app"]).to(|r| {
+        r.get("", pages::home);
+
+        r.scope("articles").to(|r| {
+            r.get("", articles::list);
+            r.get("new", articles::new);
+            r.post("", articles::create);
+
+            r.scope(p!(id)).to(|r| {
+                r.get("", articles::show);
+            });
         });
     });
-
-    //         route.associate("/:id", |assoc| {
-    //             assoc
-    //                 .get()
-    //                 .with_path_extractor::<IdExtractor>()
-    //                 .to(articles::show);
-    //         });
 }
