@@ -25,9 +25,8 @@ impl Database {
             .build(manager)
             .expect("Unable to connect to the database");
 
-        if DB.set(pool).is_err() {
-            panic!("Unable to store the database connection");
-        }
+        DB.set(pool)
+            .expect("Unable to store the database connection");
     }
 
     pub fn get_opt() -> Option<&'static Pool<ConnectionManager<Connection>>> {
