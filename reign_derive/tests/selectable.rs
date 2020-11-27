@@ -12,6 +12,14 @@ pub struct User {
     email: Option<String>,
 }
 
+#[derive(Debug, Model)]
+#[model(table_name = users)]
+pub struct Foo {
+    #[model(column_name = id)]
+    bar: i32,
+    name: String,
+}
+
 #[tokio::test(threaded_scheduler)]
 #[serial]
 async fn test_all() {
@@ -42,7 +50,20 @@ async fn test_one() {
 
     assert_eq!(one.id, 1);
     assert_eq!(one.name, "John");
-    assert_eq!(one.email, None);
+}
+
+#[tokio::test(threaded_scheduler)]
+#[serial]
+async fn test_rename() {
+    schema::setup().await;
+    let one = Foo::one().id(2).load().await.unwrap();
+
+    assert!(one.is_some());
+
+    let one = one.unwrap();
+
+    assert_eq!(one.bar, 2);
+    assert_eq!(one.name, "Sean");
 }
 
 #[tokio::test(threaded_scheduler)]

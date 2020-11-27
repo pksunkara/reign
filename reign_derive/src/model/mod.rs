@@ -3,7 +3,7 @@ pub mod model;
 
 mod attr;
 mod id;
-mod insert;
-mod query;
+mod insertable;
+mod selectable;
 mod tag;
-mod update;
+mod updatable;

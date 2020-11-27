@@ -12,7 +12,7 @@ mod error;
 mod plugin;
 
 #[doc(hidden)]
-pub mod query;
+pub mod selectable;
 
 pub use connection::Database;
 pub use error::Error;

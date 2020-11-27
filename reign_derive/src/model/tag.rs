@@ -32,13 +32,13 @@ impl Model {
 
                 let gen_tag_struct = self.gen_tag_struct(&ident, fields);
                 let gen_tag_id = self.gen_tag_id(&ident, fields);
-                let gen_tag_query = self.gen_tag_query(&ident, fields);
-                let gen_tag_insert = self.gen_tag_insert(&ident, fields);
+                let gen_tag_selectable = self.gen_tag_selectable(&ident, fields);
+                let gen_tag_insert = self.gen_tag_insertable(&ident, fields);
 
                 quote! {
                     #gen_tag_struct
                     #gen_tag_id
-                    #gen_tag_query
+                    #gen_tag_selectable
                     #gen_tag_insert
                 }
             })

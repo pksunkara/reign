@@ -30,16 +30,16 @@ pub fn model(input: DeriveInput) -> TokenStream {
 fn gen_for_struct(model: Model) -> TokenStream {
     // TODO: model: generics
     let gen_id = model.gen_id();
-    let gen_query = model.gen_query();
-    let gen_insert = model.gen_insert();
-    let gen_update = model.gen_update();
+    let gen_selectable = model.gen_selectable();
+    let gen_insertable = model.gen_insertable();
+    let gen_updatable = model.gen_updatable();
     let gen_tags = model.gen_tags();
 
     quote! {
         #gen_id
-        #gen_query
-        #gen_insert
-        #gen_update
+        #gen_selectable
+        #gen_insertable
+        #gen_updatable
         #(#gen_tags)*
     }
 }

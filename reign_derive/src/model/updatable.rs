@@ -5,23 +5,23 @@ use quote::{format_ident, quote};
 use syn::{Field, Ident};
 
 impl Model {
-    pub fn gen_update(&self) -> TokenStream {
-        let gen_update_struct = self.gen_update_struct();
-        let gen_update_methods = self.gen_update_methods(&self.ident);
+    pub fn gen_updatable(&self) -> TokenStream {
+        let gen_updatable_struct = self.gen_updatable_struct();
+        let gen_updatable_methods = self.gen_updatable_methods(&self.ident);
 
         quote! {
-            #gen_update_struct
-            #gen_update_methods
+            #gen_updatable_struct
+            #gen_updatable_methods
         }
     }
 
-    fn update_ident(&self) -> Ident {
-        format_ident!("Update{}", self.ident)
+    fn updatable_ident(&self) -> Ident {
+        format_ident!("Updatable{}", self.ident)
     }
 
     // Generates struct & constructor for `UPDATE` statements
-    fn gen_update_struct(&self) -> TokenStream {
-        let update_ident = self.update_ident();
+    fn gen_updatable_struct(&self) -> TokenStream {
+        let updatable_ident = self.updatable_ident();
         let vis = &self.vis;
 
         let (for_struct, for_new) = self
@@ -44,12 +44,12 @@ impl Model {
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
         quote! {
-            #vis struct #update_ident<M> {
+            #vis struct #updatable_ident<M> {
                 _phantom: std::marker::PhantomData<(M)>,
                 #(#for_struct,)*
             }
 
-            impl<M> #update_ident<M> {
+            impl<M> #updatable_ident<M> {
                 fn new() -> Self {
                     Self {
                         _phantom: std::marker::PhantomData,
@@ -61,15 +61,15 @@ impl Model {
     }
 
     // Generates starting methods for `UPDATE`
-    fn gen_update_methods(&self, ident: &Ident) -> TokenStream {
-        let update_ident = self.update_ident();
+    fn gen_updatable_methods(&self, ident: &Ident) -> TokenStream {
+        let updatable_ident = self.updatable_ident();
         let vis = &self.vis;
 
         quote! {
             #[allow(dead_code, unreachable_code)]
             impl #ident {
-                #vis fn change() -> #update_ident<#ident> {
-                    #update_ident::new()
+                #vis fn change() -> #updatable_ident<#ident> {
+                    #updatable_ident::new()
                 }
             }
         }
