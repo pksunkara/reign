@@ -1,5 +1,5 @@
 use reign::{
-    model::Database,
+    model::{diesel, Database},
     prelude::{views, Config},
     Reign,
 };

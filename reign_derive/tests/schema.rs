@@ -11,7 +11,7 @@ diesel::table! {
 pub async fn setup() {
     let conn = Database::get_opt()
         .or_else(|| {
-            Database::new("postgres://postgres@localhost:5432/reign_example").connect();
+            Database::new("postgres://postgres@localhost:5432/reign_test").connect();
             Database::get_opt()
         })
         .unwrap();

@@ -22,6 +22,7 @@ impl Parse for Attr {
         let name: Ident = input.parse()?;
 
         match name.to_string().as_str() {
+            // TODO: Combine these two?
             "no_insert" => Ok(Attr::NoInsert(name)),
             "no_update" => Ok(Attr::NoUpdate(name)),
             "tag" => Ok(Attr::Tag(name, parenthesized_list(input)?)),

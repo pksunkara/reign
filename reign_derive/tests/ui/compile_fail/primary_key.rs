@@ -1,6 +1,8 @@
 use reign::{model::diesel, prelude::*};
 
 mod schema {
+    use reign::model::diesel;
+
     diesel::table! {
         users (id) {
             id -> Int4,

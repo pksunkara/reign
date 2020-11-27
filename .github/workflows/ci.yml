@@ -25,7 +25,7 @@ jobs:
           - view-backend
           - router-backend
           - model-postgres
-          # - full
+          - full
         rust: [stable]
         os: [windows-latest, macos-latest, ubuntu-latest]
         target:

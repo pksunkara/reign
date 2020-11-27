@@ -1,6 +1,6 @@
 mod schema;
 
-use reign::prelude::*;
+use reign::{model::diesel, prelude::*};
 use serial_test::serial;
 
 #[derive(Debug, Model)]

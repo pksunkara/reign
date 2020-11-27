@@ -10,7 +10,6 @@ reign = { path = "../..", features = ["session"] }
 reign_plugin_redis = { path = "../../plugins/reign_plugin_redis" }
 reign_plugin_static = { path = "../../plugins/reign_plugin_static" }
 reign_session_backend_redis = { path = "../../utils/reign_session_backend_redis" }
-diesel = { path = "../../../../reign-rs/diesel/diesel" }
 tokio = { version = "0.2.21", features = ["full"] }
 thiserror = "1.0.19"
 anyhow = "1.0.31"

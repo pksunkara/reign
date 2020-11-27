@@ -1,13 +1,12 @@
 mod schema;
 
-use reign::prelude::*;
+use reign::{model::diesel, prelude::*};
 use serial_test::serial;
 
 #[derive(Debug, Model)]
 pub struct User {
     #[model(tag(id))]
     id: i32,
-    #[model(tag(name))]
     name: String,
 }
 
