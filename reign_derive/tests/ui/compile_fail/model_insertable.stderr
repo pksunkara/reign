@@ -1,0 +1,24 @@
+error[E0599]: no method named `id` found for struct `InsertableUser<User>` in the current scope
+  --> $DIR/model_insertable.rs:23:17
+   |
+14 | #[derive(Debug, Model)]
+   |                 ----- method `id` not found for this
+...
+23 |     User::new().id(4).save().await.unwrap();
+   |                 ^^ method not found in `InsertableUser<User>`
+   |
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `id`, perhaps you need to implement it:
+           candidate #1: `reign::prelude::Identifiable`
+
+error[E0698]: type inside `async` block must be known in this context
+  --> $DIR/model_insertable.rs:23:20
+   |
+23 |     User::new().id(4).save().await.unwrap();
+   |                    ^ cannot infer type for type `{integer}`
+   |
+note: the type is part of the `async` block because of this `await`
+  --> $DIR/model_insertable.rs:23:5
+   |
+23 |     User::new().id(4).save().await.unwrap();
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

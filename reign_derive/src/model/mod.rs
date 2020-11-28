@@ -6,4 +6,4 @@ mod id;
 mod insertable;
 mod selectable;
 mod tag;
-mod updatable;
+mod updateable;

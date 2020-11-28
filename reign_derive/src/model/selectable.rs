@@ -6,32 +6,32 @@ use syn::{Ident, Index};
 
 impl Model {
     pub fn gen_selectable(&self) -> TokenStream {
-        let gen_queryable = self.gen_queryable(&self.ident, &self.fields);
+        let gen_queryable_trait = self.gen_queryable_trait(&self.ident, &self.fields);
         let gen_selectable_struct = self.gen_selectable_struct();
         let gen_selectable_filters = self.gen_selectable_filters();
         let gen_selectable_limit_offset = self.gen_selectable_limit_offset();
         let gen_selectable_methods = self.gen_selectable_methods(&self.ident);
-        let gen_selectable_action = self.gen_selectable_action(&self.ident, &self.fields);
+        let gen_selectable_actions = self.gen_selectable_actions(&self.ident, &self.fields);
 
         quote! {
-            #gen_queryable
+            #gen_queryable_trait
             #gen_selectable_struct
             #gen_selectable_filters
             #gen_selectable_limit_offset
             #gen_selectable_methods
-            #gen_selectable_action
+            #gen_selectable_actions
         }
     }
 
     pub fn gen_tag_selectable(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
-        let gen_tag_queryable = self.gen_queryable(ident, fields);
+        let gen_tag_queryable_trait = self.gen_queryable_trait(ident, fields);
         let gen_tag_selectable_methods = self.gen_selectable_methods(ident);
-        let gen_tag_selectable_action = self.gen_selectable_action(ident, fields);
+        let gen_tag_selectable_actions = self.gen_selectable_actions(ident, fields);
 
         quote! {
-            #gen_tag_queryable
+            #gen_tag_queryable_trait
             #gen_tag_selectable_methods
-            #gen_tag_selectable_action
+            #gen_tag_selectable_actions
         }
     }
 
@@ -40,7 +40,7 @@ impl Model {
     }
 
     // Generates Queryable
-    fn gen_queryable(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
+    fn gen_queryable_trait(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
         let table_ident = &self.table_ident;
         let schema = self.schema();
 
@@ -92,21 +92,17 @@ impl Model {
         let vis = &self.vis;
 
         quote! {
-            #vis struct #selectable_ident<T, M> {
-                _phantom: std::marker::PhantomData<(T, M)>,
-                limit: Option<i64>,
-                offset: Option<i64>,
+            #vis struct #selectable_ident<T> {
+                _phantom: std::marker::PhantomData<T>,
                 statement: #schema::#table_ident::BoxedQuery<'static, #backend>,
             }
 
-            impl<T, M> #selectable_ident<T, M> {
+            impl<T> #selectable_ident<T> {
                 fn new() -> Self {
                     use ::reign::model::diesel::QueryDsl;
 
                     Self {
                         _phantom: std::marker::PhantomData,
-                        limit: None,
-                        offset: None,
                         statement: #schema::#table_ident::table.into_boxed(),
                     }
                 }
@@ -130,7 +126,8 @@ impl Model {
 
         // TODO: external: Use dummy mod once https://github.com/rust-analyzer/rust-analyzer/issues/1559
         quote! {
-            impl<T, M> #selectable_ident<T, M> {
+            #[allow(dead_code, unreachable_code)]
+            impl<T> #selectable_ident<T> {
                 #(#field_vis fn #column_ident<E, X>(mut self, #column_ident: E) -> Self
                 where
                     E: ::reign::model::diesel::expression::AsExpression<
@@ -158,21 +155,25 @@ impl Model {
         }
     }
 
-    // Generates limit & offset setters for `SELECT` (only `All`)
+    // Generates limit & offset setters for `SELECT`
     fn gen_selectable_limit_offset(&self) -> TokenStream {
         let selectable_ident = self.selectable_ident();
         let vis = &self.vis;
 
         quote! {
             #[allow(dead_code, unreachable_code)]
-            impl<M> #selectable_ident<::reign::model::selectable::All, M> {
+            impl<T> #selectable_ident<T> {
                 #vis fn limit(mut self, limit: i64) -> Self {
-                    self.limit = Some(limit);
+                    use ::reign::model::diesel::QueryDsl;
+
+                    self.statement = self.statement.limit(limit);
                     self
                 }
 
                 #vis fn offset(mut self, offset: i64) -> Self {
-                    self.offset = Some(offset);
+                    use ::reign::model::diesel::QueryDsl;
+
+                    self.statement = self.statement.offset(offset);
                     self
                 }
             }
@@ -187,19 +188,19 @@ impl Model {
         quote! {
             #[allow(dead_code, unreachable_code)]
             impl #ident {
-                #vis fn all() -> #selectable_ident<::reign::model::selectable::All, #ident> {
+                #vis fn all() -> #selectable_ident<Vec<#ident>> {
                     #selectable_ident::new()
                 }
 
-                #vis fn one() -> #selectable_ident<::reign::model::selectable::One, #ident> {
-                    #selectable_ident::new()
+                #vis fn one() -> #selectable_ident<#ident> {
+                    #selectable_ident::new().limit(1)
                 }
             }
         }
     }
 
     // Generates actual action for `SELECT`
-    fn gen_selectable_action(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
+    fn gen_selectable_actions(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
         let selectable_ident = self.selectable_ident();
         let table_ident = &self.table_ident;
         let schema = self.schema();
@@ -209,7 +210,7 @@ impl Model {
         let column_ident = fields.iter().map(|x| &x.column_ident).collect::<Vec<_>>();
 
         quote! {
-            impl #selectable_ident<::reign::model::selectable::All, #ident> {
+            impl #selectable_ident<Vec<#ident>> {
                 #vis async fn load(self) -> Result<Vec<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
                     use ::reign::model::diesel::QueryDsl;
@@ -218,25 +219,13 @@ impl Model {
                         #(#schema::#table_ident::#column_ident,)*
                     ));
 
-                    let ret = if let Some(limit) = self.limit {
-                        if let Some(offset) = self.offset {
-                            select
-                                .limit(limit)
-                                .offset(offset)
-                                .load_async::<#ident>(#db)
-                                .await
-                        } else {
-                            select.limit(limit).load_async::<#ident>(#db).await
-                        }
-                    } else {
-                        select.load_async::<#ident>(#db).await
-                    };
-
-                    Ok(ret?)
+                    Ok(select
+                        .load_async::<#ident>(#db)
+                        .await?)
                 }
             }
 
-            impl #selectable_ident<::reign::model::selectable::One, #ident> {
+            impl #selectable_ident<#ident> {
                 #vis async fn load(self) -> Result<Option<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
                     use ::reign::model::diesel::QueryDsl;
@@ -246,7 +235,6 @@ impl Model {
                     ));
 
                     Ok(select
-                        .limit(1)
                         .get_result_async::<#ident>(#db)
                         .await
                         .optional()?)

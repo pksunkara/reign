@@ -1,14 +1,8 @@
 use reign::prelude::*;
 
 #[derive(Model)]
-#[model(no_insert)]
+#[model(no_write)]
 struct User {
-    id: i32,
-}
-
-#[derive(Model)]
-#[model(no_update)]
-struct Org {
     id: i32,
 }
 

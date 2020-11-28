@@ -110,6 +110,21 @@ async fn test_all_limit_offset() {
 
 #[tokio::test(threaded_scheduler)]
 #[serial]
+async fn test_one_limit_offset() {
+    schema::setup().await;
+    let one = User::one().offset(1).limit(2).load().await.unwrap();
+
+    assert!(one.is_some());
+
+    let one = one.unwrap();
+
+    assert_eq!(one.id, 2);
+    assert_eq!(one.name, "Sean");
+    assert_eq!(one.email, Some("sean@mail.com".into()));
+}
+
+#[tokio::test(threaded_scheduler)]
+#[serial]
 async fn test_tag_all() {
     schema::setup().await;
     let all = UserEmail::all().load().await.unwrap();

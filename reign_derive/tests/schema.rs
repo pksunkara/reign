@@ -20,7 +20,11 @@ pub async fn setup() {
         .await
         .unwrap();
     conn.batch_execute_async(
-        "CREATE TABLE users (id SERIAL, name VARCHAR(255) NOT NULL, email VARCHAR(255))",
+        "CREATE TABLE users (
+            id SERIAL,
+            name VARCHAR(255) NOT NULL DEFAULT 'Mike',
+            email VARCHAR(255) DEFAULT 'mike@mail.com'
+        )",
     )
     .await
     .unwrap();

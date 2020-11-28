@@ -9,8 +9,7 @@ use syn::{
 
 #[derive(Clone)]
 pub enum Attr {
-    NoInsert(Ident),
-    NoUpdate(Ident),
+    NoWrite(Ident),
     Tag(Ident, Punctuated<Ident, Comma>),
     ColumnName(Ident, Ident),
     TableName(Ident, Ident),
@@ -22,9 +21,7 @@ impl Parse for Attr {
         let name: Ident = input.parse()?;
 
         match name.to_string().as_str() {
-            // TODO: Combine these two?
-            "no_insert" => Ok(Attr::NoInsert(name)),
-            "no_update" => Ok(Attr::NoUpdate(name)),
+            "no_write" => Ok(Attr::NoWrite(name)),
             "tag" => Ok(Attr::Tag(name, parenthesized_list(input)?)),
             "column_name" => Ok(Attr::ColumnName(name, eq(input)?)),
             "table_name" => Ok(Attr::TableName(name, eq(input)?)),
@@ -47,11 +44,8 @@ impl Attr {
 
         for attr in &attrs {
             match attr {
-                Attr::NoInsert(ident) if for_struct => {
-                    abort!(ident, "`no_insert` is not allowed on struct")
-                }
-                Attr::NoUpdate(ident) if for_struct => {
-                    abort!(ident, "`no_update` is not allowed on struct")
+                Attr::NoWrite(ident) if for_struct => {
+                    abort!(ident, "`no_write` is not allowed on struct")
                 }
                 Attr::Tag(ident, _) if for_struct => {
                     abort!(ident, "`tag` is not allowed on struct")

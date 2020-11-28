@@ -11,8 +11,5 @@ mod error;
 #[cfg(feature = "framework")]
 mod plugin;
 
-#[doc(hidden)]
-pub mod selectable;
-
 pub use connection::Database;
 pub use error::Error;

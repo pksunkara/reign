@@ -32,14 +32,14 @@ fn gen_for_struct(model: Model) -> TokenStream {
     let gen_id = model.gen_id();
     let gen_selectable = model.gen_selectable();
     let gen_insertable = model.gen_insertable();
-    let gen_updatable = model.gen_updatable();
+    let gen_updateable = model.gen_updateable();
     let gen_tags = model.gen_tags();
 
     quote! {
         #gen_id
         #gen_selectable
         #gen_insertable
-        #gen_updatable
+        #gen_updateable
         #(#gen_tags)*
     }
 }
@@ -49,8 +49,7 @@ pub struct ModelField {
     pub field: Field,
     pub attrs: Vec<Attr>,
     pub column_ident: Ident,
-    pub no_insert: bool,
-    pub no_update: bool,
+    pub no_write: bool,
     pub primary_key: bool,
     pub tags: Vec<Ident>,
 }
@@ -60,15 +59,13 @@ impl ModelField {
         let attrs = Attr::parse_attributes(&field.attrs, false);
 
         let mut column_ident = field.ident.as_ref().expect(INTERNAL_ERR).clone();
-        let mut no_insert = false;
-        let mut no_update = false;
+        let mut no_write = false;
         let mut tags = vec![];
 
         for attr in &attrs {
             match attr {
                 Attr::ColumnName(_, value) => column_ident = value.clone(),
-                Attr::NoInsert(_) => no_insert = true,
-                Attr::NoUpdate(_) => no_update = true,
+                Attr::NoWrite(_) => no_write = true,
                 Attr::Tag(_, value) => value.iter().for_each(|i| tags.push(i.clone())),
                 _ => {}
             }
@@ -81,8 +78,7 @@ impl ModelField {
             field: field.to_owned(),
             attrs,
             column_ident,
-            no_insert,
-            no_update,
+            no_write,
             primary_key,
             tags,
         }
