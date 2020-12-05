@@ -7,6 +7,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::{Field, Ident};
 
+// TODO: model: Allow batch inserting using `Vec`
 impl Model {
     pub fn gen_insertable(&self) -> TokenStream {
         let gen_insertable_struct = self.gen_insertable_struct();
@@ -48,12 +49,12 @@ impl Model {
             .iter()
             .filter(|x| !x.no_write)
             .map(|f| {
-                let Field { vis, ty, ident, .. } = &f.field;
+                let Field { ty, ident, .. } = &f.field;
                 let ident = ident.as_ref().expect(INTERNAL_ERR);
 
                 (
                     quote! {
-                        #vis #ident: Option<#ty>
+                        #ident: Option<#ty>
                     },
                     quote! {
                         #ident: None

@@ -224,7 +224,7 @@ impl Model {
                     }
                 }
 
-                fn set(self) -> #updateable_ident<M> {
+                #vis fn set(self) -> #updateable_ident<M> {
                     #updateable_ident::new(self.statement)
                 }
             }
@@ -317,7 +317,7 @@ impl Model {
         }
     }
 
-    // Generates actual action for `SELECT`
+    // Generates actual action for `UPDATE`
     fn gen_updateable_actions(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
         let updateable_ident = self.updateable_ident();
         let table_ident = &self.table_ident;
@@ -328,6 +328,7 @@ impl Model {
         let column_ident = fields.iter().map(|x| &x.column_ident).collect::<Vec<_>>();
 
         quote! {
+            #[allow(dead_code, unreachable_code)]
             impl #updateable_ident<Vec<#ident>> {
                 #vis async fn save(self) -> Result<Vec<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
@@ -343,6 +344,7 @@ impl Model {
                 }
             }
 
+            #[allow(dead_code, unreachable_code)]
             impl #updateable_ident<#ident> {
                 #vis async fn save(self) -> Result<#ident, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;

@@ -1,8 +1,10 @@
 use crate::utils::term::{RED_BOLD, TERM_ERR};
+
 use console::Term;
 use handlebars::TemplateRenderError;
-use std::io;
 use thiserror::Error;
+
+use std::io;
 
 #[derive(Error, Debug)]
 pub enum Error {

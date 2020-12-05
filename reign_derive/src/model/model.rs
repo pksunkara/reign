@@ -33,6 +33,7 @@ fn gen_for_struct(model: Model) -> TokenStream {
     let gen_selectable = model.gen_selectable();
     let gen_insertable = model.gen_insertable();
     let gen_updateable = model.gen_updateable();
+    let gen_deleteable = model.gen_deleteable();
     let gen_tags = model.gen_tags();
 
     quote! {
@@ -40,6 +41,7 @@ fn gen_for_struct(model: Model) -> TokenStream {
         #gen_selectable
         #gen_insertable
         #gen_updateable
+        #gen_deleteable
         #(#gen_tags)*
     }
 }

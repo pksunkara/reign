@@ -2,6 +2,7 @@
 pub mod model;
 
 mod attr;
+mod deleteable;
 mod id;
 mod insertable;
 mod selectable;

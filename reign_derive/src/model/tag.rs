@@ -35,6 +35,7 @@ impl Model {
                 let gen_tag_selectable = self.gen_tag_selectable(&ident, fields);
                 let gen_tag_insertable = self.gen_tag_insertable(&ident, fields);
                 let gen_tag_updateable = self.gen_tag_updateable(&ident, fields);
+                let gen_tag_deleteable = self.gen_tag_deleteable(&ident, fields);
 
                 quote! {
                     #gen_tag_struct
@@ -42,6 +43,7 @@ impl Model {
                     #gen_tag_selectable
                     #gen_tag_insertable
                     #gen_tag_updateable
+                    #gen_tag_deleteable
                 }
             })
             .collect()
