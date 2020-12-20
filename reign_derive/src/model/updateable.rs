@@ -12,9 +12,6 @@ impl Model {
         let gen_updateable_struct = self.gen_updateable_struct();
         let gen_as_changeset_trait = self.gen_as_changeset_trait();
         let gen_updateable_setters = self.gen_updateable_setters();
-        let gen_updateable_filter_struct = self.gen_updateable_filter_struct();
-        let gen_updateable_filters = self.gen_updateable_filters();
-        let gen_updateable_filter_methods = self.gen_updateable_filter_methods(&self.ident);
         let gen_updateable_methods = self.gen_updateable_methods(&self.ident, &self.fields);
         let gen_updateable_actions = self.gen_updateable_actions(&self.ident, &self.fields);
 
@@ -22,21 +19,16 @@ impl Model {
             #gen_updateable_struct
             #gen_as_changeset_trait
             #gen_updateable_setters
-            #gen_updateable_filter_struct
-            #gen_updateable_filters
-            #gen_updateable_filter_methods
             #gen_updateable_methods
             #gen_updateable_actions
         }
     }
 
     pub fn gen_tag_updateable(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
-        let gen_updateable_filter_methods = self.gen_updateable_filter_methods(ident);
         let gen_updateable_methods = self.gen_updateable_methods(ident, fields);
         let gen_updateable_actions = self.gen_updateable_actions(ident, fields);
 
         quote! {
-            #gen_updateable_filter_methods
             #gen_updateable_methods
             #gen_updateable_actions
         }
@@ -50,18 +42,12 @@ impl Model {
         format_ident!("{}Inner", self.updateable_ident())
     }
 
-    fn updateable_filter_ident(&self) -> Ident {
-        format_ident!("{}Filter", self.updateable_ident())
-    }
-
     // Generates struct & constructor for `UPDATE` statements
     fn gen_updateable_struct(&self) -> TokenStream {
+        let filterable_ident = self.filterable_ident();
         let updateable_ident = self.updateable_ident();
         let updateable_inner_ident = self.updateable_inner_ident();
         let vis = &self.vis;
-        let table_ident = &self.table_ident;
-        let schema = self.schema();
-        let backend = self.backend();
 
         let (for_struct, for_new) = self
             .fields
@@ -83,13 +69,9 @@ impl Model {
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
         quote! {
-            #vis struct #updateable_ident<M> {
-                _phantom: std::marker::PhantomData<(M)>,
-                statement: ::reign::model::diesel::query_builder::BoxedUpdateStatement<
-                    'static,
-                    #backend,
-                    #schema::#table_ident::table
-                >,
+            #vis struct #updateable_ident<M, R> {
+                _phantom: std::marker::PhantomData<(R)>,
+                statement: #filterable_ident<M>,
                 inner: #updateable_inner_ident,
             }
 
@@ -97,8 +79,8 @@ impl Model {
                 #(#for_struct,)*
             }
 
-            impl<M> #updateable_ident<M> {
-                fn new(statement: ::reign::model::diesel::query_builder::BoxedUpdateStatement<'static, #backend, #schema::#table_ident::table>) -> Self {
+            impl<M, R> #updateable_ident<M, R> {
+                fn new(statement: #filterable_ident<M>) -> Self {
                     Self {
                         _phantom: std::marker::PhantomData,
                         statement,
@@ -144,14 +126,12 @@ impl Model {
             .unzip::<_, _, Vec<_>, Vec<_>>();
 
         quote! {
-            impl<M> ::reign::model::diesel::AsChangeset for #updateable_ident<M>
+            impl<M, R> ::reign::model::diesel::AsChangeset for #updateable_ident<M, R>
             {
                 type Target = #schema::#table_ident::table;
                 type Changeset = <#updateable_inner_ident as ::reign::model::diesel::AsChangeset>::Changeset;
 
                 fn as_changeset(self) -> Self::Changeset {
-                    use ::reign::model::diesel::ExpressionMethods;
-
                     self.inner.as_changeset()
                 }
             }
@@ -192,98 +172,8 @@ impl Model {
             .collect::<Vec<_>>();
 
         quote! {
-            impl<M> #updateable_ident<M> {
+            impl<M, R> #updateable_ident<M, R> {
                 #(#setters)*
-            }
-        }
-    }
-
-    fn gen_updateable_filter_struct(&self) -> TokenStream {
-        let updateable_ident = self.updateable_ident();
-        let updateable_filter_ident = self.updateable_filter_ident();
-        let vis = &self.vis;
-        let table_ident = &self.table_ident;
-        let schema = self.schema();
-        let backend = self.backend();
-
-        quote! {
-            #vis struct #updateable_filter_ident<M> {
-                _phantom: std::marker::PhantomData<(M)>,
-                statement: ::reign::model::diesel::query_builder::BoxedUpdateStatement<
-                    'static,
-                    #backend,
-                    #schema::#table_ident::table
-                >,
-            }
-
-            impl<M> #updateable_filter_ident<M> {
-                fn new() -> Self {
-                    Self {
-                        _phantom: std::marker::PhantomData,
-                        statement: ::reign::model::diesel::update(#schema::#table_ident::table).into_boxed(),
-                    }
-                }
-
-                #vis fn set(self) -> #updateable_ident<M> {
-                    #updateable_ident::new(self.statement)
-                }
-            }
-        }
-    }
-
-    // Generates individual column filters for `UPDATE`
-    fn gen_updateable_filters(&self) -> TokenStream {
-        let updateable_filter_ident = self.updateable_filter_ident();
-        let table_ident = &self.table_ident;
-        let schema = self.schema();
-        let backend = self.backend();
-
-        let (field_vis, column_ident) = self
-            .fields
-            .iter()
-            .map(|x| (&x.field.vis, &x.column_ident))
-            .unzip::<_, _, Vec<_>, Vec<_>>();
-
-        quote! {
-            #[allow(dead_code, unreachable_code)]
-            impl<M> #updateable_filter_ident<M> {
-                #(#field_vis fn #column_ident<E, X>(mut self, #column_ident: E) -> Self
-                where
-                    E: ::reign::model::diesel::expression::AsExpression<
-                        ::reign::model::diesel::dsl::SqlTypeOf<#schema::#table_ident::#column_ident>,
-                        Expression = X,
-                    >,
-                    X: ::reign::model::diesel::expression::BoxableExpression<
-                            #schema::#table_ident::table,
-                            #backend,
-                            SqlType = ::reign::model::diesel::dsl::SqlTypeOf<#schema::#table_ident::#column_ident>
-                        >
-                        + ::reign::model::diesel::expression::ValidGrouping<
-                            (),
-                            IsAggregate = ::reign::model::diesel::expression::is_aggregate::Never
-                        >
-                        + Send
-                        + 'static,
-                {
-                    use ::reign::model::diesel::{ExpressionMethods, QueryDsl};
-
-                    self.statement = self.statement.filter(#schema::#table_ident::#column_ident.eq(#column_ident));
-                    self
-                })*
-            }
-        }
-    }
-
-    fn gen_updateable_filter_methods(&self, ident: &Ident) -> TokenStream {
-        let updateable_filter_ident = self.updateable_filter_ident();
-        let vis = &self.vis;
-
-        quote! {
-            #[allow(dead_code, unreachable_code)]
-            impl #ident {
-                #vis fn change() -> #updateable_filter_ident<Vec<#ident>> {
-                    #updateable_filter_ident::new()
-                }
             }
         }
     }
@@ -291,7 +181,6 @@ impl Model {
     // Generates starting methods for `UPDATE`
     fn gen_updateable_methods(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
         let updateable_ident = self.updateable_ident();
-        let updateable_filter_ident = self.updateable_filter_ident();
         let vis = &self.vis;
 
         let keys = fields.iter().filter(|x| x.primary_key).collect::<Vec<_>>();
@@ -308,10 +197,10 @@ impl Model {
         quote! {
             #[allow(dead_code, unreachable_code)]
             impl #ident {
-                #vis fn set(&self) -> #updateable_ident<#ident> {
-                    #updateable_filter_ident::new()
+                #vis fn set(&self) -> #updateable_ident<#ident, #ident> {
+                    #ident::filter()
                         #(.#column_ident(self.#field_ident.clone()))*
-                        .set()
+                        .set_one()
                 }
             }
         }
@@ -319,6 +208,7 @@ impl Model {
 
     // Generates actual action for `UPDATE`
     fn gen_updateable_actions(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
+        let filterable_ident = self.filterable_ident();
         let updateable_ident = self.updateable_ident();
         let table_ident = &self.table_ident;
         let schema = self.schema();
@@ -329,12 +219,25 @@ impl Model {
 
         quote! {
             #[allow(dead_code, unreachable_code)]
-            impl #updateable_ident<Vec<#ident>> {
+            impl #filterable_ident<#ident> {
+                #vis fn set(self) -> #updateable_ident<#ident, Vec<#ident>> {
+                    #updateable_ident::new(self)
+                }
+
+                fn set_one(self) -> #updateable_ident<#ident, #ident> {
+                    #updateable_ident::new(self)
+                }
+            }
+
+            #[allow(dead_code, unreachable_code)]
+            impl #updateable_ident<#ident, Vec<#ident>> {
                 #vis async fn save(self) -> Result<Vec<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
                     use ::reign::model::diesel::QueryDsl;
 
-                    Ok(self.statement
+                    Ok(::reign::model::diesel::update(
+                            #schema::#table_ident::table.filter(self.statement.statement),
+                        )
                         .set(self.inner)
                         .returning((
                             #(#schema::#table_ident::#column_ident,)*
@@ -345,12 +248,14 @@ impl Model {
             }
 
             #[allow(dead_code, unreachable_code)]
-            impl #updateable_ident<#ident> {
+            impl #updateable_ident<#ident, #ident> {
                 #vis async fn save(self) -> Result<#ident, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
                     use ::reign::model::diesel::QueryDsl;
 
-                    Ok(self.statement
+                    Ok(::reign::model::diesel::update(
+                            #schema::#table_ident::table.filter(self.statement.statement),
+                        )
                         .set(self.inner)
                         .returning((
                             #(#schema::#table_ident::#column_ident,)*

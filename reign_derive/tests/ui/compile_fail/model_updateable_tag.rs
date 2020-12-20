@@ -21,7 +21,7 @@ pub struct User {
 
 #[tokio::main]
 async fn main() {
-    let user = UserName::one().load().await.unwrap();
+    let user = UserName::one().await.unwrap();
 
     assert!(user.is_some());
 

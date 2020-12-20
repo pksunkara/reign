@@ -21,5 +21,5 @@ pub struct User {
 
 #[tokio::main]
 async fn main() {
-    UserName::one().load().await.unwrap().unwrap().id();
+    UserName::one().await.unwrap().unwrap().id();
 }

@@ -13,10 +13,10 @@ pub struct User {
 
 #[tokio::test(threaded_scheduler)]
 #[serial]
-async fn test_change() {
+async fn test_filter_set() {
     schema::setup().await;
 
-    let changes = User::change()
+    let changes = User::filter()
         .name("John")
         .set()
         .name("Mike".into())
@@ -33,7 +33,7 @@ async fn test_change() {
     assert_eq!(changes[1].email, Some("john@mail.com".into()));
 
     // Check that it is saved in DB
-    let all = User::all().load().await.unwrap();
+    let all = User::all().await.unwrap();
 
     assert_eq!(all.len(), 3);
     assert_eq!(all[0].id, 2);
@@ -52,7 +52,7 @@ async fn test_change() {
 async fn test_set() {
     schema::setup().await;
 
-    let user = User::one().id(3).load().await.unwrap();
+    let user = User::filter().id(3).one().await.unwrap();
 
     assert!(user.is_some());
 
@@ -69,7 +69,7 @@ async fn test_set() {
     assert_eq!(user.email, Some("john@mail.com".into()));
 
     // Check that it is saved in DB
-    let user = User::one().id(3).load().await.unwrap();
+    let user = User::filter().id(3).one().await.unwrap();
 
     assert!(user.is_some());
 
@@ -85,7 +85,7 @@ async fn test_set() {
 async fn test_set_null() {
     schema::setup().await;
 
-    let user = User::one().id(3).load().await.unwrap();
+    let user = User::filter().id(3).one().await.unwrap();
 
     assert!(user.is_some());
 
@@ -102,7 +102,7 @@ async fn test_set_null() {
     assert_eq!(user.email, None);
 
     // Check that it is saved in DB
-    let user = User::one().id(3).load().await.unwrap();
+    let user = User::filter().id(3).one().await.unwrap();
 
     assert!(user.is_some());
 
@@ -115,10 +115,10 @@ async fn test_set_null() {
 
 #[tokio::test(threaded_scheduler)]
 #[serial]
-async fn test_tag_change() {
+async fn test_tag_filter_set() {
     schema::setup().await;
 
-    let changes = UserId::change()
+    let changes = UserId::filter()
         .name("John")
         .set()
         .name("Mike".into())
@@ -131,7 +131,7 @@ async fn test_tag_change() {
     assert_eq!(changes[1].id, 3);
 
     // Check that it is saved in DB
-    let all = User::all().load().await.unwrap();
+    let all = User::all().await.unwrap();
 
     assert_eq!(all.len(), 3);
     assert_eq!(all[0].id, 2);
@@ -150,7 +150,7 @@ async fn test_tag_change() {
 async fn test_tag_set() {
     schema::setup().await;
 
-    let user = UserId::one().id(3).load().await.unwrap();
+    let user = UserId::filter().id(3).one().await.unwrap();
 
     assert!(user.is_some());
 
@@ -163,7 +163,7 @@ async fn test_tag_set() {
     assert_eq!(user.id, 3);
 
     // Check that it is saved in DB
-    let user = User::one().id(3).load().await.unwrap();
+    let user = User::filter().id(3).one().await.unwrap();
 
     assert!(user.is_some());
 

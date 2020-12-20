@@ -24,7 +24,8 @@ pub struct Foo {
 #[serial]
 async fn test_all() {
     schema::setup().await;
-    let all = User::all().load().await.unwrap();
+
+    let all = User::all().await.unwrap();
 
     assert_eq!(all.len(), 3);
     assert_eq!(all[0].id, 1);
@@ -42,7 +43,8 @@ async fn test_all() {
 #[serial]
 async fn test_one() {
     schema::setup().await;
-    let one = User::one().load().await.unwrap();
+
+    let one = User::one().await.unwrap();
 
     assert!(one.is_some());
 
@@ -56,21 +58,24 @@ async fn test_one() {
 #[serial]
 async fn test_rename() {
     schema::setup().await;
-    let one = Foo::one().id(2).load().await.unwrap();
 
-    assert!(one.is_some());
+    let all = Foo::all().await.unwrap();
 
-    let one = one.unwrap();
-
-    assert_eq!(one.bar, 2);
-    assert_eq!(one.name, "Sean");
+    assert_eq!(all.len(), 3);
+    assert_eq!(all[0].bar, 1);
+    assert_eq!(all[0].name, "John");
+    assert_eq!(all[1].bar, 2);
+    assert_eq!(all[1].name, "Sean");
+    assert_eq!(all[2].bar, 3);
+    assert_eq!(all[2].name, "John");
 }
 
 #[tokio::test(threaded_scheduler)]
 #[serial]
 async fn test_all_filter() {
     schema::setup().await;
-    let all = User::all().name("John").load().await.unwrap();
+
+    let all = User::filter().name("John").all().await.unwrap();
 
     assert_eq!(all.len(), 2);
     assert_eq!(all[0].id, 1);
@@ -85,7 +90,8 @@ async fn test_all_filter() {
 #[serial]
 async fn test_one_filter() {
     schema::setup().await;
-    let one = User::one().name("Sean").load().await.unwrap();
+
+    let one = User::filter().name("Sean").one().await.unwrap();
 
     assert!(one.is_some());
 
@@ -100,7 +106,8 @@ async fn test_one_filter() {
 #[serial]
 async fn test_all_limit_offset() {
     schema::setup().await;
-    let all = User::all().offset(1).limit(1).load().await.unwrap();
+
+    let all = User::filter().all_with(Some(1), Some(1)).await.unwrap();
 
     assert_eq!(all.len(), 1);
     assert_eq!(all[0].id, 2);
@@ -110,9 +117,10 @@ async fn test_all_limit_offset() {
 
 #[tokio::test(threaded_scheduler)]
 #[serial]
-async fn test_one_limit_offset() {
+async fn test_one_offset() {
     schema::setup().await;
-    let one = User::one().offset(1).limit(2).load().await.unwrap();
+
+    let one = User::filter().one_with(Some(1)).await.unwrap();
 
     assert!(one.is_some());
 
@@ -127,7 +135,8 @@ async fn test_one_limit_offset() {
 #[serial]
 async fn test_tag_all() {
     schema::setup().await;
-    let all = UserEmail::all().load().await.unwrap();
+
+    let all = UserEmail::all().await.unwrap();
 
     assert_eq!(all.len(), 3);
     assert_eq!(all[0].email, None);
@@ -139,7 +148,8 @@ async fn test_tag_all() {
 #[serial]
 async fn test_tag_one() {
     schema::setup().await;
-    let one = UserEmail::one().load().await.unwrap();
+
+    let one = UserEmail::one().await.unwrap();
 
     assert!(one.is_some());
     assert_eq!(one.unwrap().email, None);
@@ -149,7 +159,8 @@ async fn test_tag_one() {
 #[serial]
 async fn test_multi_tag_all() {
     schema::setup().await;
-    let all = UserDetails::all().load().await.unwrap();
+
+    let all = UserDetails::all().await.unwrap();
 
     assert_eq!(all.len(), 3);
     assert_eq!(all[0].name, "John");
@@ -164,7 +175,8 @@ async fn test_multi_tag_all() {
 #[serial]
 async fn test_multi_tag_one() {
     schema::setup().await;
-    let one = UserDetails::one().load().await.unwrap();
+
+    let one = UserDetails::one().await.unwrap();
 
     assert!(one.is_some());
 

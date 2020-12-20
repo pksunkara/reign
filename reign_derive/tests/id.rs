@@ -22,7 +22,7 @@ pub struct Foo {
 async fn test_id() {
     schema::setup().await;
 
-    let user = User::one().load().await.unwrap().unwrap();
+    let user = User::one().await.unwrap().unwrap();
 
     assert_eq!(user.id(), &1);
 }
@@ -32,7 +32,7 @@ async fn test_id() {
 async fn test_tag_id() {
     schema::setup().await;
 
-    let user = UserId::one().load().await.unwrap().unwrap();
+    let user = UserId::one().await.unwrap().unwrap();
 
     assert_eq!(user.id(), &1);
 }
@@ -42,7 +42,7 @@ async fn test_tag_id() {
 async fn test_id_with_multi_columns() {
     schema::setup().await;
 
-    let user = Foo::one().load().await.unwrap().unwrap();
+    let user = Foo::one().await.unwrap().unwrap();
 
     assert_eq!(user.id(), (&1, &"John".to_string()));
 }

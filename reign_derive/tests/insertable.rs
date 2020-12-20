@@ -15,6 +15,7 @@ pub struct User {
 #[serial]
 async fn test_new() {
     schema::setup().await;
+
     let one = User::new()
         .name("Ray".into())
         .email(Some("ray@mail.com".into()))
@@ -31,6 +32,7 @@ async fn test_new() {
 #[serial]
 async fn test_new_default() {
     schema::setup().await;
+
     let one = User::new()
         .email(Some("ray@mail.com".into()))
         .save()
@@ -46,6 +48,7 @@ async fn test_new_default() {
 #[serial]
 async fn test_new_default_nullable() {
     schema::setup().await;
+
     let one = User::new().name("Ray".into()).save().await.unwrap();
 
     assert_eq!(one.id, 4);
@@ -57,6 +60,7 @@ async fn test_new_default_nullable() {
 #[serial]
 async fn test_new_null_in_default_nullable() {
     schema::setup().await;
+
     let one = User::new()
         .name("Ray".into())
         .email(None)
@@ -73,6 +77,7 @@ async fn test_new_null_in_default_nullable() {
 #[serial]
 async fn test_tag_new() {
     schema::setup().await;
+
     let one = UserId::new()
         .name("Ray".into())
         .email(Some("ray@mail.com".into()))
