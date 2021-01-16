@@ -1,5 +1,5 @@
 use reqwest::{header::CONTENT_TYPE, Client, StatusCode};
-use tokio::time::delay_for;
+use tokio::time::sleep;
 
 use std::time::Duration;
 
@@ -7,7 +7,7 @@ use std::time::Duration;
 pub async fn content_type_test() {
     let url = "http://localhost:8080";
 
-    delay_for(Duration::from_millis(100)).await;
+    sleep(Duration::from_millis(100)).await;
     let client = Client::new();
 
     let res = client.post(url).send().await.unwrap();
@@ -60,7 +60,7 @@ pub async fn content_type_test() {
 pub async fn runtime_test() {
     let url = "http://localhost:8080";
 
-    delay_for(Duration::from_millis(100)).await;
+    sleep(Duration::from_millis(100)).await;
     let client = Client::new();
 
     let res = client.get(url).send().await.unwrap();
@@ -74,7 +74,7 @@ pub async fn runtime_test() {
 pub async fn headers_default_test() {
     let url = "http://localhost:8080";
 
-    delay_for(Duration::from_millis(100)).await;
+    sleep(Duration::from_millis(100)).await;
     let client = Client::new();
 
     let res = client.get(url).send().await.unwrap();

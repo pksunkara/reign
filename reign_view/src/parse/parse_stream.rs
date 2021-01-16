@@ -131,7 +131,7 @@ impl ParseStream {
         Ok(())
     }
 
-    // FIXME: Move this to Text by making self a RefCell
+    // TODO: Move this to Text by making self a RefCell
     pub(super) fn parse_text(&mut self) -> Result<Vec<StringPart>, Error> {
         StringPart::parse(self, &self.content.clone(), false)
     }

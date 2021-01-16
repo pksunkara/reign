@@ -34,7 +34,7 @@ pub(crate) const INTERNAL_ERR: &str =
 /// use std::fmt::{Formatter, Result as FmtResult, Display};
 /// # use reign::router::serve;
 /// # use std::time::Duration;
-/// # use tokio::{runtime::Runtime, select, time::delay_for};
+/// # use tokio::{runtime::Runtime, select, time::sleep};
 ///
 /// struct CustomView<'a> {
 ///   msg: &'a str
@@ -62,7 +62,7 @@ pub(crate) const INTERNAL_ERR: &str =
 /// #   };
 /// #
 /// #   let client = async {
-/// #       delay_for(Duration::from_millis(100)).await;
+/// #       sleep(Duration::from_millis(100)).await;
 /// #       let response = reqwest::get("http://localhost:52525").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);
@@ -117,7 +117,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, H
 /// use reign::{prelude::*, view::redirect};
 /// # use reign::router::serve;
 /// # use std::time::Duration;
-/// # use tokio::{runtime::Runtime, select, time::delay_for};
+/// # use tokio::{runtime::Runtime, select, time::sleep};
 /// # use reqwest::{Client, redirect::Policy};
 ///
 /// #[action]
@@ -134,7 +134,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, H
 /// #   };
 /// #
 /// #   let client = async {
-/// #       delay_for(Duration::from_millis(100)).await;
+/// #       sleep(Duration::from_millis(100)).await;
 /// #       let response = Client::builder()
 /// #           .redirect(Policy::none())
 /// #           .build()
@@ -184,7 +184,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpE
 /// use serde::Serialize;
 /// # use reign::router::serve;
 /// # use std::time::Duration;
-/// # use tokio::{runtime::Runtime, select, time::delay_for};
+/// # use tokio::{runtime::Runtime, select, time::sleep};
 ///
 /// #[derive(Serialize)]
 /// struct User<'a> {
@@ -207,7 +207,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpE
 /// #   };
 /// #
 /// #   let client = async {
-/// #       delay_for(Duration::from_millis(100)).await;
+/// #       sleep(Duration::from_millis(100)).await;
 /// #       let response = reqwest::get("http://localhost:52527").await.unwrap();
 /// #
 /// #       assert_eq!(response.status(), reqwest::StatusCode::OK);

@@ -7,7 +7,6 @@ impl Reign {
     where
         P: Plugin + 'static,
     {
-        // TODO: plugin: Maybe use tokio::block_in_place to allow async
         // Initialize the plugin
         plugin.init();
 

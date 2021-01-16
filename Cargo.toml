@@ -64,7 +64,6 @@ members = [
 
 	"examples/*",
 ]
-# TODO: Look into removing this
 default-members = [
 	".",
 	"reign_boot",
@@ -80,16 +79,18 @@ default-members = [
 
 [features]
 default = ["view-backend", "router-backend", "model-postgres", "framework"]
+doc = []
+
 cli = [
 	"reign_view", "clap", "handlebars", "serde", "serde_json", "Inflector", "console", "lazy_static",
 	"thiserror", "notify", "regex", "quote", "proc-macro2"
 ]
-doc = []
+
 view = ["reign_view", "reign_derive/view"]
 view-backend = ["reign_view/view-backend", "reign_derive/view-backend", "view"]
 router-backend = ["reign_router", "reign_derive/router-backend", "log"]
 model-postgres = ["reign_model/model-postgres", "reign_derive/model-postgres"]
-framework = ["reign_boot", "reign_derive/framework", "reign_model/framework"]
+framework = ["reign_boot", "reign_derive/framework", "reign_model/plugin"]
 
 cookie = ["reign_router/cookie", "router-backend"]
 session = ["reign_router/session", "router-backend"]

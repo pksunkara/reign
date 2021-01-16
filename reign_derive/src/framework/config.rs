@@ -7,7 +7,6 @@ pub fn config(input: DeriveInput) -> TokenStream {
     let DeriveInput { ident, .. } = input;
     let scream = Ident::new(&to_screaming_snake_case(&ident.to_string()), ident.span());
 
-    // TODO: (external) Use dummy mod once https://github.com/rust-analyzer/rust-analyzer/issues/1559
     quote! {
         static #scream: ::reign::once_cell::sync::OnceCell<#ident> = ::reign::once_cell::sync::OnceCell::new();
 

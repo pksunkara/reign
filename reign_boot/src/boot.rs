@@ -13,12 +13,10 @@ pub struct Reign {
     pub(crate) plugins: Vec<Box<dyn Plugin>>,
 }
 
-// TODO: cli: tasks with feature
 impl Reign {
     pub fn build() -> Self {
         load_env_files();
 
-        // TODO: framework:log: Allow custom loggers by adding an option to exclude this call
         from_env(Env::default().default_filter_or("info"))
             .format_timestamp(None)
             .init();

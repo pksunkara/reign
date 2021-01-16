@@ -13,7 +13,6 @@ pub struct CookieParser<'a> {
     secret: Option<&'a str>,
 }
 
-// TODO: router:cookie: private
 impl<'a> CookieParser<'a> {
     #[inline]
     pub fn new() -> Self {

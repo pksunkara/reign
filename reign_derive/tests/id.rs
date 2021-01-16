@@ -17,7 +17,7 @@ pub struct Foo {
     name: String,
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_id() {
     schema::setup().await;
@@ -27,7 +27,7 @@ async fn test_id() {
     assert_eq!(user.id(), &1);
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_tag_id() {
     schema::setup().await;
@@ -37,7 +37,7 @@ async fn test_tag_id() {
     assert_eq!(user.id(), &1);
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_id_with_multi_columns() {
     schema::setup().await;

@@ -2,7 +2,7 @@ use crate::{Chain, Constraint, Handler, MiddlewareItem, Request, Response, Route
 use hyper::{
     http::Error as HttpError, Body, Request as HyperRequest, Response as HyperResponse, StatusCode,
 };
-use log::{debug, error};
+use log::{debug, error, trace};
 use regex::{Regex, RegexSet};
 
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
@@ -76,6 +76,8 @@ impl Service {
         req: HyperRequest<Body>,
         ip: SocketAddr,
     ) -> Result<HyperResponse<Body>, HttpError> {
+        trace!("Incoming request to router");
+
         let to_match = format!("{}{}", req.method().as_str(), req.uri().path());
         let to_match = to_match.trim_end_matches('/');
         let matches = self.regex_set.matches(to_match);
@@ -126,6 +128,7 @@ impl Service {
         }
 
         // TODO:(router:404) Check for 405 and support custom error handler through post middleware
+        // Can make this a special error or make a special middleware pipeline for errors
         Ok(HyperResponse::builder()
             .status(StatusCode::NOT_FOUND)
             .body(Body::empty())?)

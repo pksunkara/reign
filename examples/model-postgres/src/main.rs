@@ -12,7 +12,7 @@ struct User {
 }
 
 async fn all_johns() -> Vec<User> {
-    User::all().name("John").load().await.unwrap()
+    User::filter().name("John").all().await.unwrap()
 }
 
 fn connect() {
@@ -52,7 +52,7 @@ mod tests {
             .unwrap();
     }
 
-    #[tokio::test(threaded_scheduler)]
+    #[tokio::test(flavor = "multi_thread")]
     async fn test_all() {
         setup().await;
         let all_johns = all_johns().await;

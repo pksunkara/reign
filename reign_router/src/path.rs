@@ -73,7 +73,6 @@ impl Path {
     where
         S: Into<String>,
     {
-        // TODO: router:url: /, ?, # should be encoded
         let value = value.into();
 
         if !value.is_empty() {

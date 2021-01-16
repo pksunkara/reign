@@ -336,7 +336,7 @@ impl Request {
     /// }
     /// ```
     #[cfg(feature = "session")]
-    pub fn session<T>(&mut self) -> Option<&T>
+    pub fn session<T>(&self) -> Option<&T>
     where
         T: Serialize + for<'de> Deserialize<'de> + Send + Sync + 'static,
     {

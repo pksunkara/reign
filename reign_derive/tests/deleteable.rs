@@ -11,7 +11,7 @@ pub struct User {
     email: Option<String>,
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_filter_drop() {
     schema::setup().await;
@@ -35,7 +35,7 @@ async fn test_filter_drop() {
     assert_eq!(all[0].email, Some("sean@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_drop() {
     schema::setup().await;
@@ -62,7 +62,7 @@ async fn test_drop() {
     assert!(user.is_none());
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_tag_filter_drop() {
     schema::setup().await;
@@ -82,7 +82,7 @@ async fn test_tag_filter_drop() {
     assert_eq!(all[0].email, Some("sean@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_tag_drop() {
     schema::setup().await;

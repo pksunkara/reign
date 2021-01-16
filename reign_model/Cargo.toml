@@ -19,8 +19,7 @@ path = "src/lib.rs"
 [dependencies]
 log = "0.4.8"
 thiserror = "1.0.19"
-anyhow = "1.0.31"
-once_cell = "1.4.0"
+once_cell = "1.5.2"
 diesel = { path = "../../../reign-rs/diesel/diesel", features = ["chrono", "r2d2"] }
 tokio-diesel = { path = "../../../reign-rs/tokio-diesel", version = "0.3.0" }
 reign_plugin = { path = "../reign_plugin", version = "0.2.1", optional = true }
@@ -32,7 +31,7 @@ version-sync = "0.9.0"
 [features]
 default = []
 doc = []
-framework = ["reign_plugin"]
+plugin = ["reign_plugin"]
 model-postgres = ["diesel/postgres"]
 
 [package.metadata.docs.rs]

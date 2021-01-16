@@ -36,7 +36,6 @@ impl Model {
         let schema = self.schema();
         let backend = self.backend();
 
-        // TODO: external: Use dummy mod once https://github.com/rust-analyzer/rust-analyzer/issues/1559
         quote! {
             #vis struct #filterable_ident<M> {
                 _phantom: std::marker::PhantomData<(M)>,

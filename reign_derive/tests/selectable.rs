@@ -20,7 +20,7 @@ pub struct Foo {
     name: String,
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_all() {
     schema::setup().await;
@@ -39,7 +39,7 @@ async fn test_all() {
     assert_eq!(all[2].email, Some("john@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_one() {
     schema::setup().await;
@@ -54,7 +54,7 @@ async fn test_one() {
     assert_eq!(one.name, "John");
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_rename() {
     schema::setup().await;
@@ -70,7 +70,7 @@ async fn test_rename() {
     assert_eq!(all[2].name, "John");
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_all_filter() {
     schema::setup().await;
@@ -86,7 +86,7 @@ async fn test_all_filter() {
     assert_eq!(all[1].email, Some("john@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_one_filter() {
     schema::setup().await;
@@ -102,7 +102,7 @@ async fn test_one_filter() {
     assert_eq!(one.email, Some("sean@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_all_limit_offset() {
     schema::setup().await;
@@ -115,7 +115,7 @@ async fn test_all_limit_offset() {
     assert_eq!(all[0].email, Some("sean@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_one_offset() {
     schema::setup().await;
@@ -131,7 +131,7 @@ async fn test_one_offset() {
     assert_eq!(one.email, Some("sean@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_tag_all() {
     schema::setup().await;
@@ -144,7 +144,7 @@ async fn test_tag_all() {
     assert_eq!(all[2].email, Some("john@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_tag_one() {
     schema::setup().await;
@@ -155,7 +155,7 @@ async fn test_tag_one() {
     assert_eq!(one.unwrap().email, None);
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_multi_tag_all() {
     schema::setup().await;
@@ -171,7 +171,7 @@ async fn test_multi_tag_all() {
     assert_eq!(all[2].email, Some("john@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_multi_tag_one() {
     schema::setup().await;

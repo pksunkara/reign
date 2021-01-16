@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 reign = { version = "{{ reign_version }}", features = ["session"] }
 reign_plugin_static = "0.0.0"
-tokio = { version = "0.2.21", features = ["full"] }
+tokio = { version = "1.2.0", features = ["full"] }
 thiserror = "1.0.19"
 anyhow = "1.0.31"
 serde = { version = "1.0.110", features = ["derive"] }

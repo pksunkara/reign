@@ -32,6 +32,7 @@ impl Middleware for RequestLogger {
             return chain.run(req);
         }
 
+        // TODO: Separate into 2 different logger middlewares
         async move {
             let start = Utc::now();
             let response = chain.run(req).await?;

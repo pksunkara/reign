@@ -62,12 +62,12 @@ mod tests {
     use super::*;
     use reqwest::{redirect::Policy, Client, StatusCode};
     use std::time::Duration;
-    use tokio::{select, time::delay_for};
+    use tokio::{select, time::sleep};
 
     #[tokio::test]
     async fn test_server() {
         let client = async {
-            delay_for(Duration::from_millis(100)).await;
+            sleep(Duration::from_millis(100)).await;
 
             let client = Client::builder().redirect(Policy::none()).build().unwrap();
 

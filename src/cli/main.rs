@@ -35,6 +35,7 @@ enum ReignSubcommand {
 fn main() {
     let program = Reign::parse();
 
+    // TODO: cli: tasks with feature
     let err = match program.cmd {
         ReignSubcommand::New(x) => x.run(),
         ReignSubcommand::Server(x) => x.run(),

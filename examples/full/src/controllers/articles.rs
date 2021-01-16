@@ -4,7 +4,7 @@ use reign::prelude::*;
 
 #[action]
 pub async fn list(_req: &mut Request) -> Result<impl Response, Error> {
-    let articles = Article::all().load().await?;
+    let articles = Article::all().await?;
 
     Ok(render!(articles::list)?)
 }
@@ -22,7 +22,11 @@ pub async fn create(_req: &mut Request) -> Result<impl Response, Error> {
 #[action]
 pub async fn show(_req: &mut Request, id: i32) -> Result<impl Response, Error> {
     // TODO: Better ergonomics for 404 instead of unwrap
-    let article = Article::one().id(id).load().await?.unwrap();
+    let article = Article::filter()
+        .id(id)
+        .one()
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("not found"))?;
 
     Ok(render!(articles::show)?)
 }

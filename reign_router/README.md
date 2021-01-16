@@ -6,8 +6,8 @@ simplicity and efficiency in mind. The result is one of the fastest [Rust][] rou
 also the most feature rich of them all.
 
 The routing API of this library is heavily inspired by [Rails](https://rubyonrails.org)
-and [Phoenix](https://www.phoenixframework.org/) while the middleware API is inspired by
-[Gotham](https://gotham.rs) and [Tide](https://docs.rs/tide).
+and [Phoenix](https://www.phoenixframework.org) while the middleware API is inspired by
+[Laravel](https://laravel.com) and [Django](https://www.djangoproject.com).
 
 Please refer to [Guides](https://reign.rs/guides) on several how-to scenairos.
 
@@ -145,8 +145,6 @@ impl Middleware for Logger {
     }
 }
 ```
-
-**NOTE**: This will be made simpler to use once async traits are implemented in rust.
 
 As a new request comes in, the router sends it to the first middleware which performs some logic
 and in turn sends the request to the next middleware in the chain by calling `Chain::run`. The

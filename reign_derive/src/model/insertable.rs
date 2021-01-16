@@ -120,7 +120,7 @@ impl Model {
     }
 
     // Generates individual column setters for `INSERT`
-    // TODO:(model) Allow `AsExpression<SqlTypeOf>` so that we can take any value
+    // TODO: model: Allow `AsExpression<SqlTypeOf>` so that we can take any value
     fn gen_insertable_setters(&self) -> TokenStream {
         let insertable_ident = self.insertable_ident();
 

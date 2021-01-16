@@ -11,7 +11,7 @@ pub struct User {
     email: Option<String>,
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_new() {
     schema::setup().await;
@@ -28,7 +28,7 @@ async fn test_new() {
     assert_eq!(one.email, Some("ray@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_new_default() {
     schema::setup().await;
@@ -44,7 +44,7 @@ async fn test_new_default() {
     assert_eq!(one.email, Some("ray@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_new_default_nullable() {
     schema::setup().await;
@@ -56,7 +56,7 @@ async fn test_new_default_nullable() {
     assert_eq!(one.email, Some("mike@mail.com".into()));
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_new_null_in_default_nullable() {
     schema::setup().await;
@@ -73,7 +73,7 @@ async fn test_new_null_in_default_nullable() {
     assert_eq!(one.email, None);
 }
 
-#[tokio::test(threaded_scheduler)]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn test_tag_new() {
     schema::setup().await;

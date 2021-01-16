@@ -3,7 +3,7 @@
 #![doc(html_root_url = "https://docs.rs/reign_session_backend_redis/0.2.1")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-use bb8_redis::{redis::AsyncCommands, RedisPool};
+use bb8_redis::{bb8::Pool, redis::AsyncCommands, RedisConnectionManager};
 use log::error;
 use reign_router::{
     futures::{future::BoxFuture, FutureExt},
@@ -13,18 +13,18 @@ use reign_router::{
 /// Redis backend for session data
 pub struct RedisBackend {
     ttl: usize,
-    pool: RedisPool,
+    pool: Pool<RedisConnectionManager>,
 }
 
 impl RedisBackend {
-    pub fn new(ttl: usize, pool: &RedisPool) -> Self {
+    pub fn new(ttl: usize, pool: &Pool<RedisConnectionManager>) -> Self {
         Self {
             ttl,
             pool: pool.clone(),
         }
     }
 
-    pub fn pool(pool: &RedisPool) -> Self {
+    pub fn pool(pool: &Pool<RedisConnectionManager>) -> Self {
         Self::new(60 * 60 * 24 * 7, pool)
     }
 }
@@ -36,8 +36,6 @@ impl SessionBackend for RedisBackend {
 
         async move {
             if let Ok(mut conn) = self.pool.get().await {
-                let conn = conn.as_mut().unwrap();
-
                 if let Err(e) = conn.set_ex::<_, _, String>(id, content, ttl).await {
                     error!("Failed to run redis command, {}", e);
                 } else {
@@ -55,8 +53,6 @@ impl SessionBackend for RedisBackend {
     fn read_session<'a>(&'a self, id: &'a str) -> BoxFuture<'a, Option<Vec<u8>>> {
         async move {
             if let Ok(mut conn) = self.pool.get().await {
-                let conn = conn.as_mut().unwrap();
-
                 match conn.get(id).await {
                     Ok(value) => return Some(value),
                     Err(e) => error!("Failed to run redis command, {}", e),
@@ -73,8 +69,6 @@ impl SessionBackend for RedisBackend {
     fn drop_session<'a>(&'a self, id: &'a str) -> BoxFuture<'a, ()> {
         async move {
             if let Ok(mut conn) = self.pool.get().await {
-                let conn = conn.as_mut().unwrap();
-
                 if let Err(e) = conn.del::<_, String>(id).await {
                     error!("Failed to run redis command, {}", e);
                 }

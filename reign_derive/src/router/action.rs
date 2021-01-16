@@ -144,10 +144,7 @@ pub fn action(input: ItemFn) -> TokenStream {
 
                 match _called {
                     Ok(r) => Ok(r.respond()?),
-                    Err(e) => {
-                        ::reign::log::error!("{}", e);
-                        Ok(e.respond()?)
-                    },
+                    Err(e) => Ok(e.respond()?),
                 }
             }.boxed()
         }

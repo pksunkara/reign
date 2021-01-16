@@ -9,6 +9,7 @@ use hyper::{
     service::{make_service_fn, service_fn},
     Error as HyperError, Method,
 };
+use log::trace;
 use paste::paste;
 
 use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
@@ -372,6 +373,8 @@ where
     let make_svc = make_service_fn(|socket: &AddrStream| {
         let remote_addr = socket.remote_addr();
         let router_service = router_service.clone();
+
+        trace!("Incoming request to service function");
 
         ok::<_, Infallible>(service_fn(move |req| {
             router_service.clone().call(req, remote_addr)

@@ -22,7 +22,7 @@ impl ViewFields {
     pub fn insert(&mut self, ident: Ident, tokens: Option<TokenStream>) {
         if let Some(ots) = self.fields.get(&ident) {
             if ots.is_some() && tokens.is_some() {
-                // FIXME: Unable to compare the syn::Type or TokenStream here
+                // TODO: Unable to compare the syn::Type or TokenStream here
                 // TODO:(view:err) Show the error position
                 panic!("identifier `{}` has multiple type ascription hints", ident);
             } else if ots.is_none() {

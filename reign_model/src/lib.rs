@@ -8,7 +8,7 @@ pub use tokio_diesel;
 
 mod connection;
 mod error;
-#[cfg(feature = "framework")]
+#[cfg(feature = "plugin")]
 mod plugin;
 
 pub use connection::Database;

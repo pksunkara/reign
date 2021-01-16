@@ -21,10 +21,7 @@ fn not_found() -> Result<Response<Body>, Error> {
         .body(Body::empty())?)
 }
 
-pub(crate) fn to_dir<'a>(
-    from: Vec<String>,
-    cache: Option<u32>,
-) -> impl Fn(&mut Request) -> HandleFuture + 'a {
+pub(crate) fn to_dir(from: Vec<String>, cache: Option<u32>) -> impl Fn(&mut Request) -> HandleFuture {
     move |req: &mut Request| {
         let mut path = from.iter().fold(PathBuf::new(), |p, x| p.join(x));
 

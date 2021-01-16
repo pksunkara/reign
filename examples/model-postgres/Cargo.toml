@@ -7,6 +7,6 @@ publish = false
 
 [dependencies]
 reign = { path = "../..", features = ["model-postgres"], default-features = false }
-tokio = { version = "0.2.21", features = ["full"] }
+tokio = { version = "1.2.0", features = ["full"] }
 diesel = { path = "../../../../reign-rs/diesel/diesel" }
 diesel_migrations = { path = "../../../../reign-rs/diesel/diesel_migrations" }
