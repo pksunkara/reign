@@ -252,7 +252,7 @@ tag. But sometimes, you might need to render more than one element. In that
 case, you can use the `template` tag which works like an invisible wrapper.
 
 ```html
-<template v-if="condition">
+<template !if="condition">
   <h1>{{ title }}</h1>
   <p>{{ content }}</p>
 </template>
@@ -354,7 +354,7 @@ would not work:
 </div>
 ```
 
-It would instead create a `href` field on the template itself.
+It would instead create a `href` field on the `<shared:button>` template.
 
 ### Fallback
 

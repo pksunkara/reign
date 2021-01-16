@@ -1,5 +1,6 @@
-use crate::{Constraint, Path, Request, RouteRef, Router};
-use std::sync::Arc;
+use crate::{Constraint, Path, Pipe, Request, RouteRef, Router};
+
+use std::{collections::HashMap as Map, sync::Arc};
 
 /// Scope can be used to define common path prefixes, middlewares or constraints for routes
 ///
@@ -143,10 +144,13 @@ impl Scope {
         (self.path.regex(), self.router.regex())
     }
 
-    pub(crate) fn refs(&self) -> (Option<Arc<Constraint>>, Vec<RouteRef>, Vec<String>) {
+    pub(crate) fn refs(
+        &self,
+        upper_pipes: Map<&String, &Pipe>,
+    ) -> (Option<Arc<Constraint>>, Vec<RouteRef>, Vec<String>) {
         (
             self.constraint.clone(),
-            self.router.refs(),
+            self.router.refs(upper_pipes),
             self.pipes.clone(),
         )
     }

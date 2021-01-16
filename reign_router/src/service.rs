@@ -4,6 +4,7 @@ use hyper::{
 };
 use log::{debug, error};
 use regex::{Regex, RegexSet};
+
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
 
 pub(crate) struct RouteRef {
@@ -23,7 +24,7 @@ pub struct Service {
 
 impl Service {
     pub(crate) fn new(router: Router) -> Self {
-        let refs = router.refs();
+        let refs = router.refs(Map::new());
 
         let regexes = router
             .regex()

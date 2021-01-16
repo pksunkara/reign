@@ -296,7 +296,7 @@ impl Router {
         regexes
     }
 
-    pub(crate) fn refs(&self) -> Vec<RouteRef> {
+    pub(crate) fn refs(&self, upper_pipes: Map<&String, &Pipe>) -> Vec<RouteRef> {
         let mut routes = self
             .routes
             .iter()
@@ -307,8 +307,11 @@ impl Router {
             })
             .collect::<Vec<_>>();
 
+        let mut pipes = upper_pipes;
+        pipes.extend(&self.pipes);
+
         for scope in &self.scopes {
-            let scope_ref = scope.refs();
+            let scope_ref = scope.refs(pipes.clone());
 
             for route_ref in scope_ref.1 {
                 let mut constraints = vec![scope_ref.0.clone()];
@@ -316,7 +319,7 @@ impl Router {
                     .2
                     .iter()
                     .flat_map(|x| {
-                        let pipe = self.pipes.get(x);
+                        let pipe = pipes.get(x);
 
                         debug_assert!(pipe.is_some(), format!("can't find pipe with name `{}`", x));
 
