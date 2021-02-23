@@ -4,11 +4,12 @@
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
 use reign_plugin::{
-    reign_router::{Path, Router},
+    reign_router::{hyper::Method, Path, Router},
     Plugin,
 };
 
 mod handlers;
+mod stream;
 
 /// Plugin that serves a directory as static server at the given prefix
 ///
@@ -30,7 +31,7 @@ mod handlers;
 pub struct StaticPlugin {
     prefix: String,
     dir: Vec<String>,
-    cache: Option<u32>,
+    cache: u32,
 }
 
 impl StaticPlugin {
@@ -53,7 +54,7 @@ impl StaticPlugin {
     }
 
     pub fn cache(mut self, cache: u32) -> Self {
-        self.cache = Some(cache);
+        self.cache = cache;
         self
     }
 }
@@ -65,7 +66,11 @@ impl Plugin for StaticPlugin {
 
         Box::new(|r| {
             r.scope(prefix).to(|r: &mut Router| {
-                r.get(Path::new().param_regex("path", ".+"), handle);
+                r.any(
+                    &[Method::GET, Method::HEAD],
+                    Path::new().param_opt_regex("path", ".+"),
+                    handle,
+                );
             });
 
             f(r);

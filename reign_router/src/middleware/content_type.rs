@@ -1,6 +1,7 @@
-use crate::{Chain, HandleFuture, Middleware, Request};
+use crate::{Chain, Error, HandleFuture, Middleware, Request};
+
 use futures::FutureExt;
-use hyper::{header::CONTENT_TYPE, Body, Response, StatusCode};
+use hyper::{header::CONTENT_TYPE, StatusCode};
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
 /// Only allows certain content-type headers for request bodies
@@ -67,10 +68,6 @@ impl<'a> Middleware for ContentType<'a> {
             }
         };
 
-        let response = Response::builder()
-            .status(StatusCode::UNSUPPORTED_MEDIA_TYPE)
-            .body(Body::empty());
-
-        async { Ok(response?) }.boxed()
+        async { Err(Error::Status(StatusCode::UNSUPPORTED_MEDIA_TYPE)) }.boxed()
     }
 }

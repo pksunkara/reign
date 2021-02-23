@@ -34,6 +34,8 @@ pub enum Error {
     Http(#[from] HttpError),
     #[error(transparent)]
     HeaderStr(#[from] HttpToStrError),
+    #[error("status {0}")]
+    Status(StatusCode),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }
@@ -47,6 +49,7 @@ impl Response for Error {
             Self::Hyper(_) | Self::Utf8(_) => HyperResponse::builder()
                 .status(StatusCode::BAD_REQUEST)
                 .body(Body::empty()),
+            Self::Status(code) => HyperResponse::builder().status(code).body(Body::empty()),
             _ => HyperResponse::builder()
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
                 .body(Body::empty()),
