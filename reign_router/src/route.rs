@@ -1,5 +1,7 @@
 use crate::{Error, Path, Request};
+
 use hyper::{Body, Method, Response as HyperResponse};
+
 use std::{future::Future, pin::Pin, sync::Arc};
 
 /// Return type of a middleware handle or an endpoint handle when `action` attribute is not used

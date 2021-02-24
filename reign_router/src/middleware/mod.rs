@@ -1,6 +1,7 @@
 //! Contains some common middlewares
 
 use crate::{HandleFuture, MiddlewareItem, Request};
+
 use std::sync::Arc;
 
 /// Represents a type which can be used as a middleware

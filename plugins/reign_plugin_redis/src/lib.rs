@@ -5,7 +5,9 @@
 
 use bb8_redis::{bb8::Pool, RedisConnectionManager};
 use once_cell::sync::OnceCell;
-use reign_plugin::Plugin;
+use reign_plugin::{reign_router::futures::FutureExt, Plugin};
+
+use std::{future::Future, pin::Pin};
 
 static REDIS: OnceCell<Pool<RedisConnectionManager>> = OnceCell::new();
 
@@ -29,12 +31,20 @@ impl RedisPlugin {
 }
 
 impl Plugin for RedisPlugin {
-    fn init(&self) {
-        let manager = RedisConnectionManager::new(&*self.url).expect("Bad redis connection URL");
-        let pool = Pool::builder().build_unchecked(manager);
+    fn init<'a>(&'a self) -> Pin<Box<dyn Future<Output = ()> + Send + 'a>> {
+        async move {
+            let manager =
+                RedisConnectionManager::new(&*self.url).expect("Bad redis connection URL");
 
-        REDIS
-            .set(pool)
-            .expect("Unable to store the redis connection");
+            let pool = Pool::builder()
+                .build(manager)
+                .await
+                .expect("Unable to connect to redis");
+
+            REDIS
+                .set(pool)
+                .expect("Unable to store the redis connection");
+        }
+        .boxed()
     }
 }

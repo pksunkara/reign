@@ -32,6 +32,9 @@ impl Reign {
         let mut router_fn: Box<dyn FnOnce(&mut Router)> = Box::new(f);
 
         for plugin in self.plugins {
+            // Initialize the plugin
+            plugin.init().await;
+
             router_fn = plugin.router(router_fn);
         }
 
