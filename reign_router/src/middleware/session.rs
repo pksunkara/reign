@@ -97,7 +97,7 @@ where
     /// pub struct User(String);
     ///
     /// fn router(r: &mut Router) {
-    ///     r.pipe("common").add(Session::<User, _>::new(MemoryBackend::new());
+    ///     r.pipe("common").add(Session::<User, _>::new(MemoryBackend::new()));
     /// }
     /// ```
     pub fn new(backend: B) -> Self {

@@ -1,11 +1,13 @@
 use crate::Response;
+
 use hyper::{
     http::{header::ToStrError as HttpToStrError, Error as HttpError},
     Body, Error as HyperError, Response as HyperResponse, StatusCode,
 };
-use std::str::Utf8Error;
 use thiserror::Error;
 use tokio::io::Error as TokioIoError;
+
+use std::str::Utf8Error;
 
 /// Error returned by [`Request`](./struct.Request.html) when trying to access params
 #[derive(Error, Debug)]

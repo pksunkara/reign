@@ -18,6 +18,7 @@ pub use futures;
 pub use hyper;
 
 mod error;
+mod ext;
 mod path;
 mod pipe;
 mod request;
@@ -29,6 +30,7 @@ mod service;
 pub mod middleware;
 
 pub use error::*;
+pub use ext::OptionExt;
 #[doc(inline)]
 pub use middleware::{Chain, Middleware};
 pub use path::Path;

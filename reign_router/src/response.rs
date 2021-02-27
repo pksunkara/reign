@@ -1,5 +1,6 @@
 use hyper::{header, http::Error as HttpError, Body, Response as HyperResponse, StatusCode};
 use mime::Mime;
+
 use std::borrow::Cow;
 
 /// Represents a type which can be converted into `hyper::Response`

@@ -127,7 +127,7 @@ impl Service {
             }
         }
 
-        // TODO:(router:404) Check for 405 and support custom error handler through post middleware
+        // TODO: router: Check for 405 and support custom error handler through post middleware
         // Can make this a special error or make a special middleware pipeline for errors
         Ok(HyperResponse::builder()
             .status(StatusCode::NOT_FOUND)

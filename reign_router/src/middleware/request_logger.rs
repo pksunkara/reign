@@ -32,9 +32,17 @@ impl Middleware for RequestLogger {
             return chain.run(req);
         }
 
-        // TODO: Separate into 2 different logger middlewares
         async move {
             let start = Utc::now();
+
+            log!(
+                target: "reign_router",
+                self.level,
+                "{} {}",
+                req.method(),
+                req.uri().path(),
+            );
+
             let response = chain.run(req).await?;
 
             let length = response
@@ -48,12 +56,7 @@ impl Middleware for RequestLogger {
             log!(
                 target: "reign_router",
                 self.level,
-                "{} - - [{}] \"{} {} {:?}\" {} {} - {}",
-                req.ip(),
-                start.format("%d/%b/%Y:%H:%M:%S %z"),
-                req.method(),
-                req.uri().path(),
-                req.version(),
+                "{} - {} - {}",
                 response.status(),
                 length,
                 dur_to_string(duration.unwrap_or(0)),
