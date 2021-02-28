@@ -105,10 +105,10 @@ impl Model {
             #[allow(dead_code, unreachable_code)]
             impl #filterable_ident<#ident> {
                 #vis async fn all(self) -> Result<Vec<#ident>, ::reign::model::Error> {
-                    self.all_with(None, None).await
+                    self.all_from(None, None).await
                 }
 
-                #vis async fn all_with(self, limit: Option<i64>, offset: Option<i64>) -> Result<Vec<#ident>, ::reign::model::Error> {
+                #vis async fn all_from(self, limit: Option<i64>, offset: Option<i64>) -> Result<Vec<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::AsyncRunQueryDsl;
                     use ::reign::model::diesel::QueryDsl;
 
@@ -132,10 +132,10 @@ impl Model {
                 }
 
                 #vis async fn one(self) -> Result<Option<#ident>, ::reign::model::Error> {
-                    self.one_with(None).await
+                    self.one_from(None).await
                 }
 
-                #vis async fn one_with(self, offset: Option<i64>) -> Result<Option<#ident>, ::reign::model::Error> {
+                #vis async fn one_from(self, offset: Option<i64>) -> Result<Option<#ident>, ::reign::model::Error> {
                     use ::reign::model::tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
                     use ::reign::model::diesel::QueryDsl;
 

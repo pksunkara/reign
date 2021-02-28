@@ -7,9 +7,9 @@ error[E0599]: no method named `drop` found for struct `UserName` in the current 
 30  |     user.drop().await.unwrap();
     |          ^^^^ method not found in `UserName`
     |
-   ::: /Users/pksunkara/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/drop.rs:164:8
+   ::: $RUST/core/src/ops/drop.rs
     |
-164 |     fn drop(&mut self);
+    |     fn drop(&mut self);
     |        ----
     |        |
     |        the method is available for `Box<UserName>` here
@@ -21,4 +21,3 @@ error[E0599]: no method named `drop` found for struct `UserName` in the current 
             candidate #1: `Drop`
             candidate #2: `UnsafeFutureObj`
             candidate #3: `pin_project::__private::PinnedDrop`
-            candidate #4: `pin_project::__private::PinnedDrop`

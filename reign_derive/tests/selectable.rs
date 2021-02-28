@@ -107,7 +107,7 @@ async fn test_one_filter() {
 async fn test_all_limit_offset() {
     schema::setup().await;
 
-    let all = User::filter().all_with(Some(1), Some(1)).await.unwrap();
+    let all = User::filter().all_from(Some(1), Some(1)).await.unwrap();
 
     assert_eq!(all.len(), 1);
     assert_eq!(all[0].id, 2);
@@ -120,7 +120,7 @@ async fn test_all_limit_offset() {
 async fn test_one_offset() {
     schema::setup().await;
 
-    let one = User::filter().one_with(Some(1)).await.unwrap();
+    let one = User::filter().one_from(Some(1)).await.unwrap();
 
     assert!(one.is_some());
 
