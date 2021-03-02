@@ -1,8 +1,9 @@
 use crate::{Chain, Constraint, Handler, MiddlewareItem, Request, Response, Router, INTERNAL_ERR};
+
 use hyper::{
     http::Error as HttpError, Body, Request as HyperRequest, Response as HyperResponse, StatusCode,
 };
-use log::{debug, error, trace};
+use log::{debug, error, info, trace};
 use regex::{Regex, RegexSet};
 
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
@@ -126,6 +127,12 @@ impl Service {
                 }
             }
         }
+
+        info!(
+            "{} {} - 404 Not Found",
+            request.method(),
+            request.uri().path()
+        );
 
         // TODO: router: Check for 405 and support custom error handler through post middleware
         // Can make this a special error or make a special middleware pipeline for errors

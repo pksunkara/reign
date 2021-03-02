@@ -34,7 +34,7 @@ pub(crate) fn to_dir(from: Vec<String>, cache: u32) -> impl Fn(&mut Request) -> 
         let mut path = from.iter().fold(PathBuf::new(), |p, x| p.join(x));
 
         async move {
-            let param = req.param_opt_glob("path")?;
+            let param = req.param_opt_glob::<String>("path")?;
 
             if let Some(param) = param {
                 for part in param {

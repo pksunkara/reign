@@ -1,7 +1,4 @@
-use crate::{
-    router::ty::{only_last_segment, subty_if_name},
-    INTERNAL_ERR,
-};
+use crate::{router::ty::subty_if_name, INTERNAL_ERR};
 
 use proc_macro2::TokenStream;
 use proc_macro_error::abort;
@@ -64,63 +61,21 @@ pub fn action(input: ItemFn) -> TokenStream {
             let lit = LitStr::new(&ident.to_string(), ident.span());
             let ty = arg_ty(x);
 
-            let (fn_name, ty, glob, opt) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                (quote! { param_glob }, ty, true, false)
+            let (fn_name, ty) = if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
+                (quote! { param_glob }, ty)
             } else if let Some(ty) = subty_if_name(ty.clone(), "Option") {
                 if let Some(ty) = subty_if_name(ty.clone(), "Vec") {
-                    (quote! { param_opt_glob }, ty, true, true)
+                    (quote! { param_opt_glob }, ty)
                 } else {
-                    (quote! { param_opt }, ty, false, true)
+                    (quote! { param_opt }, ty)
                 }
             } else {
-                (quote! { param }, ty, false, false)
+                (quote! { param }, ty)
             };
 
-            let run_fn = quote! {
-                let #ident = #req_ident.#fn_name(#lit)?;
-            };
-
-            if only_last_segment(ty.clone())
-                .map(|x| x.ident == "String")
-                .unwrap_or(false)
-            {
-                return run_fn;
-            }
-
-            let context = quote! {
-                .context("Unable to convert param to type")?
-            };
-
-            let from_str = if glob && opt {
-                quote! {
-                    let #ident = if let Some(#ident) = #ident {
-                        Some(#ident.iter().map(<#ty as std::str::FromStr>::from_str).collect::<Result<Vec<_>, _>>()#context)
-                    } else {
-                         None
-                    };
-                }
-            } else if opt {
-                quote! {
-                    let #ident = if let Some(#ident) = #ident {
-                        Some(<#ty as std::str::FromStr>::from_str(&#ident)#context)
-                    } else {
-                        None
-                    };
-                }
-            } else if glob {
-                quote! {
-                    let #ident = #ident.iter().map(<#ty as std::str::FromStr>::from_str).collect::<Result<Vec<_>, _>>()#context;
-                }
-            } else {
-                quote! {
-                    let #ident = <#ty as std::str::FromStr>::from_str(&#ident)#context;
-                }
-            };
-
+            // TODO: Use respond on the param err instead of forwarding
             quote! {
-                use ::anyhow::Context;
-                #run_fn
-                #from_str
+                let #ident = #req_ident.#fn_name::<#ty>(#lit)?;
             }
         })
         .collect::<Vec<_>>();

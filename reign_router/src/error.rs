@@ -16,6 +16,8 @@ pub enum ParamError {
     RequiredParamNotFound(String),
     #[error("required glob param `{0}` not found")]
     RequiredGlobParamNotFound(String),
+    #[error("unable to convert param `{0}` from string")]
+    UnableToConvertParam(String),
 }
 
 /// Main error that can be used by endpoint handlers

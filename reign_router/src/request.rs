@@ -1,6 +1,7 @@
 #[cfg(feature = "session")]
 use crate::middleware::session::SessionData;
 use crate::{Error, ParamError};
+
 use hyper::{
     body::{to_bytes, Bytes},
     http::{request::Parts, Extensions},
@@ -8,8 +9,9 @@ use hyper::{
 };
 #[cfg(feature = "session")]
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap as Map, net::SocketAddr};
 use url::form_urlencoded::parse;
+
+use std::{collections::HashMap as Map, net::SocketAddr, str::FromStr};
 
 /// Request denotes the incoming request to the server and also acts as a state
 ///
@@ -237,15 +239,17 @@ impl Request {
     ///
     /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
-    ///     Ok(req.param("foo")?)
+    ///     Ok(req.param::<String>("foo")?)
     /// }
     /// ```
-    pub fn param(&self, name: &str) -> Result<String, ParamError> {
-        Ok(self
-            .params
+    pub fn param<T>(&self, name: &str) -> Result<T, ParamError>
+    where
+        T: FromStr,
+    {
+        self.params
             .get(name)
-            .ok_or_else(|| ParamError::RequiredParamNotFound(name.into()))?
-            .clone())
+            .ok_or_else(|| ParamError::RequiredParamNotFound(name.into()))
+            .and_then(|p| T::from_str(p).map_err(|_| ParamError::UnableToConvertParam(name.into())))
     }
 
     /// Retrieve an optional path parameter
@@ -257,15 +261,25 @@ impl Request {
     ///
     /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
-    ///     if let Some(val) = req.param_opt("foo")? {
+    ///     if let Some(val) = req.param_opt::<String>("foo")? {
     ///         Ok(val)
     ///     } else {
     ///         Ok("No param".into())
     ///     }
     /// }
     /// ```
-    pub fn param_opt(&self, name: &str) -> Result<Option<String>, ParamError> {
-        Ok(self.params.get(name).cloned())
+    pub fn param_opt<T>(&self, name: &str) -> Result<Option<T>, ParamError>
+    where
+        T: FromStr,
+    {
+        self.params.get(name).map_or_else(
+            || Ok(None),
+            |p| {
+                T::from_str(p)
+                    .map_err(|_| ParamError::UnableToConvertParam(name.into()))
+                    .map(Some)
+            },
+        )
     }
 
     /// Retrieve a required path parameter
@@ -277,18 +291,24 @@ impl Request {
     ///
     /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
-    ///     Ok(req.param_glob("foo")?.join("/"))
+    ///     Ok(req.param_glob::<String>("foo")?.join("/"))
     /// }
     /// ```
-    pub fn param_glob(&self, name: &str) -> Result<Vec<String>, ParamError> {
-        Ok(self
-            .params
+    pub fn param_glob<T>(&self, name: &str) -> Result<Vec<T>, ParamError>
+    where
+        T: FromStr,
+    {
+        self.params
             .get(name)
-            .ok_or_else(|| ParamError::RequiredGlobParamNotFound(name.into()))?
-            .clone()
-            .split('/')
-            .map(|x| x.into())
-            .collect())
+            .ok_or_else(|| ParamError::RequiredGlobParamNotFound(name.into()))
+            .and_then(|p| {
+                p.clone()
+                    .split('/')
+                    .map(|p| {
+                        T::from_str(p).map_err(|_| ParamError::UnableToConvertParam(name.into()))
+                    })
+                    .collect::<Result<Vec<_>, _>>()
+            })
     }
 
     /// Retrieve an optional glob path parameter
@@ -300,19 +320,29 @@ impl Request {
     ///
     /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
-    ///     if let Some(val) = req.param_opt_glob("foo")? {
+    ///     if let Some(val) = req.param_opt_glob::<String>("foo")? {
     ///         Ok(val.join("/"))
     ///     } else {
     ///         Ok("No glob".into())
     ///     }
     /// }
     /// ```
-    pub fn param_opt_glob(&self, name: &str) -> Result<Option<Vec<String>>, ParamError> {
-        Ok(self
-            .params
-            .get(name)
-            .cloned()
-            .map(|x| x.split('/').map(|x| x.into()).collect()))
+    pub fn param_opt_glob<T>(&self, name: &str) -> Result<Option<Vec<T>>, ParamError>
+    where
+        T: FromStr,
+    {
+        self.params.get(name).map_or_else(
+            || Ok(None),
+            |p| {
+                p.clone()
+                    .split('/')
+                    .map(|p| {
+                        T::from_str(p).map_err(|_| ParamError::UnableToConvertParam(name.into()))
+                    })
+                    .collect::<Result<Vec<_>, _>>()
+                    .map(Some)
+            },
+        )
     }
 
     /// Retrieve the session data for the current session
@@ -398,5 +428,178 @@ impl Request {
         if self.extensions().get::<SessionData<T>>().is_some() {
             self.extensions_mut().insert(SessionData::<T>::None);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn req_param(val: &str) -> Request {
+        let mut req = Request::new(
+            "10.10.10.10:80".parse().unwrap(),
+            HyperRequest::get("https://reign.rs")
+                .body(Body::empty())
+                .unwrap(),
+        );
+
+        req.params.insert("id".into(), val.into());
+        req
+    }
+
+    #[test]
+    fn test_param() {
+        let req = req_param("hey");
+        let val = req.param::<String>("id");
+
+        assert!(matches!(val, Ok(_)));
+        assert_eq!(val.unwrap(), "hey");
+    }
+
+    #[test]
+    fn test_param_not_found() {
+        let req = req_param("hey");
+        let val = req.param::<String>("none");
+
+        assert!(matches!(val, Err(ParamError::RequiredParamNotFound(_))));
+    }
+
+    #[test]
+    fn test_param_type() {
+        let req = req_param("12");
+        let val = req.param::<u32>("id");
+
+        assert!(matches!(val, Ok(_)));
+        assert_eq!(val.unwrap(), 12);
+    }
+
+    #[test]
+    fn test_param_type_err() {
+        let req = req_param("hey");
+        let val = req.param::<u32>("id");
+
+        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+    }
+
+    #[test]
+    fn test_param_opt() {
+        let req = req_param("hey");
+        let val = req.param_opt::<String>("id");
+
+        assert!(matches!(val, Ok(Some(_))));
+        assert_eq!(val.unwrap().unwrap(), "hey");
+    }
+
+    #[test]
+    fn test_param_opt_not_found() {
+        let req = req_param("hey");
+        let val = req.param_opt::<String>("none");
+
+        assert!(matches!(val, Ok(None)));
+    }
+
+    #[test]
+    fn test_param_opt_type() {
+        let req = req_param("12");
+        let val = req.param_opt::<u32>("id");
+
+        assert!(matches!(val, Ok(Some(_))));
+        assert_eq!(val.unwrap().unwrap(), 12);
+    }
+
+    #[test]
+    fn test_param_opt_type_err() {
+        let req = req_param("hey");
+        let val = req.param_opt::<u32>("id");
+
+        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+    }
+
+    #[test]
+    fn test_param_glob() {
+        let req = req_param("hey/wow");
+        let val = req.param_glob::<String>("id");
+
+        assert!(matches!(val, Ok(_)));
+
+        let val = val.unwrap();
+
+        assert_eq!(val.len(), 2);
+        assert_eq!(val.get(0).unwrap(), "hey");
+        assert_eq!(val.get(1).unwrap(), "wow");
+    }
+
+    #[test]
+    fn test_param_glob_not_found() {
+        let req = req_param("hey/wow");
+        let val = req.param_glob::<String>("none");
+
+        assert!(matches!(val, Err(ParamError::RequiredGlobParamNotFound(_))));
+    }
+
+    #[test]
+    fn test_param_glob_type() {
+        let req = req_param("12/34");
+        let val = req.param_glob::<u32>("id");
+
+        assert!(matches!(val, Ok(_)));
+
+        let val = val.unwrap();
+
+        assert_eq!(val.len(), 2);
+        assert_eq!(val.get(0).unwrap(), &12);
+        assert_eq!(val.get(1).unwrap(), &34);
+    }
+
+    #[test]
+    fn test_param_glob_type_err() {
+        let req = req_param("hey/wow");
+        let val = req.param_glob::<u32>("id");
+
+        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+    }
+
+    #[test]
+    fn test_param_opt_glob() {
+        let req = req_param("hey/wow");
+        let val = req.param_opt_glob::<String>("id");
+
+        assert!(matches!(val, Ok(Some(_))));
+
+        let val = val.unwrap().unwrap();
+
+        assert_eq!(val.len(), 2);
+        assert_eq!(val.get(0).unwrap(), "hey");
+        assert_eq!(val.get(1).unwrap(), "wow");
+    }
+
+    #[test]
+    fn test_param_opt_glob_not_found() {
+        let req = req_param("hey/wow");
+        let val = req.param_opt_glob::<String>("none");
+
+        assert!(matches!(val, Ok(None)));
+    }
+
+    #[test]
+    fn test_param_opt_glob_type() {
+        let req = req_param("12/34");
+        let val = req.param_opt_glob::<u32>("id");
+
+        assert!(matches!(val, Ok(Some(_))));
+
+        let val = val.unwrap().unwrap();
+
+        assert_eq!(val.len(), 2);
+        assert_eq!(val.get(0).unwrap(), &12);
+        assert_eq!(val.get(1).unwrap(), &34);
+    }
+
+    #[test]
+    fn test_param_opt_glob_type_err() {
+        let req = req_param("hey/wow");
+        let val = req.param_opt_glob::<u32>("id");
+
+        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
     }
 }
