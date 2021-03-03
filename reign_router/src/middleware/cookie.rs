@@ -9,20 +9,12 @@ pub use cookie_r::CookieJar;
 
 /// Parses the cookie and adds a CookieJar to the request storage
 #[derive(Default)]
-pub struct CookieParser<'a> {
-    secret: Option<&'a str>,
-}
+pub struct CookieParser {}
 
-impl<'a> CookieParser<'a> {
+impl CookieParser {
     #[inline]
     pub fn new() -> Self {
         Self::default()
-    }
-
-    #[inline]
-    pub fn secret(mut self, secret: &'a str) -> Self {
-        self.secret = Some(secret);
-        self
     }
 
     pub(crate) fn parse(&self, req: &mut Request) -> CookieJar {
@@ -39,7 +31,7 @@ impl<'a> CookieParser<'a> {
     }
 }
 
-impl<'a> Middleware for CookieParser<'a> {
+impl Middleware for CookieParser {
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m> {
         let jar = self.parse(req);
         req.extensions_mut().insert(jar);

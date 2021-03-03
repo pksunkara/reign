@@ -69,7 +69,6 @@ where
     B: SessionBackend + Send + Sync,
 {
     name: &'a str,
-    cookie_secret: Option<&'a str>,
     secure: bool,
     http_only: bool,
     same_site: SameSite,
@@ -103,7 +102,6 @@ where
     pub fn new(backend: B) -> Self {
         Self {
             name: "_reign_session",
-            cookie_secret: None,
             secure: true,
             http_only: true,
             same_site: SameSite::Lax,
@@ -146,12 +144,6 @@ where
     #[inline]
     pub fn domain(mut self, domain: &'a str) -> Self {
         self.domain = Some(domain);
-        self
-    }
-
-    #[inline]
-    pub fn cookie_secret(mut self, secret: &'a str) -> Self {
-        self.cookie_secret = Some(secret);
         self
     }
 
@@ -276,15 +268,7 @@ where
             .extensions()
             .get::<CookieJar>()
             .cloned()
-            .unwrap_or_else(|| {
-                let mut parser = CookieParser::new();
-
-                if let Some(secret) = self.cookie_secret {
-                    parser = parser.secret(secret);
-                }
-
-                parser.parse(req)
-            });
+            .unwrap_or_else(|| CookieParser::new().parse(req));
 
         let id = cookies.get(self.name).map(|x| x.value().to_string());
 

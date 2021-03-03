@@ -324,7 +324,7 @@ impl Router {
                     .flat_map(|x| {
                         let pipe = pipes.get(x);
 
-                        debug_assert!(pipe.is_some(), format!("can't find pipe with name `{}`", x));
+                        debug_assert!(pipe.is_some(), "can't find pipe with name `{}`", x);
 
                         pipe.map(|p| p.middlewares.clone()).unwrap_or(vec![])
                     })
