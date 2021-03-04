@@ -1,9 +1,11 @@
 //! Contains types needed for cookie parsing middleware
 
-use crate::{Chain, HandleFuture, Middleware, Request};
+use crate::{
+    hyper::header::{HeaderValue, COOKIE},
+    Chain, HandleFuture, Middleware, Request,
+};
 
 use cookie_r::Cookie;
-use hyper::header::{HeaderValue, COOKIE};
 
 pub use cookie_r::CookieJar;
 

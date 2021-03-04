@@ -1,4 +1,5 @@
-use hyper::{header, http::Error as HttpError, Body, Response as HyperResponse, StatusCode};
+use crate::hyper::{header, http::Error as HttpError, Body, Response as HyperResponse, StatusCode};
+
 use mime::Mime;
 
 use std::borrow::Cow;
@@ -25,7 +26,6 @@ use std::borrow::Cow;
 ///     }
 /// }
 ///
-/// #[action]
 /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
 ///     Ok(NoContent)
 /// }

@@ -1,7 +1,9 @@
-use crate::{Chain, Error, HandleFuture, Middleware, Request};
+use crate::{
+    futures::FutureExt,
+    hyper::{header::CONTENT_TYPE, StatusCode},
+    Chain, Error, HandleFuture, Middleware, Request,
+};
 
-use futures::FutureExt;
-use hyper::{header::CONTENT_TYPE, StatusCode};
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
 /// Only allows certain content-type headers for request bodies

@@ -1,15 +1,14 @@
 use reign_router::{
-    futures::FutureExt,
     hyper::{body::to_bytes, Body, Request as Req, StatusCode},
-    service, HandleFuture, Request, Response,
+    service, Error, Request, Response,
 };
+
+async fn index(_: &mut Request) -> Result<impl Response, Error> {
+    Ok("index")
+}
 
 #[tokio::test]
 async fn test_empty() {
-    fn index(_: &mut Request) -> HandleFuture {
-        async { Ok("index".respond()?) }.boxed()
-    }
-
     let service = service(|r| {
         r.get("", index);
     });
@@ -28,10 +27,6 @@ async fn test_empty() {
 
 #[tokio::test]
 async fn test_trailing_slash() {
-    fn index(_: &mut Request) -> HandleFuture {
-        async { Ok("index".respond()?) }.boxed()
-    }
-
     let service = service(|r| {
         r.get("index", index);
     });

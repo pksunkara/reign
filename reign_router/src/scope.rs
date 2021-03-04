@@ -10,7 +10,6 @@ use std::{collections::HashMap as Map, sync::Arc};
 /// use reign::router::Router;
 /// # use reign::prelude::*;
 /// #
-/// # #[action]
 /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
 ///
 /// fn router(r: &mut Router) {
@@ -27,7 +26,6 @@ use std::{collections::HashMap as Map, sync::Arc};
 /// use reign::router::Router;
 /// # use reign::prelude::*;
 /// #
-/// # #[action]
 /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
 ///
 /// fn router(r: &mut Router) {
@@ -63,7 +61,6 @@ impl Scope {
     /// use reign::router::{Router, middleware::Runtime};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -93,7 +90,6 @@ impl Scope {
     /// use reign::router::Router;
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -121,7 +117,6 @@ impl Scope {
     /// use reign::router::{Router, Scope};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {

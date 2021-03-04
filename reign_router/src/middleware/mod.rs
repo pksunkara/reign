@@ -1,6 +1,6 @@
 //! Contains some common middlewares
 
-use crate::{HandleFuture, MiddlewareItem, Request};
+use crate::{Handle, HandleFuture, MiddlewareItem, Request};
 
 use std::sync::Arc;
 
@@ -30,8 +30,7 @@ pub trait Middleware {
 
 /// Middleware chain passed to a middleware handler
 pub struct Chain<'a> {
-    #[allow(clippy::borrowed_box)]
-    pub(crate) handler: &'a Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>,
+    pub(crate) handle: &'a Box<dyn Handle>,
     pub(crate) middlewares: &'a [Arc<MiddlewareItem>],
 }
 
@@ -42,7 +41,7 @@ impl<'a> Chain<'a> {
             self.middlewares = chain;
             current.handle(req, self)
         } else {
-            (self.handler)(req)
+            self.handle.call(req)
         }
     }
 }

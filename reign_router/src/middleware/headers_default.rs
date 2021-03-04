@@ -1,6 +1,8 @@
-use crate::{Chain, HandleFuture, Middleware, Request};
-use futures::FutureExt;
-use hyper::header::{HeaderName, HeaderValue};
+use crate::{
+    futures::FutureExt,
+    hyper::header::{HeaderName, HeaderValue},
+    Chain, HandleFuture, Middleware, Request,
+};
 
 /// Adds some default headers to all responses
 #[derive(Debug, Clone)]

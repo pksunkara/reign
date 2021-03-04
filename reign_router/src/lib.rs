@@ -3,22 +3,12 @@
 #![doc(html_root_url = "https://docs.rs/reign_router/0.2.1")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-use futures::future::ok;
-use hyper::{
-    server::{conn::AddrStream, Server},
-    service::{make_service_fn, service_fn},
-    Error as HyperError, Method,
-};
-use log::trace;
-use paste::paste;
-
-use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
-
 pub use futures;
 pub use hyper;
 
 mod error;
 mod ext;
+mod handle;
 mod path;
 mod pipe;
 mod request;
@@ -31,19 +21,31 @@ pub mod middleware;
 
 pub use error::*;
 pub use ext::OptionExt;
+pub use handle::HandleFuture;
 #[doc(inline)]
 pub use middleware::{Chain, Middleware};
 pub use path::Path;
 pub use pipe::Pipe;
 pub use request::Request;
 pub use response::Response;
-pub use route::HandleFuture;
 pub use scope::Scope;
 pub use service::{service, Service};
 
+use futures::future::ok;
+use handle::Handle;
+use hyper::{
+    server::{conn::AddrStream, Server},
+    service::{make_service_fn, service_fn},
+    Error as HyperError, Method,
+};
 use pipe::MiddlewareItem;
-use route::{Constraint, Handler, Route};
+use route::{Constraint, Route};
 use service::RouteRef;
+
+use log::trace;
+use paste::paste;
+
+use std::{collections::HashMap as Map, convert::Infallible, net::ToSocketAddrs};
 
 pub(crate) const INTERNAL_ERR: &str =
     "Internal error on reign_router. Please create an issue on https://github.com/pksunkara/reign";
@@ -59,7 +61,6 @@ macro_rules! method {
             /// use reign::router::Router;
             /// # use reign::prelude::*;
             /// #
-            /// # #[action]
             /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
             ///
             /// fn router(r: &mut Router) {
@@ -67,12 +68,12 @@ macro_rules! method {
             /// }
             /// ```
             #[inline]
-            pub fn $method<P, H>(&mut self, path: P, handler: H)
+            pub fn $method<P, H>(&mut self, path: P, handle: H)
             where
                 P: Into<Path>,
-                H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+                H: Handle,
             {
-                self.any(&[Method::[<$method:snake:upper>]], path, handler);
+                self.any(&[Method::[<$method:snake:upper>]], path, handle);
             }
         }
     };
@@ -86,13 +87,10 @@ macro_rules! method {
 /// use reign::router::Router;
 /// # use reign::{prelude::*, router::{Request, Response, Error}};
 /// #
-/// # #[action]
 /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
 /// #
-/// # #[action]
 /// # async fn bar(req: &mut Request) -> Result<impl Response, Error> { Ok("bar") }
 /// #
-/// # #[action]
 /// # async fn baz(req: &mut Request) -> Result<impl Response, Error> { Ok("baz") }
 ///
 /// fn router(r: &mut Router) {
@@ -141,7 +139,6 @@ impl Router {
     /// use reign::router::Router;
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -177,20 +174,19 @@ impl Router {
     /// use reign::router::{Router, hyper::Method};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
     ///     r.any(&[Method::GET], "foo", foo);
     /// }
     /// ```
-    pub fn any<P, H>(&mut self, methods: &[Method], path: P, handler: H)
+    pub fn any<P, H>(&mut self, methods: &[Method], path: P, handle: H)
     where
         P: Into<Path>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+        H: Handle,
     {
         self.routes
-            .push(Route::new(path).methods(methods).handler(handler));
+            .push(Route::new(path).methods(methods).handle(handle));
     }
 
     /// Define an endpoint with path that allows all HTTP methods
@@ -201,19 +197,18 @@ impl Router {
     /// use reign::router::Router;
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
     ///     r.all("foo", foo);
     /// }
     /// ```
-    pub fn all<P, H>(&mut self, path: P, handler: H)
+    pub fn all<P, H>(&mut self, path: P, handle: H)
     where
         P: Into<Path>,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+        H: Handle,
     {
-        self.routes.push(Route::new(path).handler(handler));
+        self.routes.push(Route::new(path).handle(handle));
     }
 
     /// Define an endpoint with path and constraint that allows any of the given HTTP methods.
@@ -226,7 +221,6 @@ impl Router {
     /// use reign::router::{Router, hyper::Method};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -240,17 +234,17 @@ impl Router {
         methods: &[Method],
         path: P,
         constraint: C,
-        handler: H,
+        handle: H,
     ) where
         P: Into<Path>,
         C: Fn(&Request) -> bool + Send + Sync + 'static,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+        H: Handle,
     {
         self.routes.push(
             Route::new(path)
                 .methods(methods)
                 .constraint(constraint)
-                .handler(handler),
+                .handle(handle),
         );
     }
 
@@ -264,7 +258,6 @@ impl Router {
     /// use reign::router::Router;
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -273,14 +266,14 @@ impl Router {
     ///    }, foo);
     /// }
     /// ```
-    pub fn all_with_constraint<P, C, H>(&mut self, path: P, constraint: C, handler: H)
+    pub fn all_with_constraint<P, C, H>(&mut self, path: P, constraint: C, handle: H)
     where
         P: Into<Path>,
         C: Fn(&Request) -> bool + Send + Sync + 'static,
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+        H: Handle,
     {
         self.routes
-            .push(Route::new(path).constraint(constraint).handler(handler));
+            .push(Route::new(path).constraint(constraint).handle(handle));
     }
 }
 
@@ -304,7 +297,7 @@ impl Router {
             .routes
             .iter()
             .map(|x| RouteRef {
-                handler: x.handler.clone(),
+                handle: x.handle.clone(),
                 middlewares: vec![],
                 constraints: vec![x.constraint.clone()],
             })
@@ -334,7 +327,7 @@ impl Router {
                 middlewares.extend(route_ref.middlewares.into_iter());
 
                 routes.push(RouteRef {
-                    handler: route_ref.handler.clone(),
+                    handle: route_ref.handle.clone(),
                     middlewares,
                     constraints,
                 })

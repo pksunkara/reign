@@ -17,10 +17,8 @@ enum PathPart {
 /// use reign::router::{Router, Path};
 /// # use reign::prelude::*;
 /// #
-/// # #[action]
 /// # async fn foo_show(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
 /// #
-/// # #[action]
 /// # async fn foo_edit(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
 ///
 /// fn router(r: &mut Router) {
@@ -42,7 +40,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -62,7 +59,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -90,7 +86,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -113,7 +108,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -136,7 +130,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -150,7 +143,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -175,7 +167,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
@@ -189,7 +180,6 @@ impl Path {
     /// use reign::router::{Router, Path};
     /// # use reign::prelude::*;
     /// #
-    /// # #[action]
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {

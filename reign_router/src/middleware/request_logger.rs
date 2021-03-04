@@ -1,7 +1,9 @@
-use crate::{middleware::runtime::dur_to_string, Chain, HandleFuture, Middleware, Request};
+use crate::{
+    futures::FutureExt, hyper::header::CONTENT_LENGTH, middleware::runtime::dur_to_string, Chain,
+    HandleFuture, Middleware, Request,
+};
+
 use chrono::prelude::Utc;
-use futures::FutureExt;
-use hyper::header::CONTENT_LENGTH;
 use log::{log, log_enabled, Level};
 
 /// Logs the request and then response if possible

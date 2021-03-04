@@ -1,21 +1,14 @@
-use crate::{Error, Path, Request};
+use crate::{hyper::Method, Handle, Path, Request};
 
-use hyper::{Body, Method, Response as HyperResponse};
+use std::sync::Arc;
 
-use std::{future::Future, pin::Pin, sync::Arc};
-
-/// Return type of a middleware handle or an endpoint handle when `action` attribute is not used
-pub type HandleFuture<'a> =
-    Pin<Box<dyn Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'a>>;
-
-pub(crate) type Handler = Box<dyn Fn(&mut Request) -> HandleFuture + Send + Sync + 'static>;
 pub(crate) type Constraint = Box<dyn Fn(&Request) -> bool + Send + Sync + 'static>;
 
 #[derive(Default, Clone)]
 pub(crate) struct Route {
     pub(crate) path: Path,
     pub(crate) methods: Vec<Method>,
-    pub(crate) handler: Option<Arc<Handler>>,
+    pub(crate) handle: Option<Arc<Box<dyn Handle>>>,
     pub(crate) constraint: Option<Arc<Constraint>>,
 }
 
@@ -35,11 +28,11 @@ impl Route {
         self
     }
 
-    pub(crate) fn handler<H>(mut self, handler: H) -> Self
+    pub(crate) fn handle<H>(mut self, handle: H) -> Self
     where
-        H: Fn(&mut Request) -> HandleFuture + Send + Sync + 'static,
+        H: Handle,
     {
-        self.handler = Some(Arc::new(Box::new(handler)));
+        self.handle = Some(Arc::new(Box::new(handle)));
         self
     }
 

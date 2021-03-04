@@ -1,7 +1,10 @@
-use crate::{Chain, HandleFuture, Middleware, Request, INTERNAL_ERR};
+use crate::{
+    futures::FutureExt,
+    hyper::header::{HeaderName, HeaderValue},
+    Chain, HandleFuture, Middleware, Request, INTERNAL_ERR,
+};
+
 use chrono::prelude::Utc;
-use futures::FutureExt;
-use hyper::header::{HeaderName, HeaderValue};
 
 pub(crate) fn dur_to_string(i: i64) -> String {
     if i < 1000 {

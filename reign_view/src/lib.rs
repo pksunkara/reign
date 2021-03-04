@@ -23,7 +23,7 @@ use std::fmt::{write, Display};
 pub(crate) const INTERNAL_ERR: &str =
     "Internal error on reign_view. Please create an issue on https://github.com/pksunkara/reign";
 
-/// Renders a view for [reign router](https://docs.rs/reign_router) endpoint handler
+/// Renders a view for [reign router](https://docs.rs/reign_router) endpoint handle
 ///
 /// The response is sent with content-type set as `text/html`.
 ///
@@ -46,8 +46,7 @@ pub(crate) const INTERNAL_ERR: &str =
 ///   }
 /// }
 ///
-/// #[action]
-/// async fn handler(req: &mut Request) -> Result<impl Response, Error> {
+/// async fn handle(req: &mut Request) -> Result<impl Response, Error> {
 ///     Ok(render(CustomView {
 ///         msg: "Hello Reign!"
 ///     }, 200)?)
@@ -57,7 +56,7 @@ pub(crate) const INTERNAL_ERR: &str =
 /// # rt.block_on(async {
 /// #   let server = async {
 /// #       serve("127.0.0.1:52525", |r| {
-/// #           r.get("", handler);
+/// #           r.get("", handle);
 /// #       }).await.unwrap()
 /// #   };
 /// #
@@ -107,7 +106,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, H
 }
 
 /// Sends a redirect for [reign router](https://docs.rs/reign_router) endpoint
-/// handler
+/// handle
 ///
 /// The response is sent with status code `303` and `location` header.
 ///
@@ -120,8 +119,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, H
 /// # use tokio::{runtime::Runtime, select, time::sleep};
 /// # use reqwest::{Client, redirect::Policy};
 ///
-/// #[action]
-/// async fn handler(req: &mut Request) -> Result<impl Response, Error> {
+/// async fn handle(req: &mut Request) -> Result<impl Response, Error> {
 ///     Ok(redirect("/dashboard")?)
 /// }
 /// # let mut rt = Runtime::new().unwrap();
@@ -129,7 +127,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, H
 /// # rt.block_on(async {
 /// #   let server = async {
 /// #       serve("127.0.0.1:52526", |r| {
-/// #           r.get("", handler);
+/// #           r.get("", handle);
 /// #       }).await.unwrap()
 /// #   };
 /// #
@@ -173,7 +171,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpE
 }
 
 /// Serializes and sends JSON for [reign router](https://docs.rs/reign_router)
-/// endpoint handler
+/// endpoint handle
 ///
 /// The response is sent with content-type set as `application/json`.
 ///
@@ -191,8 +189,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpE
 ///   name: &'a str
 /// }
 ///
-/// #[action]
-/// async fn handler(req: &mut Request) -> Result<impl Response, Error> {
+/// async fn handle(req: &mut Request) -> Result<impl Response, Error> {
 ///     Ok(json(User {
 ///         name: "Reign"
 ///     }, 200)?)
@@ -202,7 +199,7 @@ pub fn redirect<L: AsRef<str>>(location: L) -> Result<HyperResponse<Body>, HttpE
 /// # rt.block_on(async {
 /// #   let server = async {
 /// #       serve("127.0.0.1:52527", |r| {
-/// #           r.get("", handler);
+/// #           r.get("", handle);
 /// #       }).await.unwrap()
 /// #   };
 /// #

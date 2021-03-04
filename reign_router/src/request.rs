@@ -1,12 +1,14 @@
 #[cfg(feature = "session")]
 use crate::middleware::session::SessionData;
-use crate::{Error, ParamError};
-
-use hyper::{
-    body::{to_bytes, Bytes},
-    http::{request::Parts, Extensions},
-    Body, HeaderMap, Method, Request as HyperRequest, Uri, Version,
+use crate::{
+    hyper::{
+        body::{to_bytes, Bytes},
+        http::{request::Parts, Extensions},
+        Body, HeaderMap, Method, Request as HyperRequest, Uri, Version,
+    },
+    Error, ParamError,
 };
+
 #[cfg(feature = "session")]
 use serde::{Deserialize, Serialize};
 use url::form_urlencoded::parse;
@@ -20,7 +22,6 @@ use std::{collections::HashMap as Map, net::SocketAddr, str::FromStr};
 /// ```
 /// use reign::prelude::*;
 ///
-/// #[action]
 /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
 ///     Ok(req.uri().host().unwrap_or("").to_string())
 /// }
@@ -69,7 +70,6 @@ impl Request {
     /// ```
     /// use reign::{prelude::*, router::hyper::Method};
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     Ok((*req.method() == Method::GET).to_string())
     /// }
@@ -86,7 +86,6 @@ impl Request {
     /// ```
     /// use reign::{prelude::*, router::hyper::Version};
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     Ok((*req.version() == Version::HTTP_2).to_string())
     /// }
@@ -103,7 +102,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     Ok(req.uri().path().to_string())
     /// }
@@ -120,7 +118,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.headers().get("x-version") {
     ///         Ok(val.to_str()?.to_string())
@@ -144,7 +141,6 @@ impl Request {
     /// #[derive(Clone)]
     /// struct Custom(String);
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.extensions().get::<Custom>() {
     ///         Ok(val.clone().0)
@@ -167,7 +163,6 @@ impl Request {
     ///
     /// struct Custom(String);
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.extensions_mut().remove::<Custom>() {
     ///         Ok(val.0)
@@ -192,7 +187,6 @@ impl Request {
     /// use reign::prelude::*;
     /// use std::str::from_utf8;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(bytes) = req.body().await? {
     ///         Ok(from_utf8(&bytes)?.to_string())
@@ -216,7 +210,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.query("foo") {
     ///         Ok(val.clone())
@@ -237,7 +230,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     Ok(req.param::<String>("foo")?)
     /// }
@@ -259,7 +251,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.param_opt::<String>("foo")? {
     ///         Ok(val)
@@ -289,7 +280,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     Ok(req.param_glob::<String>("foo")?.join("/"))
     /// }
@@ -318,7 +308,6 @@ impl Request {
     /// ```
     /// use reign::prelude::*;
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.param_opt_glob::<String>("foo")? {
     ///         Ok(val.join("/"))
@@ -356,7 +345,6 @@ impl Request {
     /// #[derive(Serialize, Deserialize, Clone)]
     /// struct User(String);
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     if let Some(val) = req.session::<User>() {
     ///         Ok(val.clone().0)
@@ -389,7 +377,6 @@ impl Request {
     /// #[derive(Serialize, Deserialize)]
     /// struct User(String);
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     req.save_session(User("John".into()));
     ///     Ok("Saved session")
@@ -414,7 +401,6 @@ impl Request {
     /// #[derive(Serialize, Deserialize)]
     /// struct User(String);
     ///
-    /// #[action]
     /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     ///     req.delete_session::<User>();
     ///     Ok("Deleted session")

@@ -18,6 +18,7 @@ path = "src/lib.rs"
 
 [dependencies]
 reign_plugin = { path = "../../reign_plugin", version = "0.2.1" }
+log = "0.4.8"
 mime_guess = "2.0.3"
 tokio = { version = "1.2.0", features = ["fs"] }
 chrono = "0.4.19"

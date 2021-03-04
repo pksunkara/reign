@@ -111,7 +111,7 @@ pub fn json(input: TokenStream) -> TokenStream {
     view::json::json(input).into()
 }
 
-/// Helper for defining a [reign_router](https://docs.rs/reign_router) handler.
+/// Helper for defining a [reign_router](https://docs.rs/reign_router) handle.
 ///
 /// # Examples
 ///
@@ -142,13 +142,10 @@ pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
 ///     router::{Router}
 /// };
 /// #
-/// # #[action]
 /// # async fn foobar(req: &mut Request) -> Result<impl Response, Error> { Ok("foobar") }
 /// #
-/// # #[action]
 /// # async fn number(req: &mut Request) -> Result<impl Response, Error> { Ok("number") }
 /// #
-/// # #[action]
 /// # async fn tree(req: &mut Request) -> Result<impl Response, Error> { Ok("tree") }
 ///
 /// fn router(r: &mut Router) {

@@ -1,12 +1,11 @@
 use reign_router::{
-    futures::FutureExt,
     hyper::{body::to_bytes, Body, Request as Req, StatusCode},
     middleware::HeadersDefault,
-    service, HandleFuture, Request, Response,
+    service, Error, Request, Response,
 };
 
-fn index(_: &mut Request) -> HandleFuture {
-    async { Ok("index".respond()?) }.boxed()
+async fn index(_: &mut Request) -> Result<impl Response, Error> {
+    Ok("index")
 }
 
 #[tokio::test]

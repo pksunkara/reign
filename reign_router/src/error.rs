@@ -1,9 +1,11 @@
-use crate::Response;
-
-use hyper::{
-    http::{header::ToStrError as HttpToStrError, Error as HttpError},
-    Body, Error as HyperError, Response as HyperResponse, StatusCode,
+use crate::{
+    hyper::{
+        http::{header::ToStrError as HttpToStrError, Error as HttpError},
+        Body, Error as HyperError, Response as HyperResponse, StatusCode,
+    },
+    Response,
 };
+
 use thiserror::Error;
 use tokio::io::Error as TokioIoError;
 

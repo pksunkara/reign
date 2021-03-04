@@ -1,15 +1,18 @@
-use crate::{Chain, Constraint, Handler, MiddlewareItem, Request, Response, Router, INTERNAL_ERR};
-
-use hyper::{
-    http::Error as HttpError, Body, Request as HyperRequest, Response as HyperResponse, StatusCode,
+use crate::{
+    hyper::{
+        http::Error as HttpError, Body, Request as HyperRequest, Response as HyperResponse,
+        StatusCode,
+    },
+    Chain, Constraint, Handle, MiddlewareItem, Request, Response, Router, INTERNAL_ERR,
 };
+
 use log::{debug, error, info, trace};
 use regex::{Regex, RegexSet};
 
 use std::{collections::HashMap as Map, net::SocketAddr, sync::Arc};
 
 pub(crate) struct RouteRef {
-    pub(crate) handler: Option<Arc<Handler>>,
+    pub(crate) handle: Option<Arc<Box<dyn Handle>>>,
     pub(crate) middlewares: Vec<Arc<MiddlewareItem>>,
     pub(crate) constraints: Vec<Option<Arc<Constraint>>>,
 }
@@ -122,8 +125,8 @@ impl Service {
                     continue;
                 }
 
-                if let Some(handler) = &route.handler {
-                    return Self::run(handler, request, route).await;
+                if let Some(handle) = &route.handle {
+                    return Self::run(handle, request, route).await;
                 }
             }
         }
@@ -142,12 +145,12 @@ impl Service {
     }
 
     async fn run(
-        handler: &Arc<Handler>,
+        handle: &Arc<Box<dyn Handle>>,
         mut request: Request,
         route: &RouteRef,
     ) -> Result<HyperResponse<Body>, HttpError> {
         let chain = Chain {
-            handler,
+            handle,
             middlewares: &route.middlewares,
         };
 
