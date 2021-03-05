@@ -4,10 +4,10 @@ use crate::{Handle, HandleFuture, MiddlewareItem, Request};
 
 use std::sync::Arc;
 
-/// Represents a type which can be used as a middleware
+/// Represents a type which can be used as a middleware.
 ///
 /// ```
-/// use reign::router::{Chain, HandleFuture, Middleware, Request, futures::FutureExt};
+/// use reign::router::{futures::FutureExt, Chain, HandleFuture, Middleware, Request};
 ///
 /// pub struct Logger {}
 ///
@@ -19,16 +19,17 @@ use std::sync::Arc;
 ///             println!("Response: status {}", response.status());
 ///
 ///             Ok(response)
-///         }.boxed()
+///         }
+///         .boxed()
 ///     }
 /// }
 /// ```
 pub trait Middleware {
-    /// Handler for the main logic in the middleware
+    /// Handler for the main logic in the middleware.
     fn handle<'m>(&'m self, req: &'m mut Request, chain: Chain<'m>) -> HandleFuture<'m>;
 }
 
-/// Middleware chain passed to a middleware handler
+/// Middleware chain passed to a middleware handler.
 pub struct Chain<'a> {
     pub(crate) handle: &'a Box<dyn Handle>,
     pub(crate) middlewares: &'a [Arc<MiddlewareItem>],

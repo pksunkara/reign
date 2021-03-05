@@ -17,7 +17,7 @@ pub(crate) struct RouteRef {
     pub(crate) constraints: Vec<Option<Arc<Constraint>>>,
 }
 
-/// Thread safe structure that optimizes the given router for responding to requests
+/// Thread safe structure that optimizes the given router for responding to requests.
 #[derive(Clone)]
 pub struct Service {
     router: Arc<Router>,
@@ -51,7 +51,7 @@ impl Service {
         }
     }
 
-    /// Respond to a given hyper Request and IP address
+    /// Respond to a given [`hyper::Request`] and IP address.
     ///
     /// # Examples
     ///
@@ -164,9 +164,9 @@ impl Service {
     }
 }
 
-/// Converts the router into a service that responds to a given hyper Request
+/// Converts the router into a service that responds to a given [`hyper::Request`].
 ///
-/// Useful in tests without needing to spin up the server
+/// Useful in tests without needing to spin up the server.
 ///
 /// # Examples
 ///

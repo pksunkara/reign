@@ -4,7 +4,7 @@ use crate::{
     Chain, HandleFuture, Middleware, Request,
 };
 
-/// Adds some default headers to all responses
+/// Adds some default headers to all responses.
 #[derive(Debug, Clone)]
 pub struct HeadersDefault {
     headers: Vec<(HeaderName, HeaderValue)>,

@@ -6,7 +6,7 @@ use crate::{
 
 use mime::{Mime, Name, FORM_DATA, JSON, WWW_FORM_URLENCODED};
 
-/// Only allows certain content-type headers for request bodies
+/// Only allows certain content-type headers for request bodies.
 ///
 /// By default, JSON and URL encoded are allowed.
 #[derive(Debug, Clone)]

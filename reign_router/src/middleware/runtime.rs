@@ -16,19 +16,19 @@ pub(crate) fn dur_to_string(i: i64) -> String {
     }
 }
 
-/// Displays the amount of time taken for the server to respond to the request
+/// Displays the amount of time taken for the server to respond to the request.
 #[derive(Debug, Clone)]
 pub struct Runtime {
     header: HeaderName,
 }
 
 impl Runtime {
-    /// Instantiate the middleware with a custome header name
+    /// Instantiate the middleware with a custome header name.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, middleware::Runtime};
+    /// use reign::router::{middleware::Runtime, Router};
     ///
     /// fn router(r: &mut Router) {
     ///     r.pipe("common").add(Runtime::new("runtime-is"));
@@ -40,12 +40,12 @@ impl Runtime {
         }
     }
 
-    /// Instantiate the middleware with the default header name
+    /// Instantiate the middleware with the default header name.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, middleware::Runtime};
+    /// use reign::router::{middleware::Runtime, Router};
     ///
     /// fn router(r: &mut Router) {
     ///     r.pipe("common").add(Runtime::default());

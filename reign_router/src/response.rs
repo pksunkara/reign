@@ -4,16 +4,14 @@ use mime::Mime;
 
 use std::borrow::Cow;
 
-/// Represents a type which can be converted into `hyper::Response`
+/// Represents a type which can be converted into [`hyper::Response`].
 ///
 /// # Examples
 ///
 /// ```
 /// use reign::{
 ///     prelude::*,
-///     router::{
-///         hyper::{http::Error as HttpError, Body, Response as HyperResponse, StatusCode}
-///     },
+///     router::hyper::{http::Error as HttpError, Body, Response as HyperResponse, StatusCode},
 /// };
 ///
 /// struct NoContent;

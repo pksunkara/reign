@@ -2,7 +2,7 @@ use crate::{Constraint, Path, Pipe, Request, RouteRef, Router};
 
 use std::{collections::HashMap as Map, sync::Arc};
 
-/// Scope can be used to define common path prefixes, middlewares or constraints for routes
+/// Scope can be used to define common path prefixes, middlewares or constraints for routes.
 ///
 /// # Examples
 ///
@@ -53,12 +53,12 @@ impl Scope {
         }
     }
 
-    /// Define the middleware pipes that run for all the routes under this scope
+    /// Define the middleware pipes that run for all the routes under this scope.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, middleware::Runtime};
+    /// use reign::router::{middleware::Runtime, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -80,7 +80,7 @@ impl Scope {
         self
     }
 
-    /// Define the routes that exist under this scope
+    /// Define the routes that exist under this scope.
     ///
     /// Even though you can define a scope without this, it will do nothing and won't affect routing.
     ///
@@ -109,7 +109,7 @@ impl Scope {
         self
     }
 
-    /// Define the constraint that restricts matching for routes under this scope
+    /// Define the constraint that restricts matching for routes under this scope.
     ///
     /// # Examples
     ///
@@ -120,11 +120,11 @@ impl Scope {
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
     ///
     /// fn router(r: &mut Router) {
-    ///     r.scope("api").constraint(|req| {
-    ///         req.uri().port().is_some() || req.query("bar").is_some()
-    ///     }).to(|r| {
-    ///         r.get("foo", foo);
-    ///     });
+    ///     r.scope("api")
+    ///         .constraint(|req| req.uri().port().is_some() || req.query("bar").is_some())
+    ///         .to(|r| {
+    ///             r.get("foo", foo);
+    ///         });
     /// }
     /// ```
     pub fn constraint<C>(&mut self, constraint: C) -> &mut Self

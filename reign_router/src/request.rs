@@ -15,7 +15,7 @@ use url::form_urlencoded::parse;
 
 use std::{collections::HashMap as Map, net::SocketAddr, str::FromStr};
 
-/// Request denotes the incoming request to the server and also acts as a state
+/// Request denotes the incoming request to the server and also acts as a state.
 ///
 /// # Examples
 ///
@@ -57,7 +57,17 @@ impl Request {
         ret
     }
 
-    /// Returns a reference to the associated remote IP socket address
+    /// Returns a reference to the associated remote IP socket address.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use reign::prelude::*;
+    ///
+    /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
+    ///     Ok(req.ip().to_string())
+    /// }
+    /// ```
     #[inline]
     pub fn ip(&self) -> &SocketAddr {
         &self.ip
@@ -79,7 +89,7 @@ impl Request {
         &self.parts.method
     }
 
-    /// Returns a reference to the associated version
+    /// Returns a reference to the associated version.
     ///
     /// # Examples
     ///
@@ -131,7 +141,7 @@ impl Request {
         &self.parts.headers
     }
 
-    /// Returns a reference to the underlying any-type storage
+    /// Returns a reference to the underlying any-type storage.
     ///
     /// # Examples
     ///
@@ -154,12 +164,12 @@ impl Request {
         &self.parts.extensions
     }
 
-    /// Returns a mutable reference to the underlying any-type storage
+    /// Returns a mutable reference to the underlying any-type storage.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::{prelude::*, router::Middleware};
+    /// use reign::prelude::*;
     ///
     /// struct Custom(String);
     ///
@@ -176,7 +186,7 @@ impl Request {
         &mut self.parts.extensions
     }
 
-    /// Retrieve the Request body.
+    /// Retrieve the request body.
     ///
     /// This consumes the body from the request and it will not be available for
     /// any other handlers after this.
@@ -203,7 +213,7 @@ impl Request {
         }
     }
 
-    /// Retrieve the value of a query string parameter
+    /// Retrieve the value of a query string parameter.
     ///
     /// # Examples
     ///
@@ -223,7 +233,7 @@ impl Request {
         self.query.get(name)
     }
 
-    /// Retrieve a required path parameter
+    /// Retrieve the value of a required path parameter.
     ///
     /// # Examples
     ///
@@ -247,7 +257,7 @@ impl Request {
             })?)
     }
 
-    /// Retrieve an optional path parameter
+    /// Retrieve the value of an optional path parameter.
     ///
     /// # Examples
     ///
@@ -276,7 +286,7 @@ impl Request {
         )?)
     }
 
-    /// Retrieve a required path parameter
+    /// Retrieve the value of a required glob path parameter.
     ///
     /// # Examples
     ///
@@ -305,7 +315,7 @@ impl Request {
             })?)
     }
 
-    /// Retrieve an optional glob path parameter
+    /// Retrieve the value of an optional glob path parameter.
     ///
     /// # Examples
     ///
@@ -338,13 +348,13 @@ impl Request {
         )?)
     }
 
-    /// Retrieve the session data for the current session
+    /// Retrieve the session data for the current session.
     ///
     /// # Examples
     ///
     /// ```
     /// use reign::prelude::*;
-    /// use serde::{Serialize, Deserialize};
+    /// use serde::{Deserialize, Serialize};
     ///
     /// #[derive(Serialize, Deserialize, Clone)]
     /// struct User(String);
@@ -370,13 +380,13 @@ impl Request {
             })
     }
 
-    /// Store the session data for the current session
+    /// Store the session data for the current session.
     ///
     /// # Examples
     ///
     /// ```
     /// use reign::prelude::*;
-    /// use serde::{Serialize, Deserialize};
+    /// use serde::{Deserialize, Serialize};
     ///
     /// #[derive(Serialize, Deserialize)]
     /// struct User(String);
@@ -394,13 +404,13 @@ impl Request {
         self.extensions_mut().insert(SessionData::Dirty(data));
     }
 
-    /// Delete the session data for the current session
+    /// Delete the session data for the current session.
     ///
     /// # Examples
     ///
     /// ```
     /// use reign::prelude::*;
-    /// use serde::{Serialize, Deserialize};
+    /// use serde::{Deserialize, Serialize};
     ///
     /// #[derive(Serialize, Deserialize)]
     /// struct User(String);

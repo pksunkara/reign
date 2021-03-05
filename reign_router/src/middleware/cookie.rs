@@ -9,7 +9,7 @@ use cookie_r::Cookie;
 
 pub use cookie_r::CookieJar;
 
-/// Parses the cookie and adds a CookieJar to the request storage
+/// Parses the cookie and adds a CookieJar to the request storage.
 #[derive(Default)]
 pub struct CookieParser {}
 

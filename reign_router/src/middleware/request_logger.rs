@@ -6,18 +6,21 @@ use crate::{
 use chrono::prelude::Utc;
 use log::{log, log_enabled, Level};
 
-/// Logs the request and then response if possible
+/// Logs the request and then response if possible.
 pub struct RequestLogger {
     level: Level,
 }
 
 impl RequestLogger {
-    /// Instantiates the middleware with log level
+    /// Instantiates the middleware with log level.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::{router::{Router, middleware::RequestLogger}, log::Level};
+    /// use reign::{
+    ///     log::Level,
+    ///     router::{middleware::RequestLogger, Router},
+    /// };
     ///
     /// fn router(r: &mut Router) {
     ///     r.pipe("common").add(RequestLogger::new(Level::Info));

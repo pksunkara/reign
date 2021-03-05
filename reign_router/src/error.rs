@@ -11,7 +11,7 @@ use tokio::io::Error as TokioIoError;
 
 use std::str::Utf8Error;
 
-/// Error returned by [`Request`](./struct.Request.html) when trying to access params
+/// Used in [`enum@Error`] when trying to access params from [`Request`](crate::Request).
 #[derive(Error, Debug)]
 pub enum ParamError {
     #[error("required param `{0}` not found")]
@@ -22,10 +22,9 @@ pub enum ParamError {
     UnableToConvertParam(String),
 }
 
-/// Main error that can be used by endpoint handlers
+/// Main error that can be used by endpoint handlers.
 ///
-/// Implements [`Response`](./trait.Response.html) so that this can be converted into
-/// a valid server response.
+/// Implements [`Response`] so that this can be converted into a valid server response.
 #[derive(Error, Debug)]
 pub enum Error {
     #[error(transparent)]

@@ -9,12 +9,12 @@ enum PathPart {
     ParamOptRegex(String, String),
 }
 
-/// Path that is specified for a route in the router definition
+/// Path that is specified for a route in the router definition.
 ///
 /// # Examples
 ///
 /// ```
-/// use reign::router::{Router, Path};
+/// use reign::router::{Path, Router};
 /// # use reign::prelude::*;
 /// #
 /// # async fn foo_show(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -32,12 +32,12 @@ pub struct Path {
 }
 
 impl Path {
-    /// Create a new empty path that has no path segments at all
+    /// Create a new empty path that has no path segments at all.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -51,12 +51,12 @@ impl Path {
         Self::default()
     }
 
-    /// Add the given string as a static path segment to the path
+    /// Add the given string as a static path segment to the path.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -78,12 +78,12 @@ impl Path {
         self
     }
 
-    /// Add a required path parameter with the given name to the path
+    /// Add a required path parameter with the given name to the path.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -100,12 +100,12 @@ impl Path {
         self
     }
 
-    /// Add an optional path parameter with the given name to the path
+    /// Add an optional path parameter with the given name to the path.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -122,12 +122,12 @@ impl Path {
         self
     }
 
-    /// Add a required regex path parameter with the given name and regex pattern to the path
+    /// Add a required regex path parameter with the given name and regex pattern to the path.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -137,10 +137,10 @@ impl Path {
     /// }
     /// ```
     ///
-    /// You can also add a required glob path parameter by defining the regex to contain `/`
+    /// You can also add a required glob path parameter by defining the regex to contain `/`.
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -159,12 +159,12 @@ impl Path {
         self
     }
 
-    /// Add an optional regex path parameter with the given name and regex pattern to the path
+    /// Add an optional regex path parameter with the given name and regex pattern to the path.
     ///
     /// # Examples
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }
@@ -174,10 +174,10 @@ impl Path {
     /// }
     /// ```
     ///
-    /// You can also add an optional glob path parameter by defining the regex to contain `/`
+    /// You can also add an optional glob path parameter by defining the regex to contain `/`.
     ///
     /// ```
-    /// use reign::router::{Router, Path};
+    /// use reign::router::{Path, Router};
     /// # use reign::prelude::*;
     /// #
     /// # async fn foo(req: &mut Request) -> Result<impl Response, Error> { Ok("foo") }

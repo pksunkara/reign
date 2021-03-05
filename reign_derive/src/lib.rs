@@ -111,7 +111,7 @@ pub fn json(input: TokenStream) -> TokenStream {
     view::json::json(input).into()
 }
 
-/// Helper for using path params in a [reign_router](https://docs.rs/reign_router) handle.
+/// Helper for using path params in a [reign_router] handle.
 ///
 /// # Examples
 ///
@@ -132,7 +132,7 @@ pub fn params(_: TokenStream, input: TokenStream) -> TokenStream {
     router::params::params(input).into()
 }
 
-/// Helper for defining a [reign_router](https://docs.rs/reign_router) Path.
+/// Helper for defining a [reign_router] Path.
 ///
 /// # Examples
 ///

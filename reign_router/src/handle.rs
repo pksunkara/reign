@@ -8,7 +8,7 @@ use log::{debug, error};
 
 use std::{fmt::Display, future::Future, pin::Pin};
 
-/// Return type of a middleware handle or an endpoint handle
+/// Return type of a middleware handle or an endpoint handle.
 pub type HandleFuture<'a> =
     Pin<Box<dyn Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'a>>;
 
