@@ -1,5 +1,4 @@
 use reign::{
-    log::error,
     model::Error as ModelError,
     router::{
         hyper::{http::Error as HttpError, Body, Response as HyperResponse, StatusCode},
@@ -22,8 +21,6 @@ pub enum Error {
 
 impl Response for Error {
     fn respond(self) -> Result<HyperResponse<Body>, HttpError> {
-        error!("{}", self);
-
         match self {
             Self::Router(e) => e.respond(),
             _ => HyperResponse::builder()

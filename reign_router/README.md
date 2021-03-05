@@ -36,8 +36,8 @@ Please refer to [API documentation](https://docs.rs/reign_router) for more detai
     ```rust
     use reign::prelude::*;
 
-    #[action]
-    async fn foo(req: &mut Request, id: u32) -> Result<impl Response, Error> {
+    async fn foo(req: &mut Request) -> Result<impl Response, Error> {
+        let id = req.param::<u32>("id")?;
         Ok(format!("foo {}", id))
     }
     ```
@@ -69,10 +69,8 @@ Please refer to [API documentation](https://docs.rs/reign_router) for more detai
 
 ### Path parameters
 
-The router supports path parameters. Once defined in the router, the endpoint handler can use any
-of these parameters as arguments. The `action` attribute intelligently forwards them correctly to
-the handler. Not all the defined parameters need to used as arguments for the handler which makes
-this much more flexible. The kinds of path parameters supported are:
+The router supports path parameters. Once defined in the router, the endpoint handler can request
+any of these parameters from the request. The kinds of path parameters supported are:
 
 * Required parameters
 * Optional parameters
@@ -107,13 +105,12 @@ configuration.
 
 ### Endpoint Handler
 
-Each endpoint is defined by handler which takes incoming `Request` and responds with something
-that implements the `Response` trait.
+Each endpoint is defined by handler which takes incoming `Request` and responds with a `Result`
+whose internal values implement the `Response` trait.
 
 ```rust
 use reign::prelude::*;
 
-#[action]
 async fn foo(req: &mut Request) -> Result<impl Response, Error> {
     Ok("foo")
 }

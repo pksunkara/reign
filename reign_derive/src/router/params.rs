@@ -23,7 +23,7 @@ fn arg_ty(arg: &FnArg) -> Type {
     abort!(arg.span(), "expected a typed function arg with clear ident");
 }
 
-pub fn action(input: ItemFn) -> TokenStream {
+pub fn params(input: ItemFn) -> TokenStream {
     let ItemFn {
         attrs,
         sig,
@@ -33,8 +33,7 @@ pub fn action(input: ItemFn) -> TokenStream {
     let Signature {
         ident,
         inputs,
-        constness,
-        unsafety,
+        asyncness,
         fn_token,
         output,
         ..
@@ -82,26 +81,17 @@ pub fn action(input: ItemFn) -> TokenStream {
 
     quote! {
         #(#attrs)*
-        #vis #constness #unsafety #fn_token #ident(
+        #vis #asyncness #fn_token #ident(
             #req
-        ) -> ::reign::router::HandleFuture {
-            use ::reign::router::futures::FutureExt;
+        ) #output {
+            #[inline]
+            #asyncness #fn_token _call(
+                #inputs
+            ) #output #block
 
-            async move {
-                #[inline]
-                async fn _call(
-                    #inputs
-                ) #output #block
+            #(#assignments)*
 
-                #(#assignments)*
-
-                let _called = _call(#req_ident, #(#idents),*).await;
-
-                match _called {
-                    Ok(r) => Ok(r.respond()?),
-                    Err(e) => Ok(e.respond()?),
-                }
-            }.boxed()
+            _call(#req_ident, #(#idents),*).await
         }
     }
 }

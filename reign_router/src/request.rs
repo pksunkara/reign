@@ -234,14 +234,17 @@ impl Request {
     ///     Ok(req.param::<String>("foo")?)
     /// }
     /// ```
-    pub fn param<T>(&self, name: &str) -> Result<T, ParamError>
+    pub fn param<T>(&self, name: &str) -> Result<T, Error>
     where
         T: FromStr,
     {
-        self.params
+        Ok(self
+            .params
             .get(name)
             .ok_or_else(|| ParamError::RequiredParamNotFound(name.into()))
-            .and_then(|p| T::from_str(p).map_err(|_| ParamError::UnableToConvertParam(name.into())))
+            .and_then(|p| {
+                T::from_str(p).map_err(|_| ParamError::UnableToConvertParam(name.into()))
+            })?)
     }
 
     /// Retrieve an optional path parameter
@@ -259,18 +262,18 @@ impl Request {
     ///     }
     /// }
     /// ```
-    pub fn param_opt<T>(&self, name: &str) -> Result<Option<T>, ParamError>
+    pub fn param_opt<T>(&self, name: &str) -> Result<Option<T>, Error>
     where
         T: FromStr,
     {
-        self.params.get(name).map_or_else(
+        Ok(self.params.get(name).map_or_else(
             || Ok(None),
             |p| {
                 T::from_str(p)
                     .map_err(|_| ParamError::UnableToConvertParam(name.into()))
                     .map(Some)
             },
-        )
+        )?)
     }
 
     /// Retrieve a required path parameter
@@ -284,11 +287,12 @@ impl Request {
     ///     Ok(req.param_glob::<String>("foo")?.join("/"))
     /// }
     /// ```
-    pub fn param_glob<T>(&self, name: &str) -> Result<Vec<T>, ParamError>
+    pub fn param_glob<T>(&self, name: &str) -> Result<Vec<T>, Error>
     where
         T: FromStr,
     {
-        self.params
+        Ok(self
+            .params
             .get(name)
             .ok_or_else(|| ParamError::RequiredGlobParamNotFound(name.into()))
             .and_then(|p| {
@@ -298,7 +302,7 @@ impl Request {
                         T::from_str(p).map_err(|_| ParamError::UnableToConvertParam(name.into()))
                     })
                     .collect::<Result<Vec<_>, _>>()
-            })
+            })?)
     }
 
     /// Retrieve an optional glob path parameter
@@ -316,11 +320,11 @@ impl Request {
     ///     }
     /// }
     /// ```
-    pub fn param_opt_glob<T>(&self, name: &str) -> Result<Option<Vec<T>>, ParamError>
+    pub fn param_opt_glob<T>(&self, name: &str) -> Result<Option<Vec<T>>, Error>
     where
         T: FromStr,
     {
-        self.params.get(name).map_or_else(
+        Ok(self.params.get(name).map_or_else(
             || Ok(None),
             |p| {
                 p.clone()
@@ -331,7 +335,7 @@ impl Request {
                     .collect::<Result<Vec<_>, _>>()
                     .map(Some)
             },
-        )
+        )?)
     }
 
     /// Retrieve the session data for the current session
@@ -447,7 +451,10 @@ mod tests {
         let req = req_param("hey");
         let val = req.param::<String>("none");
 
-        assert!(matches!(val, Err(ParamError::RequiredParamNotFound(_))));
+        assert!(matches!(
+            val,
+            Err(Error::Param(ParamError::RequiredParamNotFound(_)))
+        ));
     }
 
     #[test]
@@ -464,7 +471,10 @@ mod tests {
         let req = req_param("hey");
         let val = req.param::<u32>("id");
 
-        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+        assert!(matches!(
+            val,
+            Err(Error::Param(ParamError::UnableToConvertParam(_)))
+        ));
     }
 
     #[test]
@@ -498,7 +508,10 @@ mod tests {
         let req = req_param("hey");
         let val = req.param_opt::<u32>("id");
 
-        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+        assert!(matches!(
+            val,
+            Err(Error::Param(ParamError::UnableToConvertParam(_)))
+        ));
     }
 
     #[test]
@@ -520,7 +533,10 @@ mod tests {
         let req = req_param("hey/wow");
         let val = req.param_glob::<String>("none");
 
-        assert!(matches!(val, Err(ParamError::RequiredGlobParamNotFound(_))));
+        assert!(matches!(
+            val,
+            Err(Error::Param(ParamError::RequiredGlobParamNotFound(_)))
+        ));
     }
 
     #[test]
@@ -542,7 +558,10 @@ mod tests {
         let req = req_param("hey/wow");
         let val = req.param_glob::<u32>("id");
 
-        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+        assert!(matches!(
+            val,
+            Err(Error::Param(ParamError::UnableToConvertParam(_)))
+        ));
     }
 
     #[test]
@@ -586,6 +605,9 @@ mod tests {
         let req = req_param("hey/wow");
         let val = req.param_opt_glob::<u32>("id");
 
-        assert!(matches!(val, Err(ParamError::UnableToConvertParam(_))));
+        assert!(matches!(
+            val,
+            Err(Error::Param(ParamError::UnableToConvertParam(_)))
+        ));
     }
 }

@@ -10,34 +10,30 @@ mod errors;
 
 use errors::Error;
 
-#[action]
 async fn str_(_req: &mut Request) -> Result<impl Response, Error> {
     Ok("str")
 }
 
-#[action]
 async fn string(_req: &mut Request) -> Result<impl Response, Error> {
     Ok("string".to_string())
 }
 
-#[action]
 async fn response(_req: &mut Request) -> Result<impl Response, Error> {
     Ok(Res::new("response".into()))
 }
 
-#[action]
 async fn error(_req: &mut Request) -> Result<impl Response, Error> {
     let value = from_str::<Value>("{name}")?;
     Ok(Res::new(to_string(&value)?.into()))
 }
 
-#[action]
-async fn param(_req: &mut Request, id: String) -> Result<impl Response, Error> {
+async fn param(req: &mut Request, id: String) -> Result<impl Response, Error> {
+    let id = req.param::<String>("id")?;
     Ok(format!("param {}", id))
 }
 
-#[action]
-async fn param_opt(_req: &mut Request, id: Option<String>) -> Result<impl Response, Error> {
+async fn param_opt(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param_opt::<String>("id")?;
     Ok(format!(
         "param_opt {}",
         match id {
@@ -47,13 +43,13 @@ async fn param_opt(_req: &mut Request, id: Option<String>) -> Result<impl Respon
     ))
 }
 
-#[action]
-async fn param_regex(_req: &mut Request, id: String) -> Result<impl Response, Error> {
+async fn param_regex(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param::<String>("id")?;
     Ok(format!("param_regex {}", id))
 }
 
-#[action]
-async fn param_opt_regex(_req: &mut Request, id: Option<String>) -> Result<impl Response, Error> {
+async fn param_opt_regex(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param_opt::<String>("id")?;
     Ok(format!(
         "param_opt_regex {}",
         match id {
@@ -63,13 +59,13 @@ async fn param_opt_regex(_req: &mut Request, id: Option<String>) -> Result<impl 
     ))
 }
 
-#[action]
-async fn scope_param(_req: &mut Request, id: String) -> Result<impl Response, Error> {
+async fn scope_param(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param::<String>("id")?;
     Ok(format!("scope_param {}", id))
 }
 
-#[action]
-async fn scope_param_opt(_req: &mut Request, id: Option<String>) -> Result<impl Response, Error> {
+async fn scope_param_opt(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param_opt::<String>("id")?;
     Ok(format!(
         "scope_param_opt {}",
         match id {
@@ -79,16 +75,13 @@ async fn scope_param_opt(_req: &mut Request, id: Option<String>) -> Result<impl 
     ))
 }
 
-#[action]
-async fn scope_param_regex(_req: &mut Request, id: String) -> Result<impl Response, Error> {
+async fn scope_param_regex(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param::<String>("id")?;
     Ok(format!("scope_param_regex {}", id))
 }
 
-#[action]
-async fn scope_param_opt_regex(
-    _req: &mut Request,
-    id: Option<String>,
-) -> Result<impl Response, Error> {
+async fn scope_param_opt_regex(req: &mut Request) -> Result<impl Response, Error> {
+    let id = req.param_opt::<String>("id")?;
     Ok(format!(
         "scope_param_opt_regex {}",
         match id {
@@ -98,7 +91,7 @@ async fn scope_param_opt_regex(
     ))
 }
 
-#[action]
+#[params]
 async fn nested_scope(
     _req: &mut Request,
     foo: String,
@@ -107,7 +100,7 @@ async fn nested_scope(
     Ok(format!("nested_scope {} {}", foo, bar))
 }
 
-#[action]
+#[params]
 async fn multi_params(
     _req: &mut Request,
     foo: String,

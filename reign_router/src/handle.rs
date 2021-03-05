@@ -4,9 +4,11 @@ use crate::{
     Error, Request, Response,
 };
 
-use std::{future::Future, pin::Pin};
+use log::{debug, error};
 
-/// Return type of a middleware handle or an endpoint handle when `action` attribute is not used
+use std::{fmt::Display, future::Future, pin::Pin};
+
+/// Return type of a middleware handle or an endpoint handle
 pub type HandleFuture<'a> =
     Pin<Box<dyn Future<Output = Result<HyperResponse<Body>, Error>> + Send + 'a>>;
 
@@ -19,15 +21,20 @@ where
     T: Fn(&'a mut Request) -> F + Send + Sync + 'static,
     F: Future<Output = Result<R, E>> + Send + 'a,
     R: Response,
-    E: Response,
+    E: Response + Display,
 {
     fn call(&'a self, req: &'a mut Request) -> HandleFuture<'a> {
         async move {
             let result = (self)(req).await;
 
+            debug!("executing function");
+
             match result {
                 Ok(r) => Ok(r.respond()?),
-                Err(e) => Ok(e.respond()?),
+                Err(e) => {
+                    error!("{}", e);
+                    Ok(e.respond()?)
+                }
             }
         }
         .boxed()

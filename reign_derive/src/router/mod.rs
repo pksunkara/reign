@@ -1,4 +1,4 @@
-pub mod action;
+pub mod params;
 pub mod path;
 
 mod ty;

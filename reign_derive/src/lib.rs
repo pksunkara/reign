@@ -111,14 +111,14 @@ pub fn json(input: TokenStream) -> TokenStream {
     view::json::json(input).into()
 }
 
-/// Helper for defining a [reign_router](https://docs.rs/reign_router) handle.
+/// Helper for using path params in a [reign_router](https://docs.rs/reign_router) handle.
 ///
 /// # Examples
 ///
 /// ```
 /// use reign::prelude::*;
 ///
-/// #[action]
+/// #[params]
 /// async fn name(req: &mut Request, id: String) -> Result<impl Response, Error> {
 ///     Ok(id)
 /// }
@@ -126,10 +126,10 @@ pub fn json(input: TokenStream) -> TokenStream {
 #[cfg(feature = "router-backend")]
 #[proc_macro_attribute]
 #[proc_macro_error]
-pub fn action(_: TokenStream, input: TokenStream) -> TokenStream {
+pub fn params(_: TokenStream, input: TokenStream) -> TokenStream {
     let input: syn::ItemFn = parse_macro_input!(input);
 
-    router::action::action(input).into()
+    router::params::params(input).into()
 }
 
 /// Helper for defining a [reign_router](https://docs.rs/reign_router) Path.

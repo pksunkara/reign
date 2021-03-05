@@ -16,9 +16,8 @@ pub async fn create(_req: &mut Request) -> Result<impl Response, Error> {
     Ok("Article Create")
 }
 
-#[action]
+#[params]
 pub async fn show(_req: &mut Request, id: i32) -> Result<impl Response, Error> {
-    // let id = _req.param::<i32>("id")?;
     let article = Article::filter().id(id).one().await?.ok_or_404()?;
 
     Ok(render!(articles::show)?)
