@@ -1,6 +1,8 @@
-use crate::utils::INTERNAL_ERR;
+use crate::INTERNAL_ERR;
+
 use reign_view::common::Manifest;
 use serde_json::to_string;
+
 use std::{fs::write, io::Result, path::Path, process::Command};
 
 fn fmt(path: &Path) -> Result<()> {

@@ -2,20 +2,14 @@ use clap::{
     AppSettings::{ColoredHelp, VersionlessSubcommands},
     Clap,
 };
+use reign_task::error::finish;
 
-use std::process::exit;
-
-mod generate;
+// mod server;
 mod new;
-mod server;
-
-mod templates;
-mod utils;
-
-use utils::term::{TERM_ERR, TERM_OUT};
+mod tasks;
 
 #[derive(Debug, Clap)]
-#[clap(name = "reign")]
+#[clap(name = "reign", version)]
 #[clap(global_setting(VersionlessSubcommands))]
 #[clap(global_setting(ColoredHelp))]
 struct Reign {
@@ -26,32 +20,23 @@ struct Reign {
 #[derive(Debug, Clap)]
 enum ReignSubcommand {
     New(new::New),
-    #[clap(alias = "s")]
-    Server(server::Server),
-    #[clap(alias = "g")]
-    Generate(generate::Generate),
+    // #[clap(alias = "s")]
+    // Server(server::Server),
+    Tasks(tasks::Tasks),
+    #[clap(external_subcommand)]
+    Other(Vec<String>),
 }
 
 fn main() {
     let program = Reign::parse();
 
-    // TODO: cli: tasks with feature
     let err = match program.cmd {
         ReignSubcommand::New(x) => x.run(),
-        ReignSubcommand::Server(x) => x.run(),
-        ReignSubcommand::Generate(x) => x.run(),
+        // ReignSubcommand::Server(x) => x.run(),
+        ReignSubcommand::Tasks(x) => x.run(),
+        ReignSubcommand::Other(x) => tasks::run_task(x),
     }
     .err();
 
-    let code = if let Some(e) = err {
-        e.print_err().unwrap();
-        1
-    } else {
-        0
-    };
-
-    TERM_ERR.flush().unwrap();
-    TERM_OUT.flush().unwrap();
-
-    exit(code)
+    finish(err);
 }

@@ -1,15 +1,15 @@
-use crate::{
-    server::view::{has_any_view_files, is_view_folder, parse},
-    utils::{
-        self,
-        term::{RED_BOLD, TERM_ERR},
-    },
-};
+use crate::server::view::{has_any_view_files, is_view_folder, parse};
+
 use clap::Clap;
 use notify::{
     event::{CreateKind, DataChange, EventKind, ModifyKind, RemoveKind},
-    Error, Event, RecommendedWatcher, RecursiveMode, Watcher,
+    Error as NotifyError, Event, RecommendedWatcher, RecursiveMode, Watcher,
 };
+use reign_task::{
+    term::{RED_BOLD, TERM_ERR},
+    Error,
+};
+
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
@@ -31,7 +31,7 @@ mod write;
 pub struct Server {}
 
 impl Server {
-    pub fn run(&self) -> utils::Result {
+    pub fn run(&self) -> Result<(), Error> {
         let cargo = Path::new("Cargo.toml");
 
         check_path(cargo, "Cargo.toml")?;
@@ -55,13 +55,13 @@ impl Server {
         Ok(())
     }
 
-    fn view_watcher(&self, views: &Path) -> utils::Result<RecommendedWatcher> {
+    fn view_watcher(&self, views: &Path) -> Result<RecommendedWatcher, Error> {
         let full_path = views.canonicalize()?;
 
         parse(views)?;
 
         let mut watcher: RecommendedWatcher =
-            Watcher::new_immediate(move |res: Result<Event, Error>| match res {
+            Watcher::new_immediate(move |res: Result<Event, NotifyError>| match res {
                 Ok(event) => match event.kind {
                     EventKind::Modify(ModifyKind::Data(DataChange::Content))
                     | EventKind::Create(CreateKind::File)
@@ -85,7 +85,7 @@ impl Server {
     }
 }
 
-fn check_path(path: &Path, name: &str) -> utils::Result {
+fn check_path(path: &Path, name: &str) -> Result<(), Error> {
     if let Err(e) = path.canonicalize() {
         TERM_ERR.write_line(&format!(
             "    {} reading {}",

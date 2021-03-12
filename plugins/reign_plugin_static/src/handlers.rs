@@ -20,7 +20,7 @@ use reign_plugin::reign_router::{
     Error, HandleFuture, Request,
 };
 use tokio::fs::File;
-// TODO: Add logs
+// TODO: plugin: static: Add logs
 // use log::info;
 
 use std::{

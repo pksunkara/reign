@@ -1,0 +1,9 @@
+[package]
+name = "xtask"
+version = "0.0.0"
+edition = "2018"
+publish = false
+
+[dependencies]
+reign_task = "{{ reign_version }}"
+reign_common_tasks = "{{ reign_version }}"

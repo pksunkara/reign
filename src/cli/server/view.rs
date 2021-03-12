@@ -1,21 +1,24 @@
 use crate::{
     server::write::{write_file, write_manifest},
-    utils::{Result, INTERNAL_ERR},
+    INTERNAL_ERR,
 };
+
 use inflector::cases::pascalcase::to_pascal_case;
 use proc_macro2::{Ident, Span};
 use quote::quote;
+use reign_task::Error;
 use reign_view::common::{recurse, Manifest, FILE_REGEX, FOLDER_REGEX};
+
 use std::path::{Path, PathBuf};
 
-pub fn parse(views: &Path) -> Result {
+pub fn parse(views: &Path) -> Result<(), Error> {
     let manifest = parse_all_views(views)?;
 
     write_manifest(views, &manifest)?;
     Ok(())
 }
 
-fn parse_all_views(views: &Path) -> Result<Manifest> {
+fn parse_all_views(views: &Path) -> Result<Manifest, Error> {
     let mut manifest = Manifest::new();
 
     recurse(
