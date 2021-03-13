@@ -27,7 +27,7 @@ async fn error(_req: &mut Request) -> Result<impl Response, Error> {
     Ok(Res::new(to_string(&value)?.into()))
 }
 
-async fn param(req: &mut Request, id: String) -> Result<impl Response, Error> {
+async fn param(req: &mut Request) -> Result<impl Response, Error> {
     let id = req.param::<String>("id")?;
     Ok(format!("param {}", id))
 }

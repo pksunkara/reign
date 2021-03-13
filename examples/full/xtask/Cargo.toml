@@ -1,0 +1,9 @@
+[package]
+name = "xtask"
+version = "0.0.0"
+edition = "2018"
+publish = false
+
+[dependencies]
+reign_task = { path = "../../../reign_task" }
+reign_common_tasks = { path = "../../../utils/reign_common_tasks" }

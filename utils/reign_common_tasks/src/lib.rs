@@ -18,5 +18,6 @@ pub fn default() -> Vec<Box<dyn Task>> {
                 .about("Build the application as a binary for production")
                 .args(&["build", "--release"]),
         ),
+        Box::new(reign_task_generate::task()),
     ]
 }

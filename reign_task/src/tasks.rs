@@ -74,6 +74,10 @@ impl Task for Tasks {
     }
 
     fn run(&self, args: Vec<String>) -> Result<(), Error> {
+        if self.name == "reign" {
+            println!("");
+        }
+
         if args.len() < 1 {
             return Err(Error::NoArgs(self.name.clone()));
         }
@@ -81,9 +85,6 @@ impl Task for Tasks {
         let (name, rest) = args.split_first().expect(INTERNAL_ERR);
 
         if name == "tasks" {
-            // Print empty line
-            println!("");
-
             let mut list = self
                 .list()
                 .into_iter()

@@ -1,6 +1,6 @@
 use reign::router::{
     hyper::{http::Error as HttpError, Body, Response as Res, StatusCode},
-    Response,
+    Error as RouterError, Response,
 };
 use thiserror::Error;
 
@@ -8,6 +8,8 @@ use thiserror::Error;
 pub enum Error {
     #[error("{0}")]
     Serde(#[from] serde_json::Error),
+    #[error("{0}")]
+    Router(#[from] RouterError),
     #[error("{0}")]
     Any(#[from] anyhow::Error),
 }

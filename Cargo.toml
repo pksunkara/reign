@@ -41,6 +41,7 @@ version-sync = "0.9.0"
 
 [workspace]
 members = [
+	".",
 	"reign_boot",
 	"reign_derive",
 	"reign_model",
@@ -53,7 +54,10 @@ members = [
 	"utils/*",
 	"tasks/*",
 
-	"examples/*",
+	"examples/model-postgres",
+	"examples/router-backend",
+	"examples/view",
+	"examples/view-backend",
 ]
 default-members = [
 	".",

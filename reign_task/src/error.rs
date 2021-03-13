@@ -24,6 +24,8 @@ pub enum Error {
     Render(#[from] TemplateRenderError),
     #[error(transparent)]
     Io(#[from] io::Error),
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
 }
 
 impl Error {

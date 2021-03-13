@@ -11,9 +11,16 @@ reign_plugin_redis = { path = "../../plugins/reign_plugin_redis" }
 reign_plugin_static = { path = "../../plugins/reign_plugin_static" }
 reign_session_backend_redis = { path = "../../utils/reign_session_backend_redis" }
 tokio = { version = "1.2.0", features = ["full"] }
+serde = { version = "1.0.110", features = ["derive"] }
 thiserror = "1.0.19"
 anyhow = "1.0.31"
-serde = { version = "1.0.110", features = ["derive"] }
+chrono = "0.4.19"
 
 [build-dependencies]
 walkdir = "2.3"
+
+[workspace]
+members = [
+	".",
+	"xtask",
+]
