@@ -108,6 +108,7 @@ pub fn render<D: Display>(view: D, status: u16) -> Result<HyperResponse<Body>, H
     }
 }
 
+// TODO: view: Move these to router, does not depend on view
 /// Sends a redirect for [reign router](reign_router) endpoint
 /// handle
 ///

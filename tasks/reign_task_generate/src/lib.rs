@@ -3,13 +3,19 @@
 #![doc(html_root_url = "https://docs.rs/reign_task_generate/0.2.1")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
+mod controller;
+mod generator;
 mod model;
-mod ws;
 
+use controller::Controller;
+use generator::Generator;
 use model::Model;
 
 use reign_task::Tasks;
 
 pub fn task() -> Tasks {
-    Tasks::new("generate").task(Model {})
+    Tasks::new("generate")
+        .task(Model {})
+        .task(Controller {})
+        .task(Generator {})
 }

@@ -354,7 +354,7 @@ would not work:
 </div>
 ```
 
-It would instead create a `href` field on the `<shared:button>` template.
+It would instead create a `href` field on this template itself.
 
 ### Fallback
 

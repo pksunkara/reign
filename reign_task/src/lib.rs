@@ -20,3 +20,16 @@ pub use templating::Template;
 
 #[cfg(feature = "templating")]
 pub use serde_json;
+
+use std::{path::PathBuf, process::Command, str::from_utf8};
+
+pub fn workspace_dir() -> Result<PathBuf, Error> {
+    let out = Command::new("cargo")
+        .args(&["locate-project", "--workspace", "--mesage-format", "plain"])
+        .output()?;
+
+    let mut path = PathBuf::from(from_utf8(&out.stdout).map_err(|_| Error::NoWorkspace)?);
+    path.pop();
+
+    Ok(path)
+}

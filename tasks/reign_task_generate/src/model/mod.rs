@@ -1,13 +1,11 @@
-use crate::ws::ws_dir;
-
 use anyhow::anyhow;
-use serde::Serialize;
+use atoi::FromRadix10;
 use inflector::{
     cases::{classcase::to_class_case, snakecase::to_snake_case, tablecase::to_table_case},
     string::pluralize::to_plural,
 };
-use atoi::FromRadix10;
-use reign_task::{serde_json::json, Error, Task, Template};
+use reign_task::{serde_json::json, workspace_dir, Error, Task, Template};
+use serde::Serialize;
 
 use std::path::PathBuf;
 
@@ -38,7 +36,12 @@ impl Field {
             "date" => ("DATE", "chrono::NaiveDate"),
             "time" => ("TIME", "chrono::NaiveTime"),
             "timestamp" => ("TIMESTAMP", "chrono::NaiveDateTime"),
-            v => return Err(anyhow!("unable to recognize `{}` as rust type or postgres type", v)),
+            v => {
+                return Err(anyhow!(
+                    "unable to recognize `{}` as rust type or postgres type",
+                    v
+                ))
+            }
         };
 
         Ok(Self {
@@ -87,8 +90,12 @@ impl Task for Model {
             })
             .collect::<Result<Vec<_>, _>>()?;
 
-        let ws_dir = ws_dir()?;
-        let migration = format!("{:04}_create_{}", find_next_migration_number(&ws_dir)?, tablename);
+        let ws_dir = workspace_dir()?;
+        let migration = format!(
+            "{:04}_create_{}",
+            find_next_migration_number(&ws_dir)?,
+            tablename
+        );
 
         Template::new(&ws_dir)
             .render(
