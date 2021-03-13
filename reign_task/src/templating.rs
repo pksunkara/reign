@@ -8,14 +8,18 @@ use handlebars::Handlebars;
 use oclif::term::{ERR_GREEN_BOLD, ERR_YELLOW_BOLD, TERM_ERR};
 
 use std::{
-    fs::{create_dir_all, File, write, read_to_string},
+    fs::{create_dir_all, read_to_string, write, File},
     path::PathBuf,
+    process::Command,
 };
 
 pub struct Template<'a> {
     app_root: &'a PathBuf,
     files: Vec<(PathBuf, &'a str, Value)>,
-    edits: Vec<(PathBuf, Box<dyn Fn(String) -> Result<String, Error> + 'static>)>
+    edits: Vec<(
+        PathBuf,
+        Box<dyn Fn(String) -> Result<String, Error> + 'static>,
+    )>,
 }
 
 impl<'a> Template<'a> {
@@ -27,20 +31,20 @@ impl<'a> Template<'a> {
         }
     }
 
-    fn path(&self, path: &'a [&'a str]) -> PathBuf {
+    fn path(&self, path: &[&str]) -> PathBuf {
         path.iter().fold(PathBuf::new(), |p, x| p.join(x))
     }
 
-    pub fn render(mut self, path: &'a [&'a str], content: &'a str, data: Value) -> Self {
+    pub fn render(mut self, path: &[&str], content: &'a str, data: Value) -> Self {
         self.files.push((self.path(path), content, data));
         self
     }
 
-    pub fn copy(self, path: &'a [&'a str], content: &'a str) -> Self {
+    pub fn copy(self, path: &[&str], content: &'a str) -> Self {
         self.render(path, content, json!({}))
     }
 
-    pub fn edit<F>(mut self, path: &'a [&'a str], f: F) -> Self
+    pub fn edit<F>(mut self, path: &[&str], f: F) -> Self
     where
         F: Fn(String) -> Result<String, Error> + 'static,
     {
@@ -76,6 +80,11 @@ impl<'a> Template<'a> {
                 path.to_string_lossy(),
             ))?;
         }
+
+        Command::new("cargo")
+            .args(&["fmt"])
+            .status()
+            .map_err(|_| Error::Cargo)?;
 
         Ok(())
     }

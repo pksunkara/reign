@@ -12,6 +12,8 @@ pub(crate) const INTERNAL_ERR: &str =
 pub enum Error {
     #[error("unable to execute cargo process")]
     Cargo,
+    #[error("unable to find cargo workspace dir")]
+    NoWorkspace,
     #[error("need at least one task to be specified since {0} is a group of tasks")]
     NoArgs(String),
     #[error("there is no task named {0}")]

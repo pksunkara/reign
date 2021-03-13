@@ -6,7 +6,7 @@
 use reign_task::Task;
 use reign_task_cargo::Cargo;
 
-pub fn default() -> Vec<Box<dyn Task>> {
+pub fn tasks() -> Vec<Box<dyn Task>> {
     vec![
         Box::new(
             Cargo::new("test")

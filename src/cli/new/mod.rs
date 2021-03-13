@@ -14,6 +14,7 @@ pub struct New {
 impl New {
     pub fn run(&self) -> Result<(), Error> {
         let project = PathBuf::from(&self.name);
+        let snake_name = to_snake_case(&self.name);
 
         Template::new(&project)
             .copy(&["README.md"], include_str!("template/README.md"))
@@ -22,7 +23,7 @@ impl New {
                 &["Cargo.toml"],
                 include_str!("template/Cargo.toml"),
                 json!({
-                    "name": to_snake_case(&self.name),
+                    "name": snake_name,
                     "reign_version": env!("CARGO_PKG_VERSION").to_string(),
                 }),
             )
@@ -30,7 +31,7 @@ impl New {
                 &[".env"],
                 include_str!("template/.env"),
                 json!({
-                    "name": to_snake_case(&self.name),
+                    "name": snake_name,
                 }),
             )
             .copy(&["src", "main.rs"], include_str!("template/src/main.rs"))
@@ -89,7 +90,7 @@ impl New {
                 &["xtask", "src", "main.rs"],
                 include_str!("template/xtask/src/main.rs"),
                 json!({
-                    "reign_version": env!("CARGO_PKG_VERSION").to_string(),
+                    "name": snake_name,
                 }),
             )
             .run()
