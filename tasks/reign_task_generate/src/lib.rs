@@ -5,10 +5,12 @@
 
 mod controller;
 mod generator;
+mod migration;
 mod model;
 
 use controller::Controller;
 use generator::Generator;
+use migration::Migration;
 use model::Model;
 
 use reign_task::Tasks;
@@ -18,4 +20,5 @@ pub fn task() -> Tasks {
         .task(Model {})
         .task(Controller {})
         .task(Generator {})
+        .task(Migration {})
 }

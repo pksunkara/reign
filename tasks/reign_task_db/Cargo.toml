@@ -1,26 +1,23 @@
 [package]
-name = "reign_common_tasks"
+name = "reign_task_db"
 version = "0.2.1"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
 edition = "2018"
-description = "Common & default tasks for reign"
+description = "Reign task for database manipulation"
 repository = "https://github.com/pksunkara/reign"
-keywords = ["web", "reign", "task"]
+keywords = ["web", "reign", "task", "db", "diesel"]
 categories = ["web-programming"]
 license = "MIT"
 readme = "README.md"
 
 [lib]
-name = "reign_common_tasks"
+name = "reign_task_db"
 path = "src/lib.rs"
 
 [dependencies]
 reign_task = { path = "../../reign_task", version = "0.2.1" }
-reign_task_cargo = { path = "../../tasks/reign_task_cargo", version = "0.2.1" }
-reign_task_generate = { path = "../../tasks/reign_task_generate", version = "0.2.1" }
-reign_task_db = { path = "../../tasks/reign_task_db", version = "0.2.1" }
 
 [dev-dependencies]
 version-sync = "0.9.0"

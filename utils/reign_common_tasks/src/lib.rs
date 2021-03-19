@@ -19,5 +19,6 @@ pub fn tasks() -> Vec<Box<dyn Task>> {
                 .args(&["build", "--release"]),
         ),
         Box::new(reign_task_generate::task()),
+        Box::new(reign_task_db::task()),
     ]
 }
