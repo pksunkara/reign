@@ -16,6 +16,11 @@ pub fn router(r: &mut Router) {
     r.scope("").through(&["common", "app"]).to(|r| {
         r.get("", pages::home);
 
+        r.get("register", users::register);
+        r.post("register", users::register_submit);
+        r.get("login", users::login);
+        r.get("logout", users::logout);
+
         r.scope("articles").to(|r| {
             r.get("", articles::list);
             r.get("new", articles::new);

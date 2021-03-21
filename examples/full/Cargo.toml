@@ -15,6 +15,7 @@ serde = { version = "1.0.110", features = ["derive"] }
 thiserror = "1.0.19"
 anyhow = "1.0.31"
 chrono = "0.4.19"
+serde_urlencoded = "0.7.0"
 
 [build-dependencies]
 walkdir = "2.3"
