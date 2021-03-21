@@ -69,7 +69,7 @@ impl SessionBackend for RedisBackend {
     fn drop_session<'a>(&'a self, id: &'a str) -> BoxFuture<'a, ()> {
         async move {
             if let Ok(mut conn) = self.pool.get().await {
-                if let Err(e) = conn.del::<_, String>(id).await {
+                if let Err(e) = conn.del::<_, usize>(id).await {
                     error!("Failed to run redis command, {}", e);
                 }
             } else {

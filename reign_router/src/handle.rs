@@ -4,7 +4,7 @@ use crate::{
     Error, Request, Response,
 };
 
-use log::{debug, error};
+use log::{error, trace};
 
 use std::{fmt::Display, future::Future, pin::Pin};
 
@@ -27,7 +27,7 @@ where
         async move {
             let result = (self)(req).await;
 
-            debug!("executing function");
+            trace!("executing function");
 
             match result {
                 Ok(r) => Ok(r.respond()?),

@@ -1,0 +1,32 @@
+[package]
+name = "reign_plugin_auth"
+version = "0.2.1"
+authors = [
+	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
+]
+edition = "2018"
+description = "Authentication plugin for reign"
+repository = "https://github.com/pksunkara/reign"
+keywords = ["authentication", "authorization", "web", "reign", "plugin"]
+categories = ["web-programming"]
+license = "MIT"
+readme = "README.md"
+
+[lib]
+name = "reign_plugin_auth"
+path = "src/lib.rs"
+
+[dependencies]
+reign_plugin = { path = "../../reign_plugin", version = "0.2.1" }
+serde = { version = "1.0.111", features = ["derive"] }
+
+[dev-dependencies]
+reign = { path = "../../" }
+version-sync = "0.9.0"
+
+[features]
+default = []
+doc = []
+
+[package.metadata.docs.rs]
+all-features = true

@@ -1,4 +1,4 @@
-use crate::error::Error;
+use crate::{error::Error, models::User};
 
 use reign::prelude::*;
 use serde::Deserialize;
@@ -23,6 +23,26 @@ pub async fn login(_req: &mut Request) -> Result<impl Response, Error> {
     Ok("login")
 }
 
-pub async fn logout(_req: &mut Request) -> Result<impl Response, Error> {
-    Ok("logout")
+pub async fn login_submit(req: &mut Request) -> Result<impl Response, Error> {
+    reign_plugin_auth::login(req, "", "");
+
+    Ok(redirect("/")?)
+}
+
+pub async fn logout(req: &mut Request) -> Result<impl Response, Error> {
+    reign_plugin_auth::logout(req);
+
+    Ok(redirect("/")?)
+}
+
+pub async fn profile(req: &mut Request) -> Result<impl Response, Error> {
+    let user = reign_plugin_auth::user(req);
+
+    if user.is_none() {
+        return Ok(redirect("/")?);
+    }
+
+    let user = User::filter().id(user.unwrap()).one().await?;
+
+    Ok(format!("{:?}", user).respond()?)
 }

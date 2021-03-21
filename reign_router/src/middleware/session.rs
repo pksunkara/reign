@@ -197,6 +197,7 @@ where
             }
         }
 
+        trace!("Regenerating session data");
         req.extensions_mut().insert(SessionData::<T>::None);
         false
     }
@@ -212,6 +213,8 @@ where
             match data {
                 SessionData::Dirty(data) => {
                     if let Ok(bytes) = serialize(&data) {
+                        trace!("Writing session");
+
                         let id = self.random_identifier();
                         let written = self.backend.persist_session(&id, &bytes).await;
 
@@ -221,6 +224,8 @@ where
                     }
                 }
                 SessionData::None if had_data => {
+                    trace!("Dropping session");
+
                     self.reset_cookie(res);
                     self.backend
                         .drop_session(id.as_ref().expect(INTERNAL_ERR))

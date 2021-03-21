@@ -5,6 +5,8 @@ pub trait OptionExt {
     type Inner;
 
     fn ok_or_404(self) -> Result<Self::Inner, Error>;
+
+    fn ok_or_403(self) -> Result<Self::Inner, Error>;
 }
 
 impl<T> OptionExt for Option<T> {
@@ -30,5 +32,27 @@ impl<T> OptionExt for Option<T> {
     /// ```
     fn ok_or_404(self) -> Result<Self::Inner, Error> {
         self.ok_or_else(|| Error::Status(StatusCode::NOT_FOUND))
+    }
+
+    /// Transforms the [`Option<T>`] into a [`Result<T, E>`], mapping `Some(v)`
+    /// to `Ok(v)` and `None` to 403 [`Error`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use reign::prelude::*;
+    /// use serde::{Deserialize, Serialize};
+    ///
+    /// #[derive(Serialize, Deserialize, Clone)]
+    /// struct User(String);
+    ///
+    /// async fn foo(req: &mut Request) -> Result<impl Response, Error> {
+    ///     let user = req.session::<User>().ok_or_404()?;
+    ///
+    ///     Ok(user.0.clone())
+    /// }
+    /// ```
+    fn ok_or_403(self) -> Result<Self::Inner, Error> {
+        self.ok_or_else(|| Error::Status(StatusCode::FORBIDDEN))
     }
 }

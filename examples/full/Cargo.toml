@@ -9,6 +9,7 @@ publish = false
 reign = { path = "../..", features = ["session"] }
 reign_plugin_redis = { path = "../../plugins/reign_plugin_redis" }
 reign_plugin_static = { path = "../../plugins/reign_plugin_static" }
+reign_plugin_auth = { path = "../../plugins/reign_plugin_auth" }
 reign_session_backend_redis = { path = "../../utils/reign_session_backend_redis" }
 tokio = { version = "1.2.0", features = ["full"] }
 serde = { version = "1.0.110", features = ["derive"] }
