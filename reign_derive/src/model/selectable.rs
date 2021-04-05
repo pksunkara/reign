@@ -64,10 +64,10 @@ impl Model {
             {
                 type Row = (#(#field_ty,)*);
 
-                fn build(row: Self::Row) -> Self {
-                    Self {
+                fn build(row: Self::Row) -> ::reign::model::diesel::deserialize::Result<Self> {
+                    Ok(Self {
                         #(#build_expr,)*
-                    }
+                    })
                 }
             }
         }

@@ -1,6 +1,6 @@
 use crate::env::load_env_files;
 
-use env_logger::{from_env, Env};
+use env_logger::{Builder, Env};
 use reign_plugin::{
     reign_router::{serve, Router},
     Plugin,
@@ -17,7 +17,7 @@ impl Reign {
     pub fn build() -> Self {
         load_env_files();
 
-        from_env(Env::default().default_filter_or("info"))
+        Builder::from_env(Env::default().default_filter_or("info"))
             .format_timestamp(None)
             .init();
 
