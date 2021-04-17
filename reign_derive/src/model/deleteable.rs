@@ -19,12 +19,12 @@ impl Model {
     }
 
     pub fn gen_tag_deleteable(&self, ident: &Ident, fields: &[ModelField]) -> TokenStream {
-        let gen_deleteable_methods = self.gen_deleteable_methods(ident, fields);
-        let gen_deleteable_actions = self.gen_deleteable_actions(ident, fields);
+        let gen_tag_deleteable_methods = self.gen_deleteable_methods(ident, fields);
+        let gen_tag_deleteable_actions = self.gen_deleteable_actions(ident, fields);
 
         quote! {
-            #gen_deleteable_methods
-            #gen_deleteable_actions
+            #gen_tag_deleteable_methods
+            #gen_tag_deleteable_actions
         }
     }
 

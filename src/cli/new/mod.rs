@@ -13,7 +13,6 @@ pub struct New {
 
 impl New {
     pub fn run(&self) -> Result<(), Error> {
-        // TODO: cli: Allow option to merge
         let project = PathBuf::from(&self.name);
 
         Template::new(&project)
