@@ -1,4 +1,5 @@
 use crate::utils::Options;
+
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
@@ -28,6 +29,6 @@ pub fn json(mut input: Json) -> TokenStream {
         .unwrap_or_else(|| parse_str("200").unwrap());
 
     quote! {
-        ::reign::view::json(#expr, #status)
+        ::reign::router::helpers::json(#expr, #status)
     }
 }

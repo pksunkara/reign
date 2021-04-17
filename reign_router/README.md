@@ -24,11 +24,11 @@ Please refer to [API documentation](https://docs.rs/reign_router) for more detai
 # Quickstart
 
 1. Add [Reign][] to your code base with default features ommitted and
-   `router-backend` feature enabled
+   `router` feature enabled
 
     ```toml
     [dependencies]
-    reign = { version = "*", features = ["router-backend"], default-features = false }
+    reign = { version = "*", features = ["router"], default-features = false }
     ```
 
 2. Write an endpoint handler

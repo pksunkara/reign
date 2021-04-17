@@ -1,7 +1,7 @@
 #[cfg(any(
     feature = "framework",
     feature = "view",
-    feature = "router-backend",
+    feature = "router",
     feature = "model-postgres",
     feature = "hot-reload"
 ))]
@@ -11,7 +11,10 @@ pub use reign_derive::*;
 pub use reign_boot::Config;
 #[cfg(feature = "model-postgres")]
 pub use reign_model::diesel::Identifiable;
-#[cfg(feature = "router-backend")]
-pub use reign_router::{Error, OptionExt, Request, Response};
-#[cfg(feature = "view-backend")]
-pub use reign_view::redirect;
+#[cfg(feature = "json")]
+pub use reign_router::helpers::json;
+#[cfg(feature = "router")]
+pub use reign_router::{
+    helpers::{redirect, render},
+    Error, OptionExt, Request, Response,
+};

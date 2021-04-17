@@ -431,18 +431,6 @@ to see how they are used.
 Please refer to [reign_derive](https://docs.rs/reign_derive) for more information about the
 usage of macros.
 
-##### view
-
-* `views!` can be used to build the views.
-* `render!` can be used to render a view into a string.
-
-##### view-backend
-
-* `views!` can be used to build the views.
-* Enables `render` helper and `render!` renders a view into [hyper][] response.
-* Enables `redirect` helper for [hyper][] response.
-* Enables `json` helper and `json!` serializes a value into [hyper][] response.
-
 # Appendix
 
 ### Expressions

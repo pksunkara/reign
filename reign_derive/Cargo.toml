@@ -27,7 +27,7 @@ reign_view = { path = "../reign_view", version = "0.2.1", optional = true }
 serde_json = { version = "1.0.53", optional = true }
 
 [dev-dependencies]
-reign = { path = "../" }
+reign = { path = "../", features = ["json"] }
 tokio = { version = "1.2.0", features = ["full"] }
 version-sync = "0.9.0"
 trybuild = "1.0"
@@ -40,8 +40,8 @@ doc = []
 framework = ["Inflector"]
 model-postgres = ["Inflector"]
 view = ["reign_view", "regex", "Inflector", "once_cell"]
-view-backend = ["view"]
-router-backend = []
+router = []
+json = []
 hot-reload = ["serde_json"]
 
 [package.metadata.docs.rs]

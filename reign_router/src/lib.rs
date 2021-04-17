@@ -17,6 +17,7 @@ mod route;
 mod scope;
 mod service;
 
+pub mod helpers;
 pub mod middleware;
 
 pub use error::*;

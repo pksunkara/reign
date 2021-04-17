@@ -9,14 +9,16 @@ use syn::parse_macro_input;
 
 #[cfg(feature = "framework")]
 mod framework;
+#[cfg(feature = "json")]
+mod json;
 #[cfg(feature = "model-postgres")]
 mod model;
-#[cfg(feature = "router-backend")]
+#[cfg(feature = "router")]
 mod router;
 #[cfg(feature = "view")]
 mod view;
 
-#[cfg(feature = "view")]
+#[cfg(any(feature = "view", feature = "json"))]
 mod utils;
 
 pub(crate) const INTERNAL_ERR: &str =
@@ -103,12 +105,12 @@ pub fn render(input: TokenStream) -> TokenStream {
 ///
 /// json!(user, status = 201)
 /// ```
-#[cfg(feature = "view-backend")]
+#[cfg(feature = "json")]
 #[proc_macro]
 pub fn json(input: TokenStream) -> TokenStream {
-    let input: view::json::Json = parse_macro_input!(input);
+    let input: json::Json = parse_macro_input!(input);
 
-    view::json::json(input).into()
+    json::json(input).into()
 }
 
 /// Helper for using path params in a [reign_router] handle.
@@ -123,7 +125,7 @@ pub fn json(input: TokenStream) -> TokenStream {
 ///     Ok(id)
 /// }
 /// ```
-#[cfg(feature = "router-backend")]
+#[cfg(feature = "router")]
 #[proc_macro_attribute]
 #[proc_macro_error]
 pub fn params(_: TokenStream, input: TokenStream) -> TokenStream {
@@ -169,7 +171,7 @@ pub fn params(_: TokenStream, input: TokenStream) -> TokenStream {
 /// }
 /// ```
 // TODO: derive: Maybe we don't need a proc macro here and use `macro_rules`
-#[cfg(feature = "router-backend")]
+#[cfg(feature = "router")]
 #[proc_macro]
 #[proc_macro_error]
 pub fn p(input: TokenStream) -> TokenStream {

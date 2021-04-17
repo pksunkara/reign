@@ -3,7 +3,7 @@
 #![doc(html_root_url = "https://docs.rs/reign/0.2.1")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
-#[cfg(feature = "router-backend")]
+#[cfg(feature = "router")]
 pub use log;
 
 pub mod prelude;
@@ -12,7 +12,7 @@ pub mod prelude;
 pub use reign_boot::*;
 #[cfg(feature = "model-postgres")]
 pub use reign_model as model;
-#[cfg(feature = "router-backend")]
+#[cfg(feature = "router")]
 pub use reign_router as router;
 #[cfg(feature = "view")]
 pub use reign_view as view;

@@ -22,8 +22,7 @@ jobs:
         type:
           - test
           - view
-          - view-backend
-          - router-backend
+          - router
           - model-postgres
           - full
         rust: [1.48.0]

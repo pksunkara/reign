@@ -55,9 +55,8 @@ members = [
 	"tasks/*",
 
 	"examples/model-postgres",
-	"examples/router-backend",
+	"examples/router",
 	"examples/view",
-	"examples/view-backend",
 ]
 default-members = [
 	".",
@@ -75,7 +74,7 @@ default-members = [
 ]
 
 [features]
-default = ["view-backend", "router-backend", "model-postgres", "framework"]
+default = ["view", "router", "model-postgres", "framework"]
 doc = []
 
 cli = [
@@ -83,13 +82,13 @@ cli = [
 ]
 
 view = ["reign_view", "reign_derive/view"]
-view-backend = ["reign_view/view-backend", "reign_derive/view-backend", "view"]
-router-backend = ["reign_router", "reign_derive/router-backend", "log"]
+router = ["reign_router", "reign_derive/router", "log"]
 model-postgres = ["reign_model/model-postgres", "reign_derive/model-postgres"]
 framework = ["reign_boot", "reign_derive/framework", "reign_model/plugin"]
 
-cookie = ["reign_router/cookie", "router-backend"]
-session = ["reign_router/session", "router-backend"]
+cookie = ["reign_router/cookie", "router"]
+session = ["reign_router/session", "router"]
+json = ["reign_router/json", "reign_derive/json", "router"]
 
 hot-reload = ["reign_view/hot-reload", "reign_derive/hot-reload"]
 

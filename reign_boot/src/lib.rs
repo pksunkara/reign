@@ -3,6 +3,7 @@
 #![doc(html_root_url = "https://docs.rs/reign_boot/0.2.1")]
 #![cfg_attr(feature = "doc", doc(include = "../README.md"))]
 
+#[doc(hidden)]
 pub use once_cell;
 
 mod boot;
