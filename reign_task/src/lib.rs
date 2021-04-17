@@ -9,8 +9,6 @@ mod task;
 mod tasks;
 #[cfg(feature = "templating")]
 mod templating;
-#[doc(hidden)]
-pub mod term;
 
 pub use error::Error;
 pub use task::Task;
@@ -18,5 +16,6 @@ pub use tasks::Tasks;
 #[cfg(feature = "templating")]
 pub use templating::Template;
 
+pub use oclif;
 #[cfg(feature = "templating")]
 pub use serde_json;

@@ -1,11 +1,11 @@
 use crate::{
     error::INTERNAL_ERR,
     serde_json::{json, Value},
-    term::{GREEN_BOLD, TERM_ERR, YELLOW_BOLD},
     Error,
 };
 
 use handlebars::Handlebars;
+use oclif::term::{ERR_GREEN_BOLD, ERR_YELLOW_BOLD, TERM_ERR};
 
 use std::{
     fs::{create_dir_all, File, write, read_to_string},
@@ -58,7 +58,7 @@ impl<'a> Template<'a> {
 
             TERM_ERR.write_line(&format!(
                 "    {} {}",
-                GREEN_BOLD.apply_to("create"),
+                ERR_GREEN_BOLD.apply_to("create"),
                 path.to_string_lossy(),
             ))?;
 
@@ -72,7 +72,7 @@ impl<'a> Template<'a> {
 
             TERM_ERR.write_line(&format!(
                 "    {} {}",
-                YELLOW_BOLD.apply_to("modify"),
+                ERR_YELLOW_BOLD.apply_to("modify"),
                 path.to_string_lossy(),
             ))?;
         }

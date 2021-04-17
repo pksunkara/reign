@@ -1,7 +1,6 @@
-use crate::{
-    error::{finish, INTERNAL_ERR},
-    Error, Task,
-};
+use crate::{error::INTERNAL_ERR, Error, Task};
+
+use oclif::finish;
 
 use std::{collections::HashMap, env::args};
 
@@ -43,7 +42,7 @@ impl Tasks {
     pub fn parse(&self) {
         let args = args().into_iter().skip(1).collect::<Vec<_>>();
 
-        finish(self.run(args).err());
+        finish(self.run(args));
     }
 }
 

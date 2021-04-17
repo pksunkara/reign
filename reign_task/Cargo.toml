@@ -19,8 +19,7 @@ path = "src/lib.rs"
 [dependencies]
 thiserror = "1.0.19"
 anyhow = "1.0.31"
-console = "0.14.0"
-lazy_static = "1.4.0"
+oclif = "0.3.0"
 handlebars = { version = "3.1.0", optional = true }
 serde_json = { version = "1.0.53", optional = true }
 

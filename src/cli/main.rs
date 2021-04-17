@@ -2,7 +2,7 @@ use clap::{
     AppSettings::{ColoredHelp, VersionlessSubcommands},
     Clap,
 };
-use reign_task::error::finish;
+use reign_task::oclif::finish;
 
 // mod server;
 mod new;
@@ -30,13 +30,12 @@ enum ReignSubcommand {
 fn main() {
     let program = Reign::parse();
 
-    let err = match program.cmd {
+    let result = match program.cmd {
         ReignSubcommand::New(x) => x.run(),
         // ReignSubcommand::Server(x) => x.run(),
         ReignSubcommand::Tasks(x) => x.run(),
         ReignSubcommand::Other(x) => tasks::run_task(x),
-    }
-    .err();
+    };
 
-    finish(err);
+    finish(result);
 }
