@@ -5,7 +5,7 @@ use reign::{
     prelude::*,
     router::{
         middleware::{ContentType, RequestLogger},
-        Router,
+        path as p, Router,
     },
 };
 

@@ -225,6 +225,68 @@ impl Into<Path> for String {
     }
 }
 
+/// Helper for defining a [reign_router] Path.
+///
+/// # Examples
+///
+/// ```
+/// use reign::{prelude::*, router::{path as p, Router}};
+/// #
+/// # async fn foobar(req: &mut Request) -> Result<impl Response, Error> { Ok("foobar") }
+/// #
+/// # async fn number(req: &mut Request) -> Result<impl Response, Error> { Ok("number") }
+/// #
+/// # async fn tree(req: &mut Request) -> Result<impl Response, Error> { Ok("tree") }
+///
+/// fn router(r: &mut Router) {
+///     // Required param
+///     r.get(p!("foo" / id / "bar"), foobar);
+///
+///     // Optional param
+///     r.get(p!("foo" / id?), foobar);
+///
+///     // Regex param
+///     r.get(p!("number" / id @ "[0-9]+"), number);
+///
+///     // Optional Regex param
+///     r.get(p!("number" / id? @ "[0-9]+"), number);
+///
+///     // Glob param
+///     r.get(p!("tree" / id*), tree);
+///
+///     // Optional Glob param
+///     r.get(p!("tree" / id*?), tree);
+/// }
+/// ```
+#[macro_export]
+macro_rules! path {
+    (@expr $e:expr,) => { $e };
+    (@expr $e:expr, / $part:literal $($tail:tt)*) => {
+        $crate::path!(@expr $e.path($part), $($tail)*);
+    };
+    (@expr $e:expr, / $part:ident @ $regex:literal $($tail:tt)*) => {
+        $crate::path!(@expr $e.param_regex(stringify!($part), $regex), $($tail)*);
+    };
+    (@expr $e:expr, / $part:ident ? @ $regex:literal $($tail:tt)*) => {
+        $crate::path!(@expr $e.param_opt_regex(stringify!($part), $regex), $($tail)*);
+    };
+    (@expr $e:expr, / $part:ident * ? $($tail:tt)*) => {
+        $crate::path!(@expr $e.param_opt_regex(stringify!($part), ".+"), $($tail)*);
+    };
+    (@expr $e:expr, / $part:ident * $($tail:tt)*) => {
+        $crate::path!(@expr $e.param_regex(stringify!($part), ".+"), $($tail)*);
+    };
+    (@expr $e:expr, / $part:ident ? $($tail:tt)*) => {
+        $crate::path!(@expr $e.param_opt(stringify!($part)), $($tail)*);
+    };
+    (@expr $e:expr, / $part:ident $($tail:tt)*) => {
+        $crate::path!(@expr $e.param(stringify!($part)), $($tail)*);
+    };
+    ($($tail:tt)+) => {
+        $crate::path!(@expr $crate::Path::new(), / $($tail)*);
+    };
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

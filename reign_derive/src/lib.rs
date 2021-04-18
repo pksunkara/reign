@@ -100,52 +100,6 @@ pub fn params(_: TokenStream, input: TokenStream) -> TokenStream {
     router::params::params(input).into()
 }
 
-/// Helper for defining a [reign_router] Path.
-///
-/// # Examples
-///
-/// ```
-/// use reign::{
-///     prelude::*,
-///     router::{Router}
-/// };
-/// #
-/// # async fn foobar(req: &mut Request) -> Result<impl Response, Error> { Ok("foobar") }
-/// #
-/// # async fn number(req: &mut Request) -> Result<impl Response, Error> { Ok("number") }
-/// #
-/// # async fn tree(req: &mut Request) -> Result<impl Response, Error> { Ok("tree") }
-///
-/// fn router(r: &mut Router) {
-///     // Required param
-///     r.get(p!("foo" / id / "bar"), foobar);
-///
-///     // Optional param
-///     r.get(p!("foo" / id?), foobar);
-///
-///     // Regex param
-///     r.get(p!("number" / id @ "[0-9]+"), number);
-///
-///     // Optional Regex param
-///     r.get(p!("number" / id? @ "[0-9]+"), number);
-///
-///     // Glob param
-///     r.get(p!("tree" / id*), tree);
-///
-///     // Optional Glob param
-///     r.get(p!("tree" / id*?), tree);
-/// }
-/// ```
-// TODO: derive: Maybe we don't need a proc macro here and use `macro_rules`
-#[cfg(feature = "router")]
-#[proc_macro]
-#[proc_macro_error]
-pub fn p(input: TokenStream) -> TokenStream {
-    let input: router::path::Path = parse_macro_input!(input);
-
-    router::path::path(input).into()
-}
-
 #[cfg(feature = "framework")]
 #[proc_macro_derive(Config)]
 #[proc_macro_error]

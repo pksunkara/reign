@@ -44,13 +44,13 @@ Please refer to [API documentation](https://docs.rs/reign_router) for more detai
 
 3. Define your routing rules
 
-    ```rust,ignore
-    use reign::router::Router;
+    ```rust
+    use reign::router::{path, Router};
 
     fn routes(r: &mut Router) {
         r.get(Path::new().path("foo").param("id"), foo);
         // can also be written as
-        r.get(p!("foo" / id), foo);
+        r.get(path!("foo" / id), foo);
     }
     ```
 
