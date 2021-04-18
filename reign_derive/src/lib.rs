@@ -9,8 +9,6 @@ use syn::parse_macro_input;
 
 #[cfg(feature = "framework")]
 mod framework;
-#[cfg(feature = "json")]
-mod json;
 #[cfg(feature = "model-postgres")]
 mod model;
 #[cfg(feature = "router")]
@@ -18,7 +16,7 @@ mod router;
 #[cfg(feature = "view")]
 mod view;
 
-#[cfg(any(feature = "view", feature = "json"))]
+#[cfg(feature = "view")]
 mod utils;
 
 pub(crate) const INTERNAL_ERR: &str =
@@ -79,38 +77,6 @@ pub fn render(input: TokenStream) -> TokenStream {
     let input: view::render::Render = parse_macro_input!(input);
 
     view::render::render(input).into()
-}
-
-/// Shorthand notation for returning a json response.
-///
-/// # Examples
-///
-/// Serialize into JSON and send the given value
-///
-/// ```ignore
-/// use reign::prelude::*;
-///
-/// // User implements serde::Serialize
-/// let user = User {
-///     name: "John"
-/// };
-///
-/// json!(user)
-/// ```
-///
-/// You can also specify a status code
-///
-/// ```ignore
-/// use reign::prelude::*;
-///
-/// json!(user, status = 201)
-/// ```
-#[cfg(feature = "json")]
-#[proc_macro]
-pub fn json(input: TokenStream) -> TokenStream {
-    let input: json::Json = parse_macro_input!(input);
-
-    json::json(input).into()
 }
 
 /// Helper for using path params in a [reign_router] handle.

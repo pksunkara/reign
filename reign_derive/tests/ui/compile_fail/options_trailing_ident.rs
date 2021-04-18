@@ -1,7 +1,7 @@
 use reign::prelude::*;
 
 fn test() {
-    json!(200, status);
+    render!(pages::home, status);
 }
 
 fn main() {}

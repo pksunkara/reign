@@ -74,7 +74,7 @@ default-members = [
 ]
 
 [features]
-default = ["view", "router", "model-postgres", "framework"]
+default = ["view", "router", "model-postgres", "framework", "json"]
 doc = []
 
 cli = [
@@ -88,7 +88,7 @@ framework = ["reign_boot", "reign_derive/framework", "reign_model/plugin"]
 
 cookie = ["reign_router/cookie", "router"]
 session = ["reign_router/session", "router"]
-json = ["reign_router/json", "reign_derive/json", "router"]
+json = ["reign_router/json", "router"]
 
 hot-reload = ["reign_view/hot-reload", "reign_derive/hot-reload"]
 
