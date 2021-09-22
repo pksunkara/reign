@@ -36,7 +36,6 @@ rustversion = "1.0"
 
 [features]
 default = []
-doc = []
 framework = ["Inflector"]
 model-postgres = ["Inflector"]
 view = ["reign_view", "regex", "Inflector", "once_cell"]

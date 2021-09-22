@@ -30,7 +30,6 @@ version-sync = "0.9.0"
 
 [features]
 default = []
-doc = []
 plugin = ["reign_plugin"]
 model-postgres = ["diesel/postgres"]
 

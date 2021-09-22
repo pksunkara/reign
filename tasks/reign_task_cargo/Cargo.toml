@@ -24,7 +24,6 @@ version-sync = "0.9.0"
 
 [features]
 default = []
-doc = []
 
 [package.metadata.docs.rs]
 all-features = true

@@ -46,7 +46,6 @@ serde = { version = "1.0.110", features = ["derive"] }
 
 [features]
 default = []
-doc = []
 cookie = ["cookie_r"]
 session = ["cookie", "serde", "bincode", "rand", "rand_chacha", "base64"]
 json = ["serde", "serde_json"]

@@ -28,7 +28,6 @@ version-sync = "0.9.0"
 
 [features]
 default = []
-doc = []
 templating = ["handlebars", "serde_json"]
 
 [package.metadata.docs.rs]

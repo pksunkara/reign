@@ -25,7 +25,7 @@ jobs:
           - router
           - model-postgres
           - full
-        rust: [1.48.0]
+        rust: [1.54.0]
         os: [windows-latest, macos-latest, ubuntu-latest]
         target:
           - i686-pc-windows-msvc
