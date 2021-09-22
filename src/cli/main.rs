@@ -1,5 +1,5 @@
 use clap::{
-    AppSettings::{ColoredHelp, VersionlessSubcommands},
+    AppSettings::{ColoredHelp, DisableVersionForSubcommands},
     Clap,
 };
 use reign_task::oclif::finish;
@@ -10,7 +10,7 @@ mod tasks;
 
 #[derive(Debug, Clap)]
 #[clap(name = "reign", version)]
-#[clap(global_setting(VersionlessSubcommands))]
+#[clap(global_setting(DisableVersionForSubcommands))]
 #[clap(global_setting(ColoredHelp))]
 struct Reign {
     #[clap(subcommand)]

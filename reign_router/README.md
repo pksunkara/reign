@@ -44,8 +44,8 @@ Please refer to [API documentation](https://docs.rs/reign_router) for more detai
 
 3. Define your routing rules
 
-    ```rust
-    use reign::router::{path, Router};
+    ```rust,ignore
+    use reign::router::{path, Path, Router};
 
     fn routes(r: &mut Router) {
         r.get(Path::new().path("foo").param("id"), foo);

@@ -1,8 +1,18 @@
 error[E0599]: no method named `set` found for struct `UserName` in the current scope
-  --> $DIR/model_updateable_tag.rs:30:10
-   |
-14 | #[derive(Debug, Model)]
-   |                 ----- method `set` not found for this
+   --> $DIR/model_updateable_tag.rs:30:10
+    |
+14  | #[derive(Debug, Model)]
+    |                 ----- method `set` not found for this
 ...
-30 |     user.set().name("Mike".into()).save().await.unwrap();
-   |          ^^^ method not found in `UserName`
+30  |     user.set().name("Mike".into()).save().await.unwrap();
+    |          ^^^ method not found in `UserName`
+    |
+   ::: $RUST/core/src/pin.rs
+    |
+    |     pub fn set(&mut self, value: P::Target)
+    |            --- the method is available for `Pin<&mut UserName>` here
+    |
+help: consider wrapping the receiver expression with the appropriate type
+    |
+30  |     Pin::new(&mut user).set().name("Mike".into()).save().await.unwrap();
+    |     ^^^^^^^^^^^^^     ^

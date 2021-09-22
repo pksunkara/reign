@@ -23,7 +23,7 @@ reign_task_generate = { path = "../../tasks/reign_task_generate", version = "0.2
 reign_task_db = { path = "../../tasks/reign_task_db", version = "0.2.1" }
 
 [dev-dependencies]
-version-sync = "0.9.0"
+version-sync = "0.9.3"
 
 [features]
 default = []

@@ -2,7 +2,6 @@ use crate::controllers::*;
 
 use reign::{
     log::Level,
-    prelude::*,
     router::{
         middleware::{ContentType, RequestLogger},
         Router,

@@ -4,4 +4,4 @@ error: expected `=`
 4 |     render!(pages::home, status);
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
-  = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `render` (in Nightly builds, run with -Z macro-backtrace for more info)

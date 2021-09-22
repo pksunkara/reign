@@ -8,5 +8,5 @@ publish = false
 [dependencies]
 reign = { path = "../..", features = ["model-postgres"], default-features = false }
 tokio = { version = "1.2.0", features = ["full"] }
-diesel = { path = "../../../../reign-rs/diesel/diesel" }
-diesel_migrations = { path = "../../../../reign-rs/diesel/diesel_migrations" }
+diesel = { git = "https://github.com/diesel-rs/diesel", package = "diesel" }
+diesel_migrations = { git = "https://github.com/diesel-rs/diesel", package = "diesel_migrations" }

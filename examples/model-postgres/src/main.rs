@@ -1,9 +1,9 @@
-use diesel_migrations::embed_migrations;
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use reign::{model::Database, prelude::*};
 
 mod schema;
 
-embed_migrations!("migrations");
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
 
 #[derive(Debug, Model)]
 struct User {
@@ -24,7 +24,10 @@ async fn main() {
     connect();
     println!("Connected to the database");
 
-    embedded_migrations::run_with_output(&Database::get().get().unwrap(), &mut std::io::stdout())
+    Database::get()
+        .get()
+        .unwrap()
+        .run_pending_migrations(MIGRATIONS)
         .unwrap();
     println!("Ran database migrations");
 

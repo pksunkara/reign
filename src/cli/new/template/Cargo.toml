@@ -8,9 +8,9 @@ publish = false
 reign = { version = "{{ reign_version }}", features = ["session"] }
 reign_plugin_static = "{{ reign_version }}"
 tokio = { version = "1.2.0", features = ["full"] }
-serde = { version = "1.0.110", features = ["derive"] }
-thiserror = "1.0.19"
-anyhow = "1.0.31"
+serde = { version = "1.0.130", features = ["derive"] }
+thiserror = "1.0.29"
+anyhow = "1.0.44"
 chrono = "0.4.19"
 
 [workspace]
