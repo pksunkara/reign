@@ -42,7 +42,9 @@ impl Tasks {
     pub fn parse(&self) {
         let args = args().into_iter().skip(1).collect::<Vec<_>>();
 
-        finish(self.run(args));
+        println!("");
+
+        finish(self.run_with_prev(args, vec![]));
     }
 }
 
@@ -72,11 +74,11 @@ impl Task for Tasks {
         })
     }
 
-    fn run(&self, args: Vec<String>) -> Result<(), Error> {
-        if self.name == "reign" {
-            println!("");
-        }
+    fn run(&self, _: Vec<String>) -> Result<(), Error> {
+        unimplemented!()
+    }
 
+    fn run_with_prev(&self, args: Vec<String>, prev: Vec<String>) -> Result<(), Error> {
         if args.len() < 1 {
             return Err(Error::NoArgs(self.name.clone()));
         }
@@ -87,7 +89,7 @@ impl Task for Tasks {
             let mut list = self
                 .list()
                 .into_iter()
-                .map(|(name, about)| (name.join(" "), about))
+                .map(|(name, about)| (format!("{} {}", prev.join(" "), name.join(" ")), about))
                 .collect::<Vec<_>>();
 
             // Get maximum name length
@@ -108,6 +110,9 @@ impl Task for Tasks {
             .get(name)
             .ok_or_else(|| Error::NoTask(name.to_string()))?;
 
-        task.run(rest.to_vec())
+        let mut prev = prev;
+        prev.push(self.command());
+
+        task.run_with_prev(rest.to_vec(), prev)
     }
 }
