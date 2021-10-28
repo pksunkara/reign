@@ -2,7 +2,7 @@
 name = "examples_full"
 version = "0.0.0"
 authors = ["Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"]
-edition = "2018"
+edition = "2021"
 publish = false
 
 [dependencies]

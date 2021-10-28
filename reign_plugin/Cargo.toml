@@ -4,7 +4,7 @@ version = "0.2.1"
 authors = [
 	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
 ]
-edition = "2018"
+edition = "2021"
 description = "Opinionated Fullstack Web Framework in Rust"
 repository = "https://github.com/pksunkara/reign"
 keywords = ["plugin", "fullstack", "web", "framework", "reign"]

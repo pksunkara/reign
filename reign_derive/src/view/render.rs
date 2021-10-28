@@ -167,7 +167,7 @@ fn capture(input: &Render) -> TokenStream {
             };
 
             quote! {
-                #ident#rest
+                #ident #rest
             }
         })
         .collect();
