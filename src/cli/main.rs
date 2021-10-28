@@ -1,23 +1,18 @@
-use clap::{
-    AppSettings::{ColoredHelp, DisableVersionForSubcommands},
-    Clap,
-};
+use clap::Parser;
 use reign_task::oclif::finish;
 
 // mod server;
 mod new;
 mod tasks;
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 #[clap(name = "reign", version)]
-#[clap(global_setting(DisableVersionForSubcommands))]
-#[clap(global_setting(ColoredHelp))]
 struct Reign {
     #[clap(subcommand)]
     cmd: ReignSubcommand,
 }
 
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 enum ReignSubcommand {
     New(new::New),
     // #[clap(alias = "s")]

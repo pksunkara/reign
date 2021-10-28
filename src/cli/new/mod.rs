@@ -1,11 +1,11 @@
-use clap::Clap;
+use clap::Parser;
 use inflector::cases::{snakecase::to_snake_case, titlecase::to_title_case};
 use reign_task::{serde_json::json, Error, Template};
 
 use std::path::PathBuf;
 
 /// Create a new Reign application
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 pub struct New {
     /// Name of the application
     pub name: String,

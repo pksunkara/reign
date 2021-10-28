@@ -1,10 +1,10 @@
-use clap::Clap;
+use clap::Parser;
 use reign_task::Error;
 
 use std::process::Command;
 
 /// List all available tasks in a reign app
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 pub struct Tasks {}
 
 impl Tasks {

@@ -19,7 +19,7 @@ path = "src/lib.rs"
 [dependencies]
 thiserror = "1.0.29"
 anyhow = "1.0.44"
-oclif = "0.3.0"
+oclif = "0.4.0"
 handlebars = { version = "3.5.3", optional = true }
 serde_json = { version = "1.0.68", optional = true }
 

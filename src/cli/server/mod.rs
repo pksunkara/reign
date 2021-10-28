@@ -1,6 +1,6 @@
 use crate::server::view::{has_any_view_files, is_view_folder, parse};
 
-use clap::Clap;
+use clap::Parser;
 use notify::{
     event::{CreateKind, DataChange, EventKind, ModifyKind, RemoveKind},
     Error as NotifyError, Event, RecommendedWatcher, RecursiveMode, Watcher,
@@ -27,7 +27,7 @@ mod write;
 // TODO:(cli) rename folder/file
 
 /// Start the Reign server
-#[derive(Debug, Clap)]
+#[derive(Debug, Parser)]
 pub struct Server {}
 
 impl Server {
