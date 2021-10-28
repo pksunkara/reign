@@ -5,7 +5,6 @@ on:
     paths-ignore: ["docs/**"]
   pull_request:
     branches: [master]
-    types: [opened, reopened, synchronize]
     paths-ignore: ["docs/**"]
 jobs:
   lint:

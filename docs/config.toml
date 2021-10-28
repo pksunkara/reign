@@ -3,20 +3,20 @@ base_url = "https://reign.rs"
 title = "Reign"
 description = "Opinionated Fullstack Web Framework in Rust"
 
-compile_sass = false
+build_search_index = true
+generate_feed = true
+
+[markdown]
 highlight_code = true
 highlight_theme = "material-light"
-build_search_index = true
 
-default_language = "en"
+external_links_target_blank = true
 
 languages = [
 	{ code = "ru", search = true },
 ]
 
 [translations]
-
-[translations.en]
 news = "News"
 search = "Search"
 release = "Release"
@@ -25,7 +25,7 @@ guide = "Guide"
 reference = "Reference"
 code = "Code"
 
-[translations.ru]
+[languages.ru.translations]
 news = "Новости"
 search = "Поиск"
 release = "Релиз"

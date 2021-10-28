@@ -26,9 +26,8 @@
     <label>{{ trans(key = "language", lang = lang) }}</label>
     <div>
       <select id="language-switcher">
-        <option selected value="{{ current_url | safe }}">{{ config.extra.languages[lang] }}</option>
         {% for translation in page.translations %}
-          <option value="{{ translation.permalink | safe }}">{{ config.extra.languages[translation.lang] }}</option>
+          <option {% if lang == translation.lang %}selected {% endif %}value="{{ translation.permalink | safe }}">{{ config.extra.languages[translation.lang] }}</option>
         {% endfor %}
       </select>
     </div>
