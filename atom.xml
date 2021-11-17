@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title>Reign</title>
+	<subtitle>Opinionated Fullstack Web Framework in Rust</subtitle>
+	<link href="https://reign.rs/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://reign.rs"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2020-10-24T00:00:00+01:00</updated>
+	<id>https://reign.rs/atom.xml</id>
+	<entry xml:lang="en">
+		<title>Introducing Reign</title>
+		<published>2020-10-24T00:00:00+01:00</published>
+		<updated>2020-10-24T00:00:00+01:00</updated>
+		<link href="https://reign.rs/news/introducing-reign/" type="text/html"/>
+		<id>https://reign.rs/news/introducing-reign/</id>
+		<content type="html">&lt;p&gt;After months of work, I am ecstatic to finally announce &lt;strong&gt;Reign&lt;&#x2F;strong&gt;!&lt;&#x2F;p&gt;
+&lt;span id=&quot;continue-reading&quot;&gt;&lt;&#x2F;span&gt;&lt;h2 id=&quot;vision&quot;&gt;&lt;a href=&quot;#vision&quot; class=&quot;anchor level-2&quot;&gt;#&lt;&#x2F;a&gt;
+Vision&lt;&#x2F;h2&gt;
+&lt;p&gt;Productivity of &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;rubyonrails.org&quot;&gt;Rails&lt;&#x2F;a&gt; with the safety and performance of &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;rust-lang.org&quot;&gt;Rust&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;router-features&quot;&gt;&lt;a href=&quot;#router-features&quot; class=&quot;anchor level-2&quot;&gt;#&lt;&#x2F;a&gt;
+Router Features&lt;&#x2F;h2&gt;
+&lt;h4 id=&quot;glob-path-parameters&quot;&gt;&lt;a href=&quot;#glob-path-parameters&quot; class=&quot;anchor level-4&quot;&gt;#&lt;&#x2F;a&gt;
+Glob path parameters&lt;&#x2F;h4&gt;
+</content>
+	</entry>
+</feed>

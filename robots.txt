@@ -1,2 +1,3 @@
 User-agent: *
+Allow: /
 Sitemap: https://reign.rs/sitemap.xml
