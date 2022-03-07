@@ -18,7 +18,7 @@ path = "src/lib.rs"
 
 [dependencies]
 reign_plugin = { path = "../reign_plugin", version = "0.2.1" }
-dotenv = "0.15.0"
+dotenvy = "0.15.0"
 env_logger = "0.8.3"
 envy = "0.4.2"
 serde = "1.0.130"
