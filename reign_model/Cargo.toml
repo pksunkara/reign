@@ -26,7 +26,6 @@ reign_plugin = { path = "../reign_plugin", version = "0.2.1", optional = true }
 
 [dev-dependencies]
 reign = { path = "../" }
-version-sync = "0.9.3"
 
 [features]
 default = []

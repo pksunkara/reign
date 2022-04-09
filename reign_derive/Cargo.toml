@@ -29,7 +29,6 @@ serde_json = { version = "1.0.68", optional = true }
 [dev-dependencies]
 reign = { path = "../" }
 tokio = { version = "1.2.0", features = ["full"] }
-version-sync = "0.9.3"
 trybuild = "1.0.41"
 serial_test = "0.5.1"
 rustversion = "1.0.4"

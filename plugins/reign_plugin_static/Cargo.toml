@@ -27,7 +27,6 @@ hyper = { version = "0.14.4", features = ["stream"] }
 [dev-dependencies]
 reign = { path = "../../" }
 tokio = { version = "1.2.0", features = ["macros"] }
-version-sync = "0.9.3"
 
 [features]
 default = []

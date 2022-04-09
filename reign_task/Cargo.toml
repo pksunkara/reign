@@ -24,7 +24,6 @@ handlebars = { version = "3.5.3", optional = true }
 serde_json = { version = "1.0.68", optional = true }
 
 [dev-dependencies]
-version-sync = "0.9.3"
 
 [features]
 default = []

@@ -22,7 +22,6 @@ bb8-redis = "0.9.0"
 once_cell = "1.7.2"
 
 [dev-dependencies]
-version-sync = "0.9.3"
 
 [features]
 default = []
