@@ -5,9 +5,9 @@ use crate::{
     Chain, HandleFuture, Middleware, Request,
 };
 
-use cookie_r::Cookie;
+use cookie::Cookie;
 
-pub use cookie_r::CookieJar;
+pub use cookie::CookieJar;
 
 /// Parses the cookie and adds a CookieJar to the request storage.
 #[derive(Default)]

@@ -13,7 +13,7 @@ Please refer to [Guides](https://reign.rs/guides) on several how-to scenairos.
 
 Please refer to [API documentation](https://docs.rs/reign_router) for more details.
 
-**NOTE**: Minimum supported Rust version is **1.54.0**.
+**NOTE**: Minimum supported Rust version is **1.60.0**.
 
 # Table of contents
 

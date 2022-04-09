@@ -83,7 +83,7 @@ cli = [
 view = ["reign_view", "reign_derive/view"]
 router = ["reign_router", "reign_derive/router", "log"]
 model-postgres = ["reign_model/model-postgres", "reign_derive/model-postgres"]
-framework = ["reign_boot", "reign_derive/framework", "reign_model/plugin"]
+framework = ["reign_boot", "reign_derive/framework", "reign_model?/plugin"]
 
 cookie = ["reign_router/cookie", "router"]
 session = ["reign_router/session", "router"]

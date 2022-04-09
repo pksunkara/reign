@@ -23,7 +23,7 @@ use std::{
     sync::{Arc, Mutex, PoisonError},
 };
 
-pub use cookie_r::SameSite;
+pub use cookie::SameSite;
 
 const INTERNAL_ERR: &str =
     "Internal error on reign_router/middleware/session. Please create an issue on https://github.com/pksunkara/reign";

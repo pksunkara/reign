@@ -1,4 +1,4 @@
-use dotenv::from_filename;
+use dotenvy::from_filename;
 use std::env;
 
 fn build_env_file_heirarchy(environment: String) -> Vec<String> {
