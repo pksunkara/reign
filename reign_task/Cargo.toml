@@ -1,33 +1,34 @@
 [package]
 name = "reign_task"
 version = "0.2.1"
-authors = [
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
-]
-edition = "2021"
 description = "Opinionated Fullstack Web Framework in Rust"
-repository = "https://github.com/pksunkara/reign"
 keywords = ["task", "fullstack", "web", "framework", "reign"]
-categories = ["web-programming"]
-license = "MIT"
-readme = "README.md"
+
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [lib]
 name = "reign_task"
 path = "src/lib.rs"
 
-[dependencies]
-thiserror = "1.0.29"
-anyhow = "1.0.44"
-oclif = "0.4.0"
-handlebars = { version = "3.5.3", optional = true }
-serde_json = { version = "1.0.68", optional = true }
-
-[dev-dependencies]
-
 [features]
 default = []
 templating = ["handlebars", "serde_json"]
+
+[dependencies]
+anyhow = { workspace = true }
+oclif = "0.4.0"
+thiserror = { workspace = true }
+
+handlebars = { version = "3.5.3", optional = true }
+serde_json = { workspace = true, optional = true }
+
+[dev-dependencies]
 
 [package.metadata.docs.rs]
 all-features = true

@@ -1,28 +1,28 @@
 [package]
 name = "reign_task_db"
 version = "0.2.1"
-authors = [
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
-]
-edition = "2021"
 description = "Reign task for database manipulation"
-repository = "https://github.com/pksunkara/reign"
 keywords = ["web", "reign", "task", "db", "diesel"]
-categories = ["web-programming"]
-license = "MIT"
-readme = "README.md"
+
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [lib]
 name = "reign_task_db"
 path = "src/lib.rs"
 
+[features]
+default = []
+
 [dependencies]
 reign_task = { path = "../../reign_task", version = "0.2.1" }
 
 [dev-dependencies]
-
-[features]
-default = []
 
 [package.metadata.docs.rs]
 all-features = true

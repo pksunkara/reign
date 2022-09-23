@@ -1,32 +1,32 @@
 [package]
 name = "reign_task_generate"
 version = "0.2.1"
-authors = [
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
-]
-edition = "2021"
 description = "Reign task for generating files"
-repository = "https://github.com/pksunkara/reign"
 keywords = ["web", "reign", "task", "generate", "template"]
-categories = ["web-programming"]
-license = "MIT"
-readme = "README.md"
+
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [lib]
 name = "reign_task_generate"
 path = "src/lib.rs"
 
-[dependencies]
-reign_task = { path = "../../reign_task", version = "0.2.1", features = ["templating"] }
-Inflector = "0.11.4"
-anyhow = "1.0.44"
-atoi = "0.4.0"
-serde = { version = "1.0.130", features = ["derive"] }
-
-[dev-dependencies]
-
 [features]
 default = []
+
+[dependencies]
+anyhow = { workspace = true }
+atoi = "0.4.0"
+Inflector = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+reign_task = { path = "../../reign_task", version = "0.2.1", features = ["templating"] }
+
+[dev-dependencies]
 
 [package.metadata.docs.rs]
 all-features = true

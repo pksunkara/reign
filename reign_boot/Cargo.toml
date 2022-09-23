@@ -1,33 +1,33 @@
 [package]
 name = "reign_boot"
 version = "0.2.1"
-authors = [
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
-]
-edition = "2021"
 description = "Opinionated Fullstack Web Framework in Rust"
-repository = "https://github.com/pksunkara/reign"
 keywords = ["fullstack", "web", "framework", "reign"]
-categories = ["web-programming"]
-license = "MIT"
-readme = "README.md"
+
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [lib]
 name = "reign_boot"
 path = "src/lib.rs"
 
+[features]
+default = []
+
 [dependencies]
-reign_plugin = { path = "../reign_plugin", version = "0.2.1" }
 dotenvy = "0.15.0"
 env_logger = "0.8.3"
 envy = "0.4.2"
-serde = "1.0.130"
-once_cell = "1.7.2"
+once_cell = { workspace = true }
+reign_plugin = { path = "../reign_plugin", version = "0.2.1" }
+serde = { workspace = true }
 
 [dev-dependencies]
-
-[features]
-default = []
 
 [package.metadata.docs.rs]
 all-features = true

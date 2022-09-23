@@ -1,35 +1,35 @@
 [package]
 name = "reign_plugin_static"
 version = "0.2.1"
-authors = [
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
-]
-edition = "2021"
 description = "Static asset server plugin for reign"
-repository = "https://github.com/pksunkara/reign"
 keywords = ["static", "assets", "web", "reign", "plugin"]
-categories = ["web-programming"]
-license = "MIT"
-readme = "README.md"
+
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [lib]
 name = "reign_plugin_static"
 path = "src/lib.rs"
 
+[features]
+default = []
+
 [dependencies]
-reign_plugin = { path = "../../reign_plugin", version = "0.2.1" }
-log = "0.4.14"
+chrono = { workspace = true }
+hyper = { workspace = true, features = ["stream"] }
+log = { workspace = true }
 mime_guess = "2.0.3"
-tokio = { version = "1.2.0", features = ["fs"] }
-chrono = "0.4.19"
-hyper = { version = "0.14.4", features = ["stream"] }
+reign_plugin = { path = "../../reign_plugin", version = "0.2.1" }
+tokio = { workspace = true, features = ["fs"] }
 
 [dev-dependencies]
 reign = { path = "../../" }
-tokio = { version = "1.2.0", features = ["macros"] }
-
-[features]
-default = []
+tokio = { workspace = true, features = ["macros"] }
 
 [package.metadata.docs.rs]
 all-features = true

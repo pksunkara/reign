@@ -1,37 +1,19 @@
 [package]
 name = "reign_derive"
 version = "0.2.1"
-authors = [
-	"Pavan Kumar Sunkara <pavan.sss1991@gmail.com>"
-]
-edition = "2021"
 description = "Opinionated Fullstack Web Framework in Rust"
-repository = "https://github.com/pksunkara/reign"
 keywords = ["fullstack", "web", "framework", "reign"]
-categories = ["web-programming"]
-license = "MIT"
-readme = "README.md"
+
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [lib]
 proc-macro = true
-
-[dependencies]
-syn = { version = "1.0.76", features = ["full"] }
-quote = "1.0.9"
-proc-macro-error = "1.0.4"
-proc-macro2 = "1.0.29"
-regex = { version = "1.4.3", optional = true }
-Inflector = { version = "0.11.4", optional = true }
-once_cell = { version = "1.7.2", optional = true }
-reign_view = { path = "../reign_view", version = "0.2.1", optional = true }
-serde_json = { version = "1.0.68", optional = true }
-
-[dev-dependencies]
-reign = { path = "../" }
-tokio = { version = "1.2.0", features = ["full"] }
-trybuild = "1.0.41"
-serial_test = "0.5.1"
-rustversion = "1.0.4"
 
 [features]
 default = []
@@ -40,6 +22,25 @@ model-postgres = ["Inflector"]
 view = ["reign_view", "regex", "Inflector", "once_cell"]
 router = []
 hot-reload = ["serde_json"]
+
+[dependencies]
+proc-macro-error = "1.0.4"
+proc-macro2 = "1.0.29"
+quote = "1.0.9"
+syn = { version = "1.0.76", features = ["full"] }
+
+Inflector = { workspace = true, optional = true }
+once_cell = { workspace = true, optional = true }
+regex = { workspace = true, optional = true }
+reign_view = { path = "../reign_view", version = "0.2.1", optional = true }
+serde_json = { workspace = true, optional = true }
+
+[dev-dependencies]
+reign = { path = "../" }
+rustversion = "1.0.4"
+serial_test = "0.5.1"
+tokio = { workspace = true, features = ["full"] }
+trybuild = "1.0.41"
 
 [package.metadata.docs.rs]
 all-features = true
